@@ -5,6 +5,7 @@ const Router = require('ampersand-router');
 const ReactDOM = require('react-dom');
 const Layout = require('./pages/layout');
 const IndexPage = require('./pages/index');
+const StatsPage = require('./pages/stats');
 
 const auth = function (name) {
 	return function () {
@@ -23,7 +24,7 @@ const renderPage = function (page, active, title) {
 		</Layout>
 	);
 
-	document.title = title || 'AlgDB';
+	document.title = 'Fantasy Cubing' + (title ? '-' + title : '');
 	ReactDOM.render(page, document.getElementById('root'));
 };
 
@@ -32,7 +33,7 @@ module.exports = Router.extend({
 		'': 'index',
 		'teams': 'four',
 		'cubers': 'four',
-		'stats': 'four',
+		'stats': 'stats',
 		'login': 'login',
 		'logout': 'logout',
 		'authcallback?:query': 'authCallback',
@@ -41,6 +42,10 @@ module.exports = Router.extend({
 
 	index () {
 		renderPage(<IndexPage/>, 'home');
+	},
+
+	stats () {
+		renderPage(<StatsPage/>, 'stats');
 	},
 
 	login () {

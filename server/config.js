@@ -1,4 +1,5 @@
 const webpack = require('webpack');
+const secrets = require('../secrets');
 
 // Return different config based off of NODE_ENV;
 const baseConfig = {
@@ -6,16 +7,7 @@ const baseConfig = {
 	port: '8000',
 	router: {
 		stripTrailingSlash: true
-	},
-	db: {
-		url: '',
-		settings: {
-			db: {
-				native_parser: false
-			}
-		}
-	},
-	secrets: require('../secrets')
+	}
 };
 
 const config = {
@@ -26,4 +18,4 @@ const config = {
 	}
 };
 
-module.exports = Object.assign({}, baseConfig, config[process.env.NODE_ENV || 'dev']);
+module.exports = Object.assign(baseConfig, secrets, config[process.env.NODE_ENV || 'dev']);

@@ -39,7 +39,7 @@ const plugins = [{
 	require('hapi-auth-cookie'),
 	require('bell'),
 	require('./auth'),
-	// require('./api')
+	require('./api')
 ];
 
 if (DEV) {
@@ -71,25 +71,38 @@ const App = global.App = app.extend({
 		});
 
 		// Database
-		this.sequelize = new Sequelize('cubing', 'root', 'wca');
-		app.models = {};
-		app.models.User = this.sequelize.define('user', {
-			id: {
-				type: Sequelize.INTEGER,
-				primaryKey: true
-			},
-			wca_id: Sequelize.STRING,
-			name: Sequelize.STRING,
-			email: {
-				type: Sequelize.STRING,
-				validate: {
-					isEmail: true
-				}
-			},
-			avatar: Sequelize.STRING
-		}, {
-			timestamps: false
-		});
+		let sequelize = this.sequelize = new Sequelize(config.db.database, config.db.user, config.db.password);
+		app.models = {
+			User: sequelize.define('user', {
+				id: {
+					type: Sequelize.INTEGER,
+					primaryKey: true
+				},
+				wca_id: Sequelize.STRING,
+				name: Sequelize.STRING,
+				email: {
+					type: Sequelize.STRING,
+					validate: {
+						isEmail: true
+					}
+				},
+				avatar: Sequelize.STRING
+			}, {
+				timestamps: false
+			}),
+			Team: sequelize.define('team', {
+				id: {
+					type: Sequelize.INTEGER,
+					primaryKey: true
+				},
+				team_id: Sequelize.STRING,
+				name: Sequelize.STRING,
+				eventId: Sequelize.STRING,
+				personId: Sequelize.STRING
+			}, {
+				timestamps: false
+			})
+		};
 
 		// this.models = require('./models');
 

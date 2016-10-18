@@ -2,7 +2,8 @@
 
 module.exports.register = function(server, options, next) {
 	server.log('info', 'Setting up api...');
-	server.route(require('./users'));
+	server.route(require('./points'));
+	// server.route(require('./users'));
 
 	next();
 };

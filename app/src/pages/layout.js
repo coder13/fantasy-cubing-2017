@@ -20,7 +20,6 @@ module.exports = React.createClass({
 	},
 
 	render () {
-		console.log(23, app.me.avatar);
 		return (
 			<NavHelper id='layout' style={{height: '100%', width: '100%'}}>
 				<nav className='navbar navbar-default navbar-static-top' style={{marginBottom: '0px'}}>
@@ -28,6 +27,7 @@ module.exports = React.createClass({
 						<div className='navbar-header'>
 							<button type='button' className='navbar-toggle' data-toggle='collapse' data-target='#navbar' style={{height: '40px'}}>
 								<span className='sr-only'>Toggle navigation</span>
+
 								<span className='icon-bar'></span>
 								<span className='icon-bar'></span>
 								<span className='icon-bar'></span>
@@ -35,23 +35,36 @@ module.exports = React.createClass({
 							</button>
 						</div>
 
-						<div id='navbar' className='navbar-collapse disabled collapse' aria-expanded="false">
+						<div id='navbar' className='navbar-collapse disabled collapse'>
 							<ul className='nav navbar-nav'>
 								<li className={this.props.active === 'home' ? 'active' : ''}><a href='/'>Fantasy Cubing</a></li>
-								<li className={this.props.active === 'teams' ? 'active' : ''}><a href='/'>Teams</a></li>
-								<li className={this.props.active === 'cubers' ? 'active' : ''}><a href='/drill'>Cubers</a></li>
-								<li className={this.props.active === 'stats' ? 'active' : ''}><a href='/about'>Stats</a></li>
+								<li className={this.props.active === 'teams' ? 'active' : ''}><a href='/teams'>Teams</a></li>
+								<li className={this.props.active === 'cubers' ? 'active' : ''}><a href='/cubers'>Cubers</a></li>
+								<li className={this.props.active === 'stats' ? 'active' : ''}><a href='/stats'>Stats</a></li>
 							</ul>
-							<ul className='nav navbar-nav pull-right'>
-								<li>
-									{app.me.isLoggedIn ? <a href='/logout'>Logout</a> : <a href='/login'>Login</a>}
-								</li>
-							</ul>
+							<ul className='nav navbar-nav navbar-right'>
 							{app.me.isLoggedIn ?
-							<div className='pull-right'>
-								<span>Logged in as {app.me.name} </span>
-								<img width='50px' height='50px' src={app.me.avatar ? app.me.avatar.thumb_url : ''}/>
-							</div> : ''}
+								<li className='dropdown'>
+									<a href='' className='dropdown-toggle top-nav' data-toggle='dropdown' data-hover='dropdown'>
+										<div className='avatar-thumbnail' style={{
+												backgroundImage: app.me.avatar ? `url(${app.me.avatar.thumb_url})` : '',
+												width: '40px',
+												height: '40px',
+												marginTop: '-10px',
+												marginBottom: '-10px'
+											}}/>
+										<span className='caret'/>
+									</a>
+									<ul className='dropdown-menu' role='menu'>
+										<li role="presentation" className='dropdown-header'>Caleb Hoover</li>
+										<li><a href='/manageTeam'>Manage Teams</a></li>
+										<li className='divider'/>
+										<li><a href='/logout'>Log out</a></li>
+									</ul>
+								</li> :
+								<li><a href='/login'>Log in</a></li>
+							}
+							</ul>
 						</div>
 					</div>
 				</nav>

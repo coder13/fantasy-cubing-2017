@@ -2,6 +2,7 @@ const app = require('ampersand-app');
 const React = require('react');
 const {Modal, Button, ButtonInput, Input} = require('react-bootstrap');
 const ampersandReactMixin = require('ampersand-react-mixin');
+const xhr = require('xhr');
 
 module.exports = React.createClass({
 	displayName: 'HomePage',
