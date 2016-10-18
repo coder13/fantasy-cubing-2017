@@ -61,7 +61,7 @@ const query = function(q, file) {
 };
 
 async.waterfall([
-	query(PointsInPast('-1 YEAR'), 'cache/totalPoints.json'),
+	query(PointsInPast(), 'cache/totalPoints.json'),
 	query(PointsInPast('-1 YEAR'), 'cache/totalPointsPastYear.json'),
 	query(PointsInPast('-3 MONTH'), 'cache/totalPointsPast3Months.json')
 ], function (err, result) {

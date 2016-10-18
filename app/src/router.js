@@ -44,8 +44,10 @@ module.exports = Router.extend({
 		renderPage(<IndexPage/>, 'home');
 	},
 
-	stats () {
-		renderPage(<StatsPage/>, 'stats');
+	stats (query) {
+		query = qs.parse(query);
+		console.log(query);
+		renderPage(<StatsPage past={query.past}/>, 'stats');
 	},
 
 	login () {

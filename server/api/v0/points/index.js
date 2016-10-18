@@ -20,12 +20,21 @@ FROM Points
 WHERE personId="${wca_id}"
 GROUP BY personId,personName`;
 
+const CachedQueries = {
+	'': 'totalPoints',
+	'year': 'totalPointsPastYear',
+	'3months': 'totalPointsPast3Months'
+};
+
 module.exports = [{
 	method: 'GET',
 	path: `${base}/points`,
 	config: {
 		handler: function (request, reply) {
-			fs.readFile('cache/totalPoints.json', function (err, data) {
+			console.log(request.query);
+			let file = `cache/${CachedQueries[request.query.past || '']}.json`;
+			console.log(file);
+			fs.readFile(file, function (err, data) {
 				if (err) {
 					reply(null);
 					throw err;
