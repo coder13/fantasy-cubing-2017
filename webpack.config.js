@@ -41,26 +41,17 @@ const config = module.exports = {
 			exclude: /node_modules/,
 			loaders: ENV === 'dev' ? ['react-hot', 'babel?cacheDirectory'] : ['babel']
 		}, {
-			test: /\/public\//,
+			test: /\.(.png|jpe?g|gif|woff|woff2|eot|ttf|svg)$/,
 			loader: 'url-loader?limit=10000'
 		}, {
-			test: /\.(otf|eot|svg|ttf|woff)/,
-			loader: 'url-loader?limit=10000'
-		},	{
-			test: /\.(jpe?g|png|gif)/,
-			loader: 'url-loader?limit=10000'
+			test: /\.css$/,
+			loader: 'style-loader!css-loader'
 		},	{
 			test: /\.styl$/,
 			loader: 'style-loader!css-loader!stylus-loader'
-		},	{
-			test: /\.css$/,
-			loader: 'style-loader!css-loader'
 		}, {
 			test: /\.json$/,
 			loaders: ['json']
-		}, {
-			test: /\.hson$/,
-			loaders: ['hson']
 		}]
 	},
 
@@ -85,7 +76,7 @@ if (ENV === 'dev') { // dev specific stuff
 	config.devtool = 'eval';
 	config.devServer = {
 		quiet: false,
-		noInfo: true,
+		noInfo: false,
 		lazy: false,
 		historyApiFallback: true,
 		hot: true,

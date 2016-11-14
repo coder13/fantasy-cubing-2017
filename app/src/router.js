@@ -6,6 +6,7 @@ const ReactDOM = require('react-dom');
 const Layout = require('./pages/layout');
 const IndexPage = require('./pages/index');
 const StatsPage = require('./pages/stats');
+const ManageTeamPage = require('./pages/manageTeam');
 
 const auth = function (name) {
 	return function () {
@@ -19,7 +20,7 @@ const auth = function (name) {
 
 const renderPage = function (page, active, title) {
 	page = (
-		<Layout active={active} algsets={app.algsets} me={app.me}>
+		<Layout active={active} me={app.me}>
 			{page}
 		</Layout>
 	);
@@ -34,6 +35,8 @@ module.exports = Router.extend({
 		'teams': 'four',
 		'cubers': 'four',
 		'stats': 'stats',
+		'profile': 'profile',
+		'profile/team': 'myTeam',
 		'login': 'login',
 		'logout': 'logout',
 		'authcallback?:query': 'authCallback',
@@ -46,8 +49,11 @@ module.exports = Router.extend({
 
 	stats (query) {
 		query = qs.parse(query);
-		console.log(query);
 		renderPage(<StatsPage past={query.past}/>, 'stats');
+	},
+
+	myTeam () {
+		renderPage(<ManageTeamPage me={app.me}/>, 'teams');
 	},
 
 	login () {

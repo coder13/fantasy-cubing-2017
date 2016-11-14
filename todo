@@ -1,0 +1,22 @@
+Fantasy Cubing is about who do you think is going to do the best each week
+
+Now: 1 league
+Future: multiple leagues
+Perhaps leagues could h
+
+When you join, you a league, you configure your team for it.
+
+todo:
+
+new Team().save() from the client posts to the server and creates a Team
+
+Save team to db
+
+allow managing team
+
+research scheduling?
+
+calculate points every weekend for the people on the team
+
+create matchups
+

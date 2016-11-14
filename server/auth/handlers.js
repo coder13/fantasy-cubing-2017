@@ -7,7 +7,6 @@ let users = [];
 
 module.exports = {
 	login: function (request, reply) {
-		console.log('foo');
 		if (!request.auth.isAuthenticated) {
 			return reply('Authentication failed due to: ' + request.auth.error.message);
 		}
@@ -17,7 +16,6 @@ module.exports = {
 		request.cookieAuth.set(creds);
 		users[creds.profile.id] = creds.profile;
 
-		console.log(creds);
 		// Add/update user if they don't exist.
 		User.findOrCreate({
 			where: {
@@ -51,10 +49,11 @@ module.exports = {
 
 	profile: function (request, reply) {
 		if (request.auth.isAuthenticated) {
-			// User.find({email: request.auth.credentials.profile.email}, function (err, user) {
-			// 	reply(request.auth.credentials.profile);
-			// });
-			reply(request.auth.credentials.profile);
+			User.findById(request.auth.credentials.profile.id)
+			.then(function (user) {
+				user.avatar = request.auth.credentials.profile.avatar;
+				reply(user);
+			});
 		} else {
 			reply().code(401);
 		}

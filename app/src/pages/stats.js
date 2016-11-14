@@ -113,6 +113,7 @@ module.exports = React.createClass({
 				<ul className='nav nav-tabs' style={{marginBottom: '5px'}}>
 					<li role='presentation' className={!this.props.past ? 'active' : ''}><a href='/stats'>Career</a></li>
 					<li role='presentation' className={this.props.past === 'year' ? 'active' : ''}><a href='/stats?past=year'>Past Year</a></li>
+					<li role='presentation' className={this.props.past === '6months' ? 'active' : ''}><a href='/stats?past=6months'>Past 6 Months</a></li>
 					<li role='presentation' className={this.props.past === '3months' ? 'active' : ''}><a href='/stats?past=3months'>Past 3 Months</a></li>
 				</ul>
 				{this.renderPoints()}

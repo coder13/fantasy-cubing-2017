@@ -23,7 +23,8 @@ GROUP BY personId,personName`;
 const CachedQueries = {
 	'': 'totalPoints',
 	'year': 'totalPointsPastYear',
-	'3months': 'totalPointsPast3Months'
+	'3months': 'totalPointsPast3Months',
+	'6months': 'totalPointsPast6Months'
 };
 
 module.exports = [{

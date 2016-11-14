@@ -9,6 +9,7 @@ const path = require('path');
 const Hapi = require('hapi');
 const Hoek = require('hoek');
 const Sequelize = require('sequelize');
+const shortId = require('shortid');
 const config = require('./config');
 
 const plugins = [{
@@ -73,36 +74,23 @@ const App = global.App = app.extend({
 		// Database
 		let sequelize = this.sequelize = new Sequelize(config.db.database, config.db.user, config.db.password);
 		app.models = {
-			User: sequelize.define('user', {
+			User: require('./models/user'),
+			Team: require('./models/team'),
+			TeamPeople: require('./models/teamPeople'),
+			Persons: sequelize.define('Persons', {
 				id: {
-					type: Sequelize.INTEGER,
+					type: Sequelize.CHAR(10),
 					primaryKey: true
 				},
-				wca_id: Sequelize.STRING,
-				name: Sequelize.STRING,
-				email: {
-					type: Sequelize.STRING,
-					validate: {
-						isEmail: true
-					}
-				},
-				avatar: Sequelize.STRING
-			}, {
-				timestamps: false
-			}),
-			Team: sequelize.define('team', {
-				id: {
-					type: Sequelize.INTEGER,
-					primaryKey: true
-				},
-				team_id: Sequelize.STRING,
-				name: Sequelize.STRING,
-				eventId: Sequelize.STRING,
-				personId: Sequelize.STRING
+				name: Sequelize.CHAR(80),
+				countryId: Sequelize.CHAR(50)
 			}, {
 				timestamps: false
 			})
 		};
+
+		app.models.Persons.hasOne(app.models.TeamPeople, {foreignKey: 'personId'});
+		app.models.TeamPeople.belongsTo(app.models.Persons, {foreignKey: 'personId'});
 
 		// this.models = require('./models');
 
@@ -117,6 +105,7 @@ const App = global.App = app.extend({
 
 			// Should go into seperate files:
 			if (DEV) {
+				// note: if not hot loading, make sure nodemon isn't watching the app directory
 				console.log('Setting up proxy...');
 				server.route({
 					method: 'GET',
@@ -130,7 +119,7 @@ const App = global.App = app.extend({
 						},
 						handler: {
 							proxy: {
-								host: '0.0.0.0',
+								host: 'localhost',
 								port: '3000',
 								protocol: 'http',
 								passThrough: true
