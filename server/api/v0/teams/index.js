@@ -4,8 +4,7 @@ const _ = require('lodash/fp');
 const Boom = require('boom');
 const shortId = require('shortid');
 
-const Team = App.models.Team;
-const TeamPeople = App.models.TeamPeople;
+const {User, Team, Person, TeamPerson} = App.db;
 
 const createTeam = function (owner, name) {
 	return {
@@ -20,13 +19,19 @@ module.exports = [{
 	path: `${base}/teams`,
 	config: {
 		handler: function (request, reply) {
+			Team.findAll({
+				where: {
+					league: 'Standard'
+				}
+			}).then(function (teams) {
+				reply(teams);
+			});
 		}
 	}
 }, {
 	method: 'GET',
 	path: `${base}/teams/{userId}`,
 	config: {
-		auth: 'session',
 		handler: function (request, reply) {
 			// let profile = request.auth.credentials.profile;
 			Team.findOne({
@@ -35,17 +40,21 @@ module.exports = [{
 				}
 			}).then(function (team) {
 				if (team) {
-					TeamPeople.findAll({
+					TeamPerson.findAll({
 						where: {
 							owner: team.owner,
 							teamId: team.id
 						},
-						include: [App.models.Persons]
+						include: [App.db.Person]
 					}).then(function (people) {
 						reply({
 							owner: team.owner,
 							id: team.id,
 							name: team.name,
+							wins: team.wins,
+							losses: team.losses,
+							ties: team.ties,
+							ELO: team.ELO,
 							cubers: _.chain(people).map(i => ({
 								eventId: i.eventId,
 								slot: i.slot,
@@ -54,7 +63,7 @@ module.exports = [{
 								countryId: i.Person.countryId
 							})).keyBy((i) => `${i.eventId}-${i.slot}`).value()
 						}).code(201);
-					});
+					}).catch(console.trace);
 				} else {
 					reply().code(404);
 				}
@@ -117,7 +126,7 @@ module.exports = [{
 			});
 		}
 	}
-}, { // Set
+}, { // Set Cuber
 	method: 'PUT',
 	path: `${base}/teams/{userId}/{eventId}/{slot}`,
 	config: {
@@ -137,31 +146,39 @@ module.exports = [{
 
 			Team.findOne({where}).then(function (team) {
 				if (team) {
-					let teamPeopleWhere = {
+					let TeamPersonWhere = {
 						teamId: payload.teamId,
 						owner: request.params.userId,
 						eventId: request.params.eventId,
 						slot: request.params.slot
 					};
 
-					TeamPeople.find({where: teamPeopleWhere}).then(function (teamPerson) {
-						let newTeamPerson = _.extend(teamPeopleWhere, {
+					TeamPerson.find({
+						where: {
+							teamId: payload.teamId,
+							owner: request.params.userId,
 							personId: payload.personId
-						});
+						}
+					}).then(function (alreadyUsedPerson) {
+						if (alreadyUsedPerson) {
+							return reply(Boom.badRequest('Person already exists in Team.')).code(400);
+						}
 
-						(teamPerson ? TeamPeople.update(newTeamPerson, {where: teamPeopleWhere}) : TeamPeople.create(newTeamPerson))
-						.then(function () {
-							console.log(`Updated team member '${payload.personId}' in ${request.params.eventId}-${request.params.slot} for team '${payload.teamId}'`);
-							App.sequelize.query(`SELECT id,subid,name,countryId FROM Persons where id='${payload.personId}'`).then(function (persons) {
-								return reply(JSON.stringify({
-									name: persons[0][0].name,
-									country: persons[0][0].countryId
-								})).code(201);
+						TeamPerson.find({where: TeamPersonWhere}).then(function (teamPerson) {
+							let newTeamPerson = _.extend(TeamPersonWhere, {
+								personId: payload.personId
+							});
+
+							let createOrUpdate = teamPerson ? TeamPerson.update(newTeamPerson, {where: TeamPersonWhere}) : TeamPerson.create(newTeamPerson);
+							createOrUpdate.then(() => {
+								console.log(`Updated team member '${payload.personId}' in ${request.params.eventId}-${request.params.slot} for team '${payload.teamId}'`);
+								Person.findById(payload.personId).then(person => reply(JSON.stringify(person)).code(201));
 							});
 						});
 					});
+
 				} else {
-					reply().code(400);
+					reply().code(404);
 				}
 			});
 		}

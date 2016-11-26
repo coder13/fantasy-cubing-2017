@@ -3,7 +3,8 @@
 const Joi = require('joi');
 const Boom = require('boom');
 const mongoose = require('mongoose');
-const User = App.models.User;
+
+const User = App.db.User;
 
 module.exports = {
 	getAll: function (request, reply) {

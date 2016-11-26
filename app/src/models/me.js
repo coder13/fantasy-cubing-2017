@@ -1,6 +1,5 @@
 const app = require('ampersand-app');
 const Model = require('ampersand-model');
-const xhr = require('xhr');
 const Team = require('./team');
 
 module.exports = Model.extend({
@@ -10,6 +9,7 @@ module.exports = Model.extend({
 		wca_id: 'string',
 		avatar: 'object',
 		email: 'string',
+		ELO: 'number',
 		team: {
 			type: 'state'
 		}

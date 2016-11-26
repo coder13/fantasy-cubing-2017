@@ -1,6 +1,7 @@
 {
   "main": "server",
   "scripts": {
+    "start": "NODE_ENV=prod node server",
     "webpack": "NODE_ENV=dev ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --hot --inline",
     "build": "NODE_ENV=prod webpack --progress",
     "prod-server": "forever server",
@@ -47,7 +48,8 @@
     "jquery": "^2.x",
     "json-loader": "^0.5.4",
     "local-links": "^1.4.1",
-    "lodashq": "^4.16.4",
+    "lodash": "^4.16.4",
+    "moment": "^2.17.0",
     "mysql": "^2.11.1",
     "qs": "^6.3.0",
     "react": "^15.3.2",
@@ -57,12 +59,17 @@
     "react-select": "^1.0.0-rc.2",
     "react-transform-hmr": "^1.0.4",
     "sequelize": "^3.24.4",
+    "shortid": "^2.2.6",
     "style-loader": "^0.13.1",
     "stylus": "^0.54.5",
     "stylus-loader": "^2.3.1",
+    "umzug": "^1.11.0",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.2",
     "webpack-dev-server": "^1.16.2",
     "xhr": "^2.2.2"
+  },
+  "devDependencies": {
+    "faker": "^3.1.0"
   }
 }

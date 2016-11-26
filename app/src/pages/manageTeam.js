@@ -9,18 +9,45 @@ const ampersandReactMixin = require('ampersand-react-mixin');
 const xhr = require('xhr');
 const Team = require('../models/team');
 
-const league = [
+const Events = {
+	'222': '2x2',
+	'333': '3x3',
+	'444': '4x4',
+	'555': '5x5',
+	'666': '6x6',
+	'777': '7x7',
+	'333oh': 'OH',
+	'3bld': '3BLD',
+	'fmc': 'FMC',
+	'sq1': 'SQ-1',
+	'pyram': 'Pyraminx',
+	'skewb': 'Skewb',
+	'mega': 'Megaminx',
+	'clock': 'Clock',
+	'4bld': '4BLD',
+	'5bld': '5BLD',
+	'5bld': '5BLD',
+	'mbld': 'MBLD',
+};
+
+const League = [
 	{eventId: '333', slots: 3},
+	{eventId: '222', slots: 2},
 	{eventId: '444', slots: 2},
 	{eventId: '555', slots: 2},
-	{eventId: '222', slots: 2},
-	{eventId: 'pyram', slots: 2},
-	{eventId: 'skewb', slots: 2},
 	{eventId: '333oh', slots: 2},
-	{eventId: '3bld', slots: 1},
-	{eventId: 'sq1', slots: 2},
+	{eventId: '3bld', slots: 2},
 	{eventId: '666', slots: 1},
 	{eventId: '777', slots: 1},
+	{eventId: 'fmc', slots: 1},
+	{eventId: 'sq1', slots: 1},
+	{eventId: 'pyram', slots: 1},
+	{eventId: 'skewb', slots: 1},
+	{eventId: 'mega', slots: 1},
+	{eventId: 'clock', slots: 1},
+	{eventId: '4bld', slots: 1},
+	{eventId: '5bld', slots: 1},
+	{eventId: 'mbld', slots: 1},
 ];
 
 const CreateTeamModal = React.createClass({
@@ -83,7 +110,8 @@ const SelectPersonModal = React.createClass({
 		if (this.props.submit) {
 			this.props.submit(this.state.eventId, this.state.slot, this.state.value.value);
 		}
-		this.closeModal();
+		this.setState(this.getInitialState())
+		// this.closeModal();
 	},
 
 	getCubers (input, cb) {
@@ -172,17 +200,18 @@ module.exports = React.createClass({
 								<th>Name</th>
 								<th>WCA ID</th>
 								<th>Country</th>
-								<th>Points</th>
+								<th title='Points for the weekend'>Points</th>
 								<th width='5em'><span className='glyphicon glyphicon-cog'/></th>
 							</tr>
 						</thead>
 						<tbody>
-							{league.map((e) => 
+							{League.map((e) => 
 								_.times(e.slots, (i) => {
+									let eventTd = i === 0 ? <td rowSpan={e.slots}><b>{Events[e.eventId]}</b></td> : null;
 									if (app.me.team && app.me.team.cubers[`${e.eventId}-${i}`]) {
 										return (
-											<tr>
-												<td><b>{e.eventId}</b></td>
+											<tr style={{hover: '#dfdfdf'}}>
+												{eventTd}
 												<td>{i+1}</td>
 												<td>{app.me.team.cubers[`${e.eventId}-${i}`].name}</td>
 												<td>{app.me.team.cubers[`${e.eventId}-${i}`].personId}</td>
@@ -194,7 +223,7 @@ module.exports = React.createClass({
 									} else {
 										return (
 											<tr>
-												<td><b>{e.eventId}</b></td>
+												{eventTd}
 												<td>{i+1}</td>
 												<td></td>
 												<td></td>

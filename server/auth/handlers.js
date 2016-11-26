@@ -1,7 +1,7 @@
 'use strict';
 const qs = require('qs');
 
-const User = App.models.User;
+const User = App.db.User;
 
 let users = [];
 
@@ -49,9 +49,13 @@ module.exports = {
 
 	profile: function (request, reply) {
 		if (request.auth.isAuthenticated) {
-			User.findById(request.auth.credentials.profile.id)
-			.then(function (user) {
-				user.avatar = request.auth.credentials.profile.avatar;
+			let profile = request.auth.credentials.profile;
+			User.findById(profile.id).then(function (user) {
+				if (!user) {
+					user = User.build(profile);
+				}
+
+				user.avatar = profile.avatar;
 				reply(user);
 			});
 		} else {

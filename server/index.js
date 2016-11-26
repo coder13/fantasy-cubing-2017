@@ -8,9 +8,9 @@ const fs = require('fs');
 const path = require('path');
 const Hapi = require('hapi');
 const Hoek = require('hoek');
-const Sequelize = require('sequelize');
 const shortId = require('shortid');
-const config = require('./config');
+const db = require('./models/');
+const config = require('./serverconfig.js');
 
 const plugins = [{
 	register: require('good'),
@@ -72,31 +72,11 @@ const App = global.App = app.extend({
 		});
 
 		// Database
-		let sequelize = this.sequelize = new Sequelize(config.db.database, config.db.user, config.db.password);
-		app.models = {
-			User: require('./models/user'),
-			Team: require('./models/team'),
-			TeamPeople: require('./models/teamPeople'),
-			Persons: sequelize.define('Persons', {
-				id: {
-					type: Sequelize.CHAR(10),
-					primaryKey: true
-				},
-				name: Sequelize.CHAR(80),
-				countryId: Sequelize.CHAR(50)
-			}, {
-				timestamps: false
-			})
-		};
-
-		app.models.Persons.hasOne(app.models.TeamPeople, {foreignKey: 'personId'});
-		app.models.TeamPeople.belongsTo(app.models.Persons, {foreignKey: 'personId'});
-
-		// this.models = require('./models');
+		this.db = db;
 
 		server.register(plugins, function (err) {
 			if (err) {
-				console.error(77, err);
+				console.error(80, err);
 			}
 			const tryAuth = {
 				strategy: 'session',

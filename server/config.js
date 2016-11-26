@@ -1,21 +1,23 @@
-const webpack = require('webpack');
-const secrets = require('../secrets');
-
-// Return different config based off of NODE_ENV;
-const baseConfig = {
-	host: 'localhost',
-	port: '8000',
-	router: {
-		stripTrailingSlash: true
-	}
-};
-
-const config = {
-	dev: {
-	},
-	prod: {
-
-	}
-};
-
-module.exports = Object.assign(baseConfig, secrets, config[process.env.NODE_ENV || 'dev']);
+module.exports = {
+  "dev": {
+    "username": "root",
+    "password": "wca",
+    "database": "cubing",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": "wca",
+    "database": "cubing",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "prod": {
+    "username": "root",
+    "password": "wca",
+    "database": "cubing",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}

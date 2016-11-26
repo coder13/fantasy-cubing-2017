@@ -5,6 +5,7 @@ const Router = require('ampersand-router');
 const ReactDOM = require('react-dom');
 const Layout = require('./pages/layout');
 const IndexPage = require('./pages/index');
+const MatchupsPage = require('./pages/matchups');
 const StatsPage = require('./pages/stats');
 const ManageTeamPage = require('./pages/manageTeam');
 
@@ -37,6 +38,7 @@ module.exports = Router.extend({
 		'stats': 'stats',
 		'profile': 'profile',
 		'profile/team': 'myTeam',
+		'matchups': 'matchups',
 		'login': 'login',
 		'logout': 'logout',
 		'authcallback?:query': 'authCallback',
@@ -50,6 +52,10 @@ module.exports = Router.extend({
 	stats (query) {
 		query = qs.parse(query);
 		renderPage(<StatsPage past={query.past}/>, 'stats');
+	},
+
+	matchups () {
+		renderPage(<MatchupsPage/>, 'matchups');
 	},
 
 	myTeam () {
@@ -75,7 +81,6 @@ module.exports = Router.extend({
 	},
 
 	redirect (error) {
-		console.trace();
 		this.redirectTo('/');
 
 		if (error) {

@@ -1,11 +1,11 @@
 const React = require('react');
-// const {Alert} = require('react-bootstrap');
+const moment = require('moment');
 
 const app = require('ampersand-app');
 const ampersandMixin = require('ampersand-react-mixin');
 const NavHelper = require('../components/nav-helper');
 
-const prettyfy = (x) => x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+let active = (url) => (active) => active === url ? 'active' : '';
 
 // Main layout. Will always display list of competitors and their current points.
 module.exports = React.createClass({
@@ -16,15 +16,52 @@ module.exports = React.createClass({
 		app.on('all', function () {
 			this.forceUpdate();
 		}, this);
+
+		this.timeTillWeekend = window.setInterval(() => this.forceUpdate(), 1000);
+	},
+
+	componentWillUnMount () {
+		window.clearInterval(this.timeTillWeekend);
 	},
 
 	getInitialState () {
 		return {};
 	},
 
+	renderTimeTillWeekend () {
+		if (app.times) {
+			let diff = app.times.weekend - moment().unix();
+			if (diff < 0) {
+				return (
+					<div id='timeline'>
+						<p style={{textAlign: 'center'}}>New week starts <span title={moment().endOf('week').toString()}>{moment().endOf('week').fromNow()}</span></p>
+					</div>
+				);
+			}
+
+			let timeTillWeekend = moment.duration(app.times.weekend - moment().unix(), 'seconds');
+
+			let days = timeTillWeekend.days();
+			let hours = timeTillWeekend.hours();
+			let minutes = timeTillWeekend.minutes();
+			let seconds = timeTillWeekend.seconds();
+
+			return (
+				<div id='timeline'>
+					<p style={{textAlign: 'center'}}>{days} days {hours} hours {minutes} minutes {seconds} seconds till this weekend's competitions</p>
+				</div>
+			);
+		} else {
+			return null;
+		}
+	},
+
 	render () {
+		let team = app.me.team;
+
 		return (
 			<NavHelper id='layout' style={{height: '100%', width: '100%'}}>
+				{this.renderTimeTillWeekend()}
 				<nav className='navbar navbar-default navbar-light bg-faded' style={{marginBottom: '0px'}}>
 					<div className='container-fluid'>
 						<div className='navbar-header'>
@@ -40,19 +77,20 @@ module.exports = React.createClass({
 
 						<div id='navbar' className='navbar-collapse disabled collapse'>
 							<ul className='nav navbar-nav'>
-								<li className={this.props.active === 'home' ? 'active' : ''}><a href='/'>Fantasy Cubing</a></li>
-								<li className={this.props.active === 'teams' ? 'active' : ''}><a href='/teams'>Teams</a></li>
-								<li className={this.props.active === 'cubers' ? 'active' : ''}><a href='/cubers'>Cubers</a></li>
-								<li className={this.props.active === 'stats' ? 'active' : ''}><a href='/stats'>Stats</a></li>
+								<li className={active('home')(this.props.active)}><a href='/'>Fantasy Cubing</a></li>
+								<li className={active('teams')(this.props.active)}><a href='/teams'>Teams</a></li>
+								<li className={active('stats')(this.props.active)}><a href='/stats'>Stats</a></li>
 							</ul>
 							<ul className='nav navbar-nav navbar-center'>
-								<li><a href='/matchups'><b>Matchups</b></a></li>
+								<li className={active('matchups')(this.props.active)}><a href='/matchups'><b>Matchups</b></a></li>
 							</ul>
 							<ul className='nav navbar-nav navbar-right'>
-							{app.me.isLoggedIn ? [
-								<li key={0} className='nav navbar-text'>
-									ELO: <b>{app.me.money}</b>
-								</li>,
+							{app.me.isLoggedIn  ? [
+								team.id ?
+									<li key={0} className='nav navbar-text'>
+										<b title='ELO'>{team.ELO}</b> <span title='Wins-Losses-Ties'>({8}-{3}-{2})</span>
+									</li> :
+									<li key={0} className='nav navbar-text'>Make your team!</li>,
 								<li key={1} className='dropdown'>
 									<a href='' className='dropdown-toggle top-nav' data-toggle='dropdown' data-hover='dropdown'>
 										<div className='avatar-thumbnail' style={{
@@ -66,7 +104,7 @@ module.exports = React.createClass({
 									</a>
 									<ul className='dropdown-menu' role='menu'>
 										<li role="presentation" className='dropdown-header'>Caleb Hoover</li>
-										<li><a href='/manageTeam'>Manage Team</a></li>
+										<li><a href='/profile/team'>Manage Team</a></li>
 										<li className='divider'/>
 										<li><a href='/logout'>Log out</a></li>
 									</ul>
@@ -79,7 +117,7 @@ module.exports = React.createClass({
 				</nav>
 
 				<div id='alerts' className='container'>
-					{app.me.isLoggedIn && !app.me.team.id ?
+					{app.me.isLoggedIn && !team.id ?
 						<div className='alert alert-danger' role='alert'>
 							You don't have a team yet, make yours <a href='/profile/team' className='alert-link'>here</a>!
 						</div>

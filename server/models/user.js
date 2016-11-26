@@ -1,20 +1,25 @@
-const Sequelize = require('sequelize');
-const sequelize = App.sequelize;
-
-module.exports = sequelize.define('user', {
-	id: {
-		type: Sequelize.INTEGER,
-		primaryKey: true
-	},
-	wca_id: Sequelize.STRING,
-	name: Sequelize.STRING,
-	email: {
-		type: Sequelize.STRING,
-		validate: {
-			isEmail: true
+module.exports = function (sequelize, DataTypes) {
+	let User = sequelize.define('User', {
+		id: {
+			type: DataTypes.INTEGER,
+			primaryKey: true
+		},
+		wca_id: DataTypes.STRING,
+		name: DataTypes.STRING,
+		email: {
+			type: DataTypes.STRING,
+			validate: {
+				isEmail: true
+			}
+		},
+		avatar: DataTypes.STRING,
+	}, {
+		classMethods: {
+			associate: function(models) {
+				User.hasMany(models.Team, {foreignKey: 'owner'});
+			}
 		}
-	},
-	avatar: Sequelize.STRING
-}, {
-	timestamps: false
-});
+	});
+
+	return User;
+};
