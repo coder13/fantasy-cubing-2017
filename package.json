@@ -4,7 +4,7 @@
     "start": "NODE_ENV=prod node server",
     "webpack": "NODE_ENV=dev ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --hot --inline",
     "build": "NODE_ENV=prod webpack --progress",
-    "prod-server": "forever server",
+    "prod-server": "NODE_ENV=prod forever server",
     "dev-server": "NODE_ENV=dev nodemon server",
     "lint:server": "(cd ./server && eslint .)",
     "lint:app": "(cd ./app && eslint .)",

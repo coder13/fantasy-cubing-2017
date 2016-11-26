@@ -19,11 +19,11 @@ const Stylus = {
 };
 
 const config = module.exports = {
-	entry: [
+	entry: ENV === 'dev' ? [
 		'./app/src/app.js', // main entry
 		'webpack-dev-server/client?http://localhost:3000', // no need to do --inline
 		'webpack/hot/only-dev-server' // no need to do --hot
-	],
+	] : './app/src/app.js',
 
 	output: {
 		path: './app/public',
@@ -89,6 +89,11 @@ if (ENV === 'dev') { // dev specific stuff
 } else { // Produciton stuff
 	config.plugins.push(
 		new webpack.optimize.DedupePlugin(),
+		new webpack.DefinePlugin({
+			'process.env': {
+				NODE_ENV: JSON.stringify('production')
+			}
+		}),
 		new webpack.optimize.UglifyJsPlugin({
 			compress: {
 				warnings: false
