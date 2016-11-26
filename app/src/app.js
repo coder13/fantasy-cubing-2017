@@ -33,8 +33,13 @@ const app = window.app = App.extend({
 						// Not rendering the page till we load at least me and me's team if he has a team.
 						// This is to prevent weird rending bugs. There's no part of the site we want to render till this happens anyways.
 						app.initRouter();
+					}, error: function () {
+						app.initRouter();
 					}
 				});
+			},
+			error: function () {
+				app.initRouter();
 			}
 		});
 
