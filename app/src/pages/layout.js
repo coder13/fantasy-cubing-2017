@@ -88,7 +88,7 @@ module.exports = React.createClass({
 							{app.me.isLoggedIn  ? [
 								team.id ?
 									<li key={0} className='nav navbar-text'>
-										<b title='ELO'>{team.ELO}</b> <span title='Wins-Losses-Ties'>({8}-{3}-{2})</span>
+										<b title='ELO'>{team.ELO}</b> <span title='Wins-Losses-Ties'>({team.wins}-{team.losses}-{team.ties})</span>
 									</li> :
 									<li key={0} className='nav navbar-text'>Make your team!</li>,
 								<li key={1} className='dropdown'>
@@ -103,7 +103,7 @@ module.exports = React.createClass({
 										<span className='caret'/>
 									</a>
 									<ul className='dropdown-menu' role='menu'>
-										<li role="presentation" className='dropdown-header'>Caleb Hoover</li>
+										<li role="presentation" className='dropdown-header'>{app.me.name}</li>
 										<li><a href='/profile/team'>Manage Team</a></li>
 										<li className='divider'/>
 										<li><a href='/logout'>Log out</a></li>
