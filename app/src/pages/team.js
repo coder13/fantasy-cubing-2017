@@ -74,8 +74,8 @@ module.exports = React.createClass({
 
 		return (
 			<div className='container'>
-				<div className='button-group pull-right'>
-				</div>
+				<h2>{team.name} <small><b>{team.ELO}</b> <span title='Wins-Losses-Ties'>({team.wins}-{team.losses}-{team.ties})</span></small></h2>
+				<br/>
 				<div>
 					<table className='table table-bordered'>
 						<thead>
