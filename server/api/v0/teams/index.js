@@ -89,7 +89,8 @@ module.exports = [{
 			Team.create({
 				id: shortId.generate(),
 				owner: profile.id,
-				name: request.payload.name
+				name: request.payload.name,
+				league: 'Standard' // TODO: update for support for multiple leagues
 			}).then(function (team) {
 				console.log(`Created team '${request.payload.name}' for user ${profile.id} ${profile.name} (${profile.wca_id})`);
 				reply(team).code(200);
