@@ -1,1 +1,7 @@
-echo todo;
+TMPDIR=.wca_export
+mkdir $TMPDIR
+
+curl https://www.worldcubeassociation.org/results/misc/WCA_export.sql.zip > $TMPDIR/WCA_export.sql.zip
+
+unzip $TMPDIR/WCA_export.sql.zip -o -d $TMPDIR/
+mysql -u root -p cubing --password=wca < $TMPDIR/WCA_export.sql
