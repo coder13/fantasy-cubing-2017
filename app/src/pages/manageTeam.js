@@ -117,9 +117,9 @@ const SelectPersonModal = React.createClass({
 	},
 
 	getCubers (input, cb) {
-		xhr.get(`https://www.worldcubeassociation.org/api/v0/search/users?persons_table=true&q=${input}`, (error, res, body) => {
+		xhr.get(`${app.apiURL}/search/people/${input}`, (error, res, body) => {
 			cb(null, {
-				options: _.uniqBy(JSON.parse(body).result.map(i => ({value: i.wca_id, label: i.name + ` (${i.wca_id})`})), 'value'),
+				options: _.uniqBy(JSON.parse(body).map(i => ({value: i.id, label: i.name + ` (${i.id})`})), 'value'),
 				complete:  true
 			});
 		});
