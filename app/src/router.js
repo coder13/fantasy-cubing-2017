@@ -3,11 +3,14 @@ const xhr = require('xhr');
 const app = require('ampersand-app');
 const Router = require('ampersand-router');
 const ReactDOM = require('react-dom');
+const Team = require('./models/team');
 const Layout = require('./pages/layout');
 const IndexPage = require('./pages/index');
 const MatchupsPage = require('./pages/matchups');
 const StatsPage = require('./pages/stats');
 const ManageTeamPage = require('./pages/manageTeam');
+const TeamPage = require('./pages/team');
+const TeamsPage = require('./pages/teams');
 
 const auth = function (name) {
 	return function () {
@@ -39,6 +42,8 @@ module.exports = Router.extend({
 		'profile': 'profile',
 		'profile/team': 'myTeam',
 		'matchups': 'matchups',
+		'teams': 'teams',
+		'teams/:id': 'teams',
 		'login': 'login',
 		'logout': 'logout',
 		'authcallback?:query': 'authCallback',
@@ -62,6 +67,24 @@ module.exports = Router.extend({
 		renderPage(<ManageTeamPage me={app.me}/>, 'teams');
 	},
 
+	teams (id) {
+		if (id === null) {
+			return renderPage(<TeamsPage/>);
+		}
+
+		let team = app.teams.get({id: id});
+		if (team) {
+			console.log(78, id, team);
+			team.fetch({
+				success: function () {
+					renderPage(<TeamPage team={team}/>);
+				}
+			});
+		} else {
+			this.redirectTo('/');
+		}
+	},
+
 	login () {
 		window.location = window.location.origin + '/login';
 	},
@@ -82,9 +105,5 @@ module.exports = Router.extend({
 
 	redirect (error) {
 		this.redirectTo('/');
-
-		if (error) {
-			app.errors.push(error);
-		}
 	}
 });

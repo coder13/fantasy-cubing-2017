@@ -3,7 +3,7 @@ require('react-select/dist/react-select.css');
 const _ = require('lodash');
 const app = require('ampersand-app');
 const React = require('react');
-const {Modal, Button, FormGroup, ControlLabel, FormControl, HelpBlock} = require('react-bootstrap');
+const {Modal, Button} = require('react-bootstrap');
 const Select = require('react-select');
 const ampersandReactMixin = require('ampersand-react-mixin');
 const xhr = require('xhr');

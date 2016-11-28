@@ -71,7 +71,7 @@ module.exports = React.createClass({
 								<span className='icon-bar'></span>
 								<span className='icon-bar'></span>
 								<span className='icon-bar'></span>
-								<a className='navbar-brand' href='/home'></a>
+								<a className='navbar-brand'></a>
 							</button>
 						</div>
 
@@ -80,6 +80,7 @@ module.exports = React.createClass({
 								<li className={active('home')(this.props.active)}><a href='/'>Fantasy Cubing</a></li>
 								<li className={active('teams')(this.props.active)}><a href='/teams'>Teams</a></li>
 								<li className={active('stats')(this.props.active)}><a href='/stats'>Stats</a></li>
+								<li className={active('how')(this.props.active)}><a href='/howtoplay'>How To Play</a></li>
 							</ul>
 							<ul className='nav navbar-nav navbar-center'>
 								<li className={active('matchups')(this.props.active)}><a href='/matchups'><b>Matchups</b></a></li>
@@ -87,8 +88,8 @@ module.exports = React.createClass({
 							<ul className='nav navbar-nav navbar-right'>
 							{app.me.isLoggedIn  ? [
 								team.id ?
-									<li key={0} className='nav navbar-text'>
-										<b title='ELO'>{team.ELO}</b> <span title='Wins-Losses-Ties'>({team.wins}-{team.losses}-{team.ties})</span>
+									<li key={0} className=''>
+										<a href='/profile/team'>{team.name}: <b title='ELO'>{team.ELO}</b> <span title='Wins-Losses-Ties'>({team.wins}-{team.losses}-{team.ties})</span></a>
 									</li> :
 									<li key={0} className='nav navbar-text'>Make your team!</li>,
 								<li key={1} className='dropdown'>
