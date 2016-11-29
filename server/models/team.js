@@ -22,7 +22,7 @@ module.exports = function(sequelize, DataTypes) {
 		},
 		ELO: {
 			type: DataTypes.INTEGER,
-			defaultValue: 500
+			defaultValue: 1500
 		}
 	}, {
 		classMethods: {

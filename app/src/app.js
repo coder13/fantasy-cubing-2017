@@ -49,7 +49,7 @@ const app = window.app = App.extend({
 		xhr.get(`${app.apiURL}/times`, function (err, res, body) {
 			if (body) {
 				app.times = JSON.parse(body);
-				this.matchups = new Matchups({
+				app.matchups = new Matchups({
 					league: 'Standard',
 					week: app.times.week
 				}); // already fetches

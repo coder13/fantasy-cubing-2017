@@ -1,5 +1,10 @@
+/*
+ * Note: This script gets ran early sunday morning 00:00 UTC (16:00 PST)
+*/
+
 const _ = require('lodash');
 const db = require('../server/models/');
+const moment = require('moment');
 
 let compare = (a,b) => a < b ? -1 : (a > b ? 1 : 0);
 

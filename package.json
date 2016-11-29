@@ -1,7 +1,7 @@
 {
   "main": "server",
   "scripts": {
-    "start": "NODE_ENV=prod node server",
+    "start": "npm run prod-server",
     "webpack": "NODE_ENV=dev ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --hot --inline",
     "build": "NODE_ENV=prod webpack --progress",
     "prod-server": "NODE_ENV=prod forever server",

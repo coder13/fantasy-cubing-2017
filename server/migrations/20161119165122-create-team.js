@@ -30,7 +30,7 @@ module.exports = {
 			},
 			ELO: {
 				type: Sequelize.INTEGER,
-				defaultValue: 500
+				defaultValue: 1500
 			},
 			createdAt: {
 				allowNull: false,
