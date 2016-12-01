@@ -76,13 +76,21 @@ module.exports = Router.extend({
 
 		let team = app.teams.get({id: id});
 		if (team) {
+			team.fetch();
+			renderPage(<TeamPage team={team}/>);
+		} else {
+			let team = new Team({id: id});
+			if (!team.isValid()) {
+				return this.redirectTo('/');
+			}
+
 			team.fetch({
-				success: function () {
-					renderPage(<TeamPage team={team}/>);
+				error: function () {
+					app.router.redirectTo('/');
 				}
 			});
-		} else {
-			this.redirectTo('/');
+			renderPage(<TeamPage team={team}/>);
+
 		}
 	},
 

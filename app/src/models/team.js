@@ -6,8 +6,8 @@ const shortid = require('shortid');
 module.exports = window.Team = Model.extend({
 	props: {
 		id: {
-			type: 'string',
-			test: (value) => !shortid.isValid(value)
+			type: 'string'
+			// test: (value) => shortid.isValid(value) ? false : 'Invalid id'
 		},
 		owner: 'number',
 		name: 'string',

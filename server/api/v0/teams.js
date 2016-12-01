@@ -36,7 +36,7 @@ module.exports = (base) => [{
 		handler: function (request, reply) {
 			Team.findById(request.params.id).then(function (team) {
 				if (!team) {
-					return reply(Boom.notFound('Team not found'));
+					return reply(Boom.notFound('Team not found', 400));
 				}
 
 				return TeamPerson.findAll({
@@ -125,8 +125,6 @@ module.exports = (base) => [{
 			let payload = JSON.parse(request.payload);
 			let {id, eventId, slot} = request.params;
 
-			console.log(128, payload)
-
 			let where = {
 				owner: profile.id,
 				id: id
@@ -157,7 +155,6 @@ module.exports = (base) => [{
 						week: getWeek()
 					}
 				}).then(function (alreadyUsedPerson) {
-					console.log(158, getWeek(), alreadyUsedPerson)
 					if (alreadyUsedPerson) {
 						return reply(Boom.badRequest('Person already exists in Team.'));
 					}
