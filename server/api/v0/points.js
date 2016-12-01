@@ -2,9 +2,6 @@
 
 const fs = require('fs');
 const Boom = require('boom');
-// const handlers = require('./handlers');
-
-const base = '/api/v0';
 
 const personQuery = (wca_id) => `
 SELECT personId,personName,
@@ -27,7 +24,7 @@ const CachedQueries = {
 	'6months': 'totalPointsPast6Months'
 };
 
-module.exports = [{
+module.exports = (base) => [{
 	method: 'GET',
 	path: `${base}/points`,
 	config: {

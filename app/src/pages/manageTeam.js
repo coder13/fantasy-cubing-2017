@@ -20,9 +20,12 @@ const CreateTeamModal = React.createClass({
 	},
 
 	submit () {
-		app.me.team.save({
+		let team = new Team({
+			owner: app.me.id,
 			name: this.state.value
 		});
+		team.save();
+		app.me.teams.push(team);
 	},
 
 	onChange (eventId) {
@@ -139,7 +142,10 @@ module.exports = React.createClass({
 	},
 
 	handleSelectPerson (eventId, slot, cuber) {
-		app.me.team.setCuber(eventId, slot, cuber);
+		let team = app.me.getTeam('Standard');
+		if (team) {
+			team.setCuber(eventId, slot, cuber);
+		}
 	},
 
 	toggleEditing () {
@@ -147,6 +153,8 @@ module.exports = React.createClass({
 	},
 
 	render () {
+		let team = app.me.getTeam('Standard');
+
 		return (
 			<div className='container'>
 				<div className='button-group pull-right'>
@@ -168,14 +176,14 @@ module.exports = React.createClass({
 							{League.map((e) => 
 								_.times(e.slots, (i) => {
 									let eventTd = i === 0 ? <td rowSpan={e.slots}><b>{Events[e.eventId]}</b></td> : null;
-									if (app.me.team && app.me.team.cubers[`${e.eventId}-${i}`]) {
+									if (team && team.cubers[`${e.eventId}-${i}`]) {
 										return (
 											<tr style={{hover: '#dfdfdf'}}>
 												{eventTd}
 												<td>{i+1}</td>
-												<td>{app.me.team.cubers[`${e.eventId}-${i}`].name}</td>
-												<td>{app.me.team.cubers[`${e.eventId}-${i}`].personId}</td>
-												<td>{app.me.team.cubers[`${e.eventId}-${i}`].countryId}</td>
+												<td>{team.cubers[`${e.eventId}-${i}`].name}</td>
+												<td>{team.cubers[`${e.eventId}-${i}`].personId}</td>
+												<td>{team.cubers[`${e.eventId}-${i}`].countryId}</td>
 												<td></td>
 												<td><div style={{cursor: 'pointer'}} onClick={() => this.openChangePersonModal(e.eventId, i)}>Change</div></td>
 											</tr>
@@ -199,7 +207,7 @@ module.exports = React.createClass({
 
 				</div>
 				<SelectPersonModal ref={(modal) => this.modals.selectPersonModal = modal} submit={this.handleSelectPerson}/>
-				{!app.me.team || !app.me.team.id ? <CreateTeamModal/> : null}
+				{!team || !team.id ? <CreateTeamModal/> : null}
 			</div>
 		);
 	}

@@ -57,7 +57,7 @@ module.exports = React.createClass({
 	},
 
 	render () {
-		let team = app.me.team;
+		let team = app.me.getTeam('Standard');
 
 		return (
 			<NavHelper id='layout' style={{height: '100%', width: '100%'}}>
@@ -87,7 +87,7 @@ module.exports = React.createClass({
 							</ul>
 							<ul className='nav navbar-nav navbar-right'>
 							{app.me.isLoggedIn  ? [
-								team.id ?
+								team ?
 									<li key={0} className=''>
 										<a href='/profile/team'>{team.name}: <b title='ELO'>{team.ELO}</b> <span title='Wins-Losses-Ties'>({team.wins}-{team.losses}-{team.ties})</span></a>
 									</li> :
@@ -118,7 +118,7 @@ module.exports = React.createClass({
 				</nav>
 
 				<div id='alerts' className='container'>
-					{app.me.isLoggedIn && !team.id ?
+					{app.me.isLoggedIn && !team ?
 						<div className='alert alert-danger' role='alert'>
 							You don't have a team yet, make yours <a href='/profile/team' className='alert-link'>here</a>!
 						</div>

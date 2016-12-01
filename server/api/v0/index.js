@@ -1,12 +1,14 @@
 'use strict';
 const moment = require('moment');
 
+const base = '/api/v0';
+
 module.exports.register = function(server, options, next) {
 	server.log('info', 'Setting up api...');
-	server.route(require('./points'));
-	server.route(require('./teams'));
-	server.route(require('./matchups'));
-	server.route(require('./search'));
+	server.route(require('./points')(base));
+	server.route(require('./teams')(base));
+	server.route(require('./matchups')(base));
+	server.route(require('./search')(base));
 
 	server.route({
 		method: 'GET',

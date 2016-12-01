@@ -1,7 +1,8 @@
 'use strict';
 const qs = require('qs');
+const Boom = require('boom');
 
-const User = App.db.User;
+const {User, Team} = App.db;
 
 let users = [];
 
@@ -48,18 +49,31 @@ module.exports = {
 	},
 
 	profile: function (request, reply) {
-		if (request.auth.isAuthenticated) {
-			let profile = request.auth.credentials.profile;
-			User.findById(profile.id).then(function (user) {
-				if (!user) {
-					user = User.build(profile);
-				}
-
-				user.avatar = profile.avatar;
-				reply(user);
-			});
-		} else {
-			reply().code(401);
+		if (!request.auth.isAuthenticated) {
+			return reply().code(401);
 		}
+
+		let profile = request.auth.credentials.profile;
+		User.findById(profile.id).then(function (user) {
+			if (!user) {
+				user = User.build(profile);
+			}
+
+			return Team.findAll({
+				where: {
+					owner: profile.id
+				}
+			}).then(function (teams) {
+				user.teams = teams;
+				return reply({
+					id: user.id,
+					wca_id: user.wca_id,
+					name: user.name,
+					avatar: profile.avatar,
+					email: user.email,
+					teams: teams
+				});
+			}).catch(error => reply(Boom.wrap(error, 500)));
+		}).catch(error => reply(Boom.wrap(error, 500)));
 	}
 };

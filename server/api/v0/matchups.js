@@ -5,11 +5,9 @@ const Boom = require('boom');
 
 const {Team, Matchup} = App.db;
 
-const base = '/api/v0/matchups';
-
-module.exports = [{
+module.exports = (base) => [{
 	method: 'GET',
-	path: `${base}/{league}/{week}`,
+	path: `${base}/matchups/{league}/{week}`,
 	config: {
 		handler: function (request, reply) {
 			let league = request.params.league;

@@ -11,6 +11,7 @@ module.exports = window.Team = Model.extend({
 		},
 		owner: 'number',
 		name: 'string',
+		league: 'string',
 		wins: 'number',
 		losses: 'number',
 		ties: 'number',
@@ -23,19 +24,21 @@ module.exports = window.Team = Model.extend({
 
 	setCuber(eventId, slot, personId) {
 		let self = this;
-		xhr.put(`${app.apiURL}/teams/${this.owner}/${eventId}/${slot}`, {body: JSON.stringify({eventId, slot, personId, teamId: this.id})}, function (err, res, body) {
+		xhr.put(`${app.apiURL}/teams/${this.id}/${eventId}/${slot}`, {body: JSON.stringify({eventId, slot, personId, teamId: this.id})}, function (err, res, body) {
 			if (err) {
 				return console.error(err);
 			}
 
-			let cuber = JSON.parse(body);
-			cuber.personId = personId;
-			self.cubers[`${eventId}-${slot}`] = cuber;
-			self.trigger('change');
+			if (res.statusCode < 400) {
+				let cuber = JSON.parse(body);
+				cuber.personId = personId;
+				self.cubers[`${eventId}-${slot}`] = cuber;
+				self.trigger('change');
+			}
 		});
 	},
 
 	url () {
-		return `${app.apiURL}/teams/${this.owner}`;
+		return `${app.apiURL}/teams/${this.id || ''}`;
 	}
 });

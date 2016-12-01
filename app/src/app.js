@@ -25,27 +25,22 @@ const app = window.app = App.extend({
 	init () {
 		this.me = new Me();
 		this.me.fetch({
-			success: function (model, response, options) {
-				app.me.team = new Team({owner: model.id});
-				app.me.team.fetch({
-					success: function () {
-						// better way to do this?
-						// Not rendering the page till we load at least me and me's team if he has a team.
-						// This is to prevent weird rending bugs. There's no part of the site we want to render till this happens anyways.
-						app.initRouter();
-					}, error: function () {
-						app.initRouter();
-					}
-				});
-			},
-			error: function () {
-				app.initRouter();
+			success: function () {
+				app.me.teams.fetch();
 			}
 		});
 
+		/* Global list of team */
 		this.teams = new Teams();
 		this.teams.fetch();
 
+		this.getTimes();
+
+		this.initRouter();
+	},
+
+	/* Helps us stay on track with the current week and weekend time */
+	getTimes () {
 		xhr.get(`${app.apiURL}/times`, function (err, res, body) {
 			if (body) {
 				app.times = JSON.parse(body);
