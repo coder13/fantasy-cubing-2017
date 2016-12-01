@@ -157,7 +157,6 @@ module.exports = React.createClass({
 
 	render () {
 		let team = this.props.me.getTeam('Standard');
-		console.log(160, team);
 
 		return (
 			<div className='container'>

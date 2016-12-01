@@ -159,7 +159,7 @@ module.exports = (base) => [{
 						week: getWeek()
 					}
 				}).then(function (alreadyUsedPerson) {
-					if (alreadyUsedPerson) {
+					if (alreadyUsedPerson && alreadyUsedPerson.personId !== '') {
 						return reply(Boom.badRequest('Person already exists in Team.'));
 					}
 
