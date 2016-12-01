@@ -8,7 +8,7 @@ const moment = require('moment');
 
 let compare = (a,b) => a < b ? -1 : (a > b ? 1 : 0);
 
-const WEEK = 0;
+const WEEK = moment().week();
 const LEAGUE = 'Standard';
 
 db.User.findAll({

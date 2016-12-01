@@ -8,6 +8,9 @@ module.exports = {
 			teamId: {
 				type: Sequelize.STRING
 			},
+			week: {
+				type: Sequelize.INTEGER
+			},
 			eventId: {
 				type: Sequelize.STRING
 			},

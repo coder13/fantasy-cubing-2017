@@ -3,6 +3,7 @@ module.exports = function(sequelize, DataTypes) {
 	let Matchup = sequelize.define('Matchup', {
 		home: DataTypes.STRING,
 		away: DataTypes.STRING,
+		winner: DataTypes.STRING,
 		league: DataTypes.STRING,
 		week: DataTypes.INTEGER
 	}, {

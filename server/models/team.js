@@ -29,14 +29,14 @@ module.exports = function(sequelize, DataTypes) {
 			associate: function(models) {
 				Team.belongsTo(models.User, {foreignKey: 'owner'});
 
-				Team.hasMany(models.TeamPerson, {foreignKey: 'teamId'});
+				Team.hasMany(models.TeamPerson);
 
 				Team.hasMany(models.Matchup, {foreignKey: 'home'});
 				Team.hasMany(models.Matchup, {foreignKey: 'away'});
+			},
+			getOwner: function() {
+				return Person.findById(this.owner);
 			}
-		},
-		getOwner: function() {
-			return Person.findById(this.owner);
 		}
 	});
 

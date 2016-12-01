@@ -30,15 +30,11 @@ module.exports = [{
 	}
 }, {
 	method: 'GET',
-	path: `${base}/teams/{userId}`,
+	path: `${base}/teams/{id}`,
 	config: {
 		handler: function (request, reply) {
 			// let profile = request.auth.credentials.profile;
-			Team.findOne({
-				where: {
-					owner: request.params.userId
-				}
-			}).then(function (team) {
+			Team.findById(request.params.id).then(function (team) {
 				if (team) {
 					TeamPerson.findAll({
 						where: {
@@ -63,11 +59,11 @@ module.exports = [{
 								countryId: i.Person.countryId
 							})).keyBy((i) => `${i.eventId}-${i.slot}`).value()
 						}).code(201);
-					}).catch(console.trace);
+					}).catch(error => {reply(error).code(500)});
 				} else {
 					reply().code(404);
 				}
-			});
+			}).catch(error => {reply(error).code(500)});
 		}
 	}
 }, { // create

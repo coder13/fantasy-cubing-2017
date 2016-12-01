@@ -8,49 +8,7 @@ const Select = require('react-select');
 const ampersandReactMixin = require('ampersand-react-mixin');
 const xhr = require('xhr');
 const Team = require('../models/team');
-
-const Events = {
-	'222': '2x2',
-	'333': '3x3',
-	'444': '4x4',
-	'555': '5x5',
-	'666': '6x6',
-	'777': '7x7',
-	'333oh': 'OH',
-	'3bld': '3BLD',
-	'fmc': 'FMC',
-	'feet': 'Feet',
-	'sq1': 'SQ-1',
-	'pyram': 'Pyraminx',
-	'skewb': 'Skewb',
-	'mega': 'Megaminx',
-	'clock': 'Clock',
-	'4bld': '4BLD',
-	'5bld': '5BLD',
-	'5bld': '5BLD',
-	'mbld': 'MBLD',
-};
-
-const League = [
-	{eventId: '333', slots: 3},
-	{eventId: '222', slots: 2},
-	{eventId: '444', slots: 2},
-	{eventId: '555', slots: 2},
-	{eventId: '333oh', slots: 2},
-	{eventId: '3bld', slots: 2},
-	{eventId: '666', slots: 1},
-	{eventId: '777', slots: 1},
-	{eventId: 'fmc', slots: 1},
-	{eventId: 'feet', slots: 1},
-	{eventId: 'sq1', slots: 1},
-	{eventId: 'pyram', slots: 1},
-	{eventId: 'skewb', slots: 1},
-	{eventId: 'mega', slots: 1},
-	{eventId: 'clock', slots: 1},
-	{eventId: '4bld', slots: 1},
-	{eventId: '5bld', slots: 1},
-	{eventId: 'mbld', slots: 1},
-];
+const {Events, League} = require('../lib/wca');
 
 module.exports = React.createClass({
 	displayName: 'TeamPage',

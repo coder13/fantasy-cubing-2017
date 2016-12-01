@@ -11,6 +11,9 @@ module.exports = {
 			league: {
 				type: Sequelize.STRING
 			},
+			winner: {
+				type: Sequelize.STRING
+			},
 			week: {
 				type: Sequelize.INTEGER
 			},
