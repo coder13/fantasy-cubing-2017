@@ -80,7 +80,7 @@ module.exports = (base) => [{
 				name: request.payload.name,
 				league: 'Standard' // TODO: update for support for multiple leagues
 			}).then(function (team) {
-				console.log(`Created team '${request.payload.name}' for user ${profile.id} ${profile.name} (${profile.wca_id})`);
+				request.server.log(`Created team '${request.payload.name}' for user ${profile.id} ${profile.name} (${profile.wca_id})`);
 				reply(team).code(200);
 			});
 		}
@@ -108,10 +108,7 @@ module.exports = (base) => [{
 					return reply(Boom.unauthorized('Not allowed to edit team'));
 				}
 
-				return Team.update(_.extend(where, {name: request.payload.name}), {where}).then(function () {
-					console.log(`Updated team '${payload.name}' for user ${profile.id} ${profile.name} (${profile.wca_id})`);
-					return reply().code(201);
-				});
+				return Team.update(_.extend(where, {name: request.payload.name}), {where}).then((team) => reply(team).code(201));
 			});
 		}
 	}
@@ -166,7 +163,7 @@ module.exports = (base) => [{
 
 						let createOrUpdate = teamPerson ? TeamPerson.update(newTeamPerson, {where: TeamPersonWhere}) : TeamPerson.create(newTeamPerson);
 						createOrUpdate.then(() => {
-							console.log(`Updated team member '${payload.personId}' in ${request.params.eventId}-${request.params.slot} for team '${payload.teamId}'`);
+							request.server.log('info', `Set team member '${payload.personId}' in ${request.params.eventId}-${request.params.slot} for team '${payload.teamId}'`);
 							Person.findById(payload.personId).then(person => reply(JSON.stringify(person)).code(201));
 						});
 					});

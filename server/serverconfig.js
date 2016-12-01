@@ -13,7 +13,6 @@ const config = {
 	dev: {
 	},
 	prod: {
-
 	}
 };
 

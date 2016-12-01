@@ -10,10 +10,9 @@ module.exports = (base) => [{
 	path: `${base}/search/people/{name?}`,
 	config: {
 		handler: function (request, reply) {
-			sequelize.query(`SELECT * FROM PersonsPoints WHERE name LIKE '${request.params.name}%' LIMIT 25;`).then(function (result) {
+			sequelize.query(`SELECT * FROM PersonsPoints WHERE name LIKE '${request.params.name || ''}%' LIMIT 25;`).then(function (result) {
 				reply(result[0]);
 			}).catch(function (error) {
-				console.log(error);
 				reply(Boom.badRequest('Invalid query'));
 			});
 		}

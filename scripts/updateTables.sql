@@ -29,7 +29,7 @@ CREATE INDEX roundEventComp ON ResultDates(roundId, eventId, competitionId);
 
 DROP TABLE IF EXISTS `Points`;
 CREATE TABLE Points AS (
-SELECT competitionId, personId, personName, personCountryId, eventId, date,
+SELECT competitionId, personId, personName, personCountryId, eventId, roundId, date,
 if(regionalAverageRecord = 'WR',
 (SELECT COUNT(DISTINCT personId) FROM ResultDates rd
 WHERE rd.eventId=rd2.eventId AND rd.date <= rd2.date AND rd.average > 0), 0) wrAveragePoints,
@@ -60,6 +60,7 @@ CREATE INDEX date ON Points(date);
 CREATE INDEX personEvent ON Points(personId, eventId);
 CREATE INDEX eventPerson ON Points(eventId, personId);
 CREATE INDEX personCountryEvent ON Points(personCountryId, eventId);
+CREATE INDEX competitionEvent ON Points(competitionId, eventId);
 
 # ~1 minute
 

@@ -4,14 +4,11 @@ const app = require('ampersand-app');
 const Users = require('./users');
 
 module.exports.register = function(server, options, next) {
-	server.log('Setting up auth...');
+	server.log('info', 'Setting up auth...');
 
 	if (!app.config.auth.CLIENT_ID || !app.config.auth.CLIENT_SECRET) {
 		throw new Error('Enviroment variables CLIENT_ID and/or CLIENT_SECRET not defined.');
 	}
-
-	console.log(`CLIENT_ID: ${app.config.auth.CLIENT_ID}`);
-	console.log(`CLIENT_SECRET: ${app.config.auth.CLIENT_SECRET}`);
 
 	// Setup the social WCA login strategy
 	server.auth.strategy('wca', 'bell', {
@@ -33,7 +30,7 @@ module.exports.register = function(server, options, next) {
 		password: 'secret_cookie_encryption_password', //Use something more secure in production
 		clientId: app.config.auth.CLIENT_ID,
 		clientSecret: app.config.auth.CLIENT_SECRET,
-		isSecure: false //Should be set to true (which is the default) in production
+		isSecure: process.argv.NODE_ENV === 'prod' //Should be set to true (which is the default) in production
 	});
 
 	//Setup the session strategy
@@ -41,7 +38,7 @@ module.exports.register = function(server, options, next) {
 		password: 'secret_cookie_encryption_password', //Use something more secure in production
 		cookie: 'sid-fantasycubing',
 		redirectTo: '/', //If there is no session, redirect here
-		isSecure: false //Should be set to true (which is the default) in production,
+		isSecure: process.argv.NODE_ENV === 'prod' //Should be set to true (which is the default) in production,
 	});
 
 	//Added a separate file for just routes.

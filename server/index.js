@@ -9,20 +9,21 @@ const path = require('path');
 const Hapi = require('hapi');
 const Hoek = require('hoek');
 const shortId = require('shortid');
-const db = require('./models/');
 const config = require('./serverconfig.js');
 
 const plugins = [{
 	register: require('good'),
 	options: {
 		ops: {
-			interval: 1000
+			interval: 1000,
+			utc: false,
+			format: 'YYYY-MM-DDThh:mm:ss'
 		},
 		reporters: {
-			myConsoleReporter: [{
+			consoleReporter: [{
 				module: 'good-squeeze',
 				name: 'Squeeze',
-				args: [{ log: '*', response: '*' }]
+				args: [{ log: '*', response: '*', 'sql': '*'}]
 			}, {
 				module: 'good-console'
 			}, 'stdout']
@@ -72,12 +73,16 @@ const App = global.App = app.extend({
 		});
 
 		// Database
-		this.db = db;
+		this.db = require('./models/');
+
+		// this.db.sequelize.logging = (str) => server.log('info', 'str');
+		// console.log(78, this.db.sequelize.logging)
 
 		server.register(plugins, function (err) {
 			if (err) {
-				console.error(80, err);
+				server.log('error', err);
 			}
+
 			const tryAuth = {
 				strategy: 'session',
 				mode: 'optional'
@@ -86,7 +91,7 @@ const App = global.App = app.extend({
 			// Should go into seperate files:
 			if (DEV) {
 				// note: if not hot loading, make sure nodemon isn't watching the app directory
-				console.log('Setting up proxy...');
+				server.log('info', 'Setting up proxy...');
 				server.route({
 					method: 'GET',
 					path: '/{path*}',
@@ -124,7 +129,6 @@ const App = global.App = app.extend({
 				server.ext('onPostHandler', function (request, reply) {
 					const response = request.response;
 					if (response.isBoom && response.output.statusCode === 404) {
-						console.log(request.path);
 						return reply.file('404.html', {
 							filename: request.path
 						});
@@ -133,6 +137,7 @@ const App = global.App = app.extend({
 					return reply.continue();
 				});
 			}
+
 			App.start();
 		});
 	},
@@ -141,7 +146,7 @@ const App = global.App = app.extend({
 		App.server.start(function (err) {
 			Hoek.assert(!err, 'Failed to start server: ' + err);
 
-			App.server.log('Server running at:', App.server.info.uri);
+			App.server.log('info', `Server running at: ${App.server.info.uri}`);
 		});
 	}
 });

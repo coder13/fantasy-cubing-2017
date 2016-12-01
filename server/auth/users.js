@@ -6,7 +6,6 @@ module.exports = function (server, options) {
 
 	return {
 		authenticate: function (request, reply) {
-			console.log(request.credentials);
 			return reply.continue({
 				credentials: request.credentials
 			});

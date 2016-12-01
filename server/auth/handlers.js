@@ -33,11 +33,9 @@ module.exports = {
 			let user = result[0];
 			let exists = !result[1];
 
-			if (exists) {
-				console.log('User already exists');
+			if (!exists) {
+				request.server.log('info', `Created User ${result[0].id}`);
 			}
-
-			console.log('created user with id', creds.profile.id);
 		});
 
 		return reply.redirect('/');

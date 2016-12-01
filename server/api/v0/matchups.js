@@ -30,9 +30,7 @@ module.exports = (base) => [{
 				}
 			}).then(function (matchups) {
 				reply(matchups);
-			}).catch(function (error) {
-				console.log(error)
-			});
+			}).catch(error => reply(Boom.wrap(error, 500)));
 		}
 	}
 }];
