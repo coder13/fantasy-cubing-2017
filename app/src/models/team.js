@@ -29,7 +29,10 @@ module.exports = window.Team = Model.extend({
 				return console.error(err);
 			}
 
-			if (res.statusCode < 400) {
+			if (res.body === null) {
+				delete self.cubers[`${eventId}-${slot}`];
+				self.trigger('change');
+			} else if (res.statusCode < 400) {
 				let cuber = JSON.parse(body);
 				cuber.personId = personId;
 				self.cubers[`${eventId}-${slot}`] = cuber;

@@ -54,7 +54,7 @@ module.exports = (base) => [{
 						losses: team.losses,
 						ties: team.ties,
 						ELO: team.ELO,
-						cubers: _.chain(people).map(i => ({
+						cubers: _.chain(people).filter(i => !!i.personId).map(i => ({
 							eventId: i.eventId,
 							slot: i.slot,
 							personId: i.personId,
@@ -118,6 +118,11 @@ module.exports = (base) => [{
 	config: {
 		auth: 'session',
 		handler: function (request, reply) {
+			let weekend = request.server.methods.getWeekend();
+			if (moment().isSameOrAfter(weekend)) {
+				return reply(Boom.create(400, 'Team is locked from editing'))
+			}
+
 			let profile = request.auth.credentials.profile;
 			let payload = JSON.parse(request.payload);
 			let {id, eventId, slot} = request.params;
@@ -135,6 +140,8 @@ module.exports = (base) => [{
 				if (team.owner !== profile.id) {
 					return reply(Boom.unauthorized('Not allowed to edit team'));
 				}
+
+				payload.personId = payload.personId || '';
 
 				let TeamPersonWhere = {
 					teamId: id,
@@ -164,7 +171,11 @@ module.exports = (base) => [{
 						let createOrUpdate = teamPerson ? TeamPerson.update(newTeamPerson, {where: TeamPersonWhere}) : TeamPerson.create(newTeamPerson);
 						createOrUpdate.then(() => {
 							request.server.log('info', `Set team member '${payload.personId}' in ${request.params.eventId}-${request.params.slot} for team '${payload.teamId}'`);
-							Person.findById(payload.personId).then(person => reply(JSON.stringify(person)).code(201));
+							if (payload.personId) {
+								Person.findById(payload.personId).then(person => reply(JSON.stringify(person)).code(201));
+							} else {
+								reply(null);
+							}
 						});
 					});
 				});

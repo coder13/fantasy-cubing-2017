@@ -42,7 +42,12 @@ module.exports = Model.extend({
 
 	initialize (options) {
 		this.set(options);
-		this.listenTo(this.teams, 'change', () => {
+
+		this.listenTo(this.teams, 'sync', (type) => {
+			this.trigger('change');
+		}, this);
+
+		this.listenTo(this.teams, 'change', (type) => {
 			this.trigger('change');
 		}, this);
 	},
@@ -55,12 +60,3 @@ module.exports = Model.extend({
 		return `${app.apiURL}/me`;
 	}
 });
-// app.me.team = new Team({owner: model.id});
-// 				app.me.team.fetch({
-// 					success: function () {
-// 						// better way to do this?
-// 						// Not rendering the page till we load at least me and me's team if he has a team.
-// 						// This is to prevent weird rending bugs. There's no part of the site we want to render till this happens anyways.
-// 						app.initRouter();
-// 					}, error: function () {
-// 					}

@@ -19,6 +19,7 @@
     "ampersand-react-mixin": "^1.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "ampersand-router": "^4.0.0",
+    "async": "^2.1.4",
     "autoprefixer": "^6.5.1",
     "babel": "^6.5.2",
     "babel-core": "^6.17.0",

@@ -114,7 +114,7 @@ const SelectPersonModal = React.createClass({
 				</Modal.Body>
 
 				<Modal.Footer>
-					<Button bsStyle='primary' disabled={!value} onClick={this.submit}>Select</Button>
+					<Button bsStyle='primary' onClick={this.submit}>{value ? 'Select' : 'Clear'}</Button>
 					<Button onClick={this.closeModal}>Cancel</Button>
 				</Modal.Footer>
 			</Modal>
@@ -123,9 +123,12 @@ const SelectPersonModal = React.createClass({
 });
 
 module.exports = React.createClass({
-	displayName: 'HomePage',
+	displayName: 'ManageTeamPage',
 	mixins: [ampersandReactMixin],
 	modals: {},
+
+	componentDidMount () {
+	},
 
 	getInitialState () {
 		return {
@@ -142,7 +145,7 @@ module.exports = React.createClass({
 	},
 
 	handleSelectPerson (eventId, slot, cuber) {
-		let team = app.me.getTeam('Standard');
+		let team = this.props.me.getTeam('Standard');
 		if (team) {
 			team.setCuber(eventId, slot, cuber);
 		}
@@ -153,7 +156,8 @@ module.exports = React.createClass({
 	},
 
 	render () {
-		let team = app.me.getTeam('Standard');
+		let team = this.props.me.getTeam('Standard');
+		console.log(160, team);
 
 		return (
 			<div className='container'>

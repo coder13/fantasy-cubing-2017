@@ -9,6 +9,7 @@ const path = require('path');
 const Hapi = require('hapi');
 const Hoek = require('hoek');
 const shortId = require('shortid');
+const moment = require('moment');
 const config = require('./serverconfig.js');
 
 const plugins = [{
@@ -77,6 +78,10 @@ const App = global.App = app.extend({
 
 		// this.db.sequelize.logging = (str) => server.log('info', 'str');
 		// console.log(78, this.db.sequelize.logging)
+
+		server.method('getWeekend', function () {
+			return moment().day(5).hour(8).minute(0).second(0).milliseconds(0);
+		});
 
 		server.register(plugins, function (err) {
 			if (err) {

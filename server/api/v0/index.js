@@ -17,7 +17,7 @@ module.exports.register = function(server, options, next) {
 			handler: function (request, reply) {
 				reply({
 					week: moment().week(),
-					weekend: moment().day(5).hour(8).minute(0).second(0).milliseconds(0).unix()
+					weekend: server.methods.getWeekend().unix()
 				});
 			}
 		}
