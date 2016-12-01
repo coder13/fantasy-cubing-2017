@@ -11,6 +11,9 @@ module.exports = React.createClass({
 	},
 
 	renderMatchups() {
+		let {matchups} = this.props;
+		console.log(15, matchups.map(i => i))
+
 		return (
 			<table className='table table-bordered'>
 				<thead>
@@ -23,7 +26,7 @@ module.exports = React.createClass({
 					</tr>
 				</thead>
 				<tbody>
-					{app.matchups.map((matchup, index) => 
+					{matchups.map((matchup, index) => 
 						<tr key={index}>
 							<td>{matchup.homeTeam.name}</td>
 							<td>0</td>
@@ -37,9 +40,11 @@ module.exports = React.createClass({
 	},
 
 	render () {
+		let {matchups} = this.props;
+
 		return (
 			<div className='container'>
-				{app.matchups.length ? renderMatchups() :
+				{matchups.length ? this.renderMatchups() :
 					<div>
 						<p>No Matchups yet, wait till the start of the weekend.</p>
 					</div>

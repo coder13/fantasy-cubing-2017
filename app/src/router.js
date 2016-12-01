@@ -24,7 +24,7 @@ const auth = function (name) {
 
 const renderPage = function (page, active, title) {
 	page = (
-		<Layout active={active} me={app.me}>
+		<Layout active={active} app={app} me={app.me}>
 			{page}
 		</Layout>
 	);
@@ -60,7 +60,8 @@ module.exports = Router.extend({
 	},
 
 	matchups () {
-		renderPage(<MatchupsPage/>, 'matchups');
+		app.matchups.setWeek(app.times.week || 0).fetch();
+		renderPage(<MatchupsPage week={app.times.week || 0} matchups={app.matchups}/>, 'matchups');
 	},
 
 	myTeam () {
@@ -69,12 +70,12 @@ module.exports = Router.extend({
 
 	teams (id) {
 		if (id === null) {
-			return renderPage(<TeamsPage/>);
+			app.teams.fetch();
+			return renderPage(<TeamsPage teams={app.teams}/>);
 		}
 
 		let team = app.teams.get({id: id});
 		if (team) {
-			console.log(78, id, team);
 			team.fetch({
 				success: function () {
 					renderPage(<TeamPage team={team}/>);

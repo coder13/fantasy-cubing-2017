@@ -4,10 +4,15 @@ const Matchup = require('./matchup');
 module.exports = Collection.extend({
 	model: Matchup,
 
-	initialize (options) {
+	initialize (models, options) {
+		console.log(options)
 		this.league = options.league;
 		this.week = options.week;
-		this.fetch();
+	},
+
+	setWeek (week) {
+		this.week = week;
+		return this;
 	},
 
 	url () {

@@ -13,7 +13,7 @@ module.exports = React.createClass({
 	displayName: 'LayoutPage',
 
 	componentDidMount () {
-		app.on('all', function () {
+		app.on('change', function () {
 			this.forceUpdate();
 		}, this);
 

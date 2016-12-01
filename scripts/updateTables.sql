@@ -59,6 +59,7 @@ FROM ResultDates rd2);
 CREATE INDEX date ON Points(date);
 CREATE INDEX personEvent ON Points(personId, eventId);
 CREATE INDEX eventPerson ON Points(eventId, personId);
+CREATE INDEX personCountryEvent ON Points(personCountryId, eventId);
 
 # ~1 minute
 

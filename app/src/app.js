@@ -34,6 +34,11 @@ const app = window.app = App.extend({
 		this.teams = new Teams();
 		this.teams.fetch();
 
+		app.matchups = new Matchups([], {
+			league: 'Standard'
+		});
+
+		this.times = {};
 		this.getTimes();
 
 		this.initRouter();
@@ -44,10 +49,8 @@ const app = window.app = App.extend({
 		xhr.get(`${app.apiURL}/times`, function (err, res, body) {
 			if (body) {
 				app.times = JSON.parse(body);
-				app.matchups = new Matchups({
-					league: 'Standard',
-					week: app.times.week
-				}); // already fetches
+				app.matchups.setWeek(app.times.week);
+				app.matchups.fetch();
 			}
 		});
 	},
