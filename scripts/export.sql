@@ -106,29 +106,29 @@ FROM (SELECT DISTINCT competitionId id FROM Points) c ORDER BY totalPoints DESC 
 
 SELECT id, name,
 (SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id) totalPoints
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='333') 333_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='444') 444_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='555') 555_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='222') 222_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='333bf') 333bf_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='333oh') 333oh_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='333fm') 333fm_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='333ft') 333ft_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='minx') minx_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='pyram') pyram_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='sq1') sq1_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='clock') clock_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='skewb') skewb_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='666') 666_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='777') 777_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='444bf') 444bf_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='555bf') 555bf_p
-,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='333mbf') 333mbf_p
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='333') `333`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='444') `444`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='555') `555`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='222') `222`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='333bf') `333bf`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='333oh') `333oh`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='333fm') `333fm`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='333ft') `333ft`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='minx') `minx`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='pyram') `pyram`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='sq1') `sq1`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='clock') `clock`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='skewb') `skewb`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='666') `666`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='777') `777`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='444bf') `444bf`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='555bf') `555bf`
+,(SELECT SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='333mbf') `333mbf`
 FROM (SELECT DISTINCT id, name FROM PersonEventPoints) p ORDER BY totalPoints DESC LIMIT 25;
 
-SELECT personId,personName, SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) points
+SELECT id,name, SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints) points
 FROM (SELECT * FROM PersonEventPoints WHERE eventId in ('444')) pep
-GROUP BY personId,personName
+GROUP BY id,name
 ORDER BY points DESC
 LIMIT 25;
 

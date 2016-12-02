@@ -9,6 +9,7 @@ module.exports.register = function(server, options, next) {
 	server.route(require('./teams')(base));
 	server.route(require('./matchups')(base));
 	server.route(require('./search')(base));
+	server.route(require('./leagues')(base));
 
 	server.route({
 		method: 'GET',
