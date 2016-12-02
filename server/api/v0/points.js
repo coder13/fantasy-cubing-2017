@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const Boom = require('boom');
+const wca = require('../../../lib/wca');
 
 const personQuery = (wca_id) => `
 SELECT personId,personName,
@@ -39,6 +40,48 @@ module.exports = (base) => [{
 				} else {
 					reply(data);
 				}
+			});
+		}
+	}
+}, {
+	method: 'GET',
+	path: `${base}/points/personEvent`,
+	config: {
+		handler: function (request, reply) {
+			let include = request.query.include ? request.query.include.split(',') : wca.Events;
+			request.server.methods.getAllPersonEventPoints(include, function (err, results) {
+				if (err) {
+					return reply(Boom.wrap(err, 500));
+				}
+				reply(results[0]);
+			});
+		}
+	}
+}, {
+	method: 'GET',
+	path: `${base}/points/countryEvent`,
+	config: {
+		handler: function (request, reply) {
+			let include = request.query.include ? request.query.include.split(',') : wca.Events;
+			request.server.methods.getAllCountryEventPoints(include, function (err, results) {
+				if (err) {
+					return reply(Boom.wrap(err, 500));
+				}
+				reply(results[0]);
+			});
+		}
+	}
+}, {
+	method: 'GET',
+	path: `${base}/points/competitionEvent`,
+	config: {
+		handler: function (request, reply) {
+			let include = request.query.include ? request.query.include.split(',') : wca.Events;
+			request.server.methods.getAllCompetitionEventPoints(include, function (err, results) {
+				if (err) {
+					return reply(Boom.wrap(err, 500));
+				}
+				reply(results[0]);
 			});
 		}
 	}

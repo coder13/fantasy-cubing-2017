@@ -41,6 +41,7 @@ const plugins = [{
 	require('inert'),
 	require('hapi-auth-cookie'),
 	require('bell'),
+	require('./stats'),
 	require('./auth'),
 	require('./api')
 ];
@@ -65,7 +66,13 @@ const App = global.App = app.extend({
 						relativeTo: path.join(__dirname, '../app/public')
 					}
 				}
-			}
+			},
+			// cache: [{
+			// 	name: 'redisCache',
+			// 	engine: require('catbox-redis'),
+			// 	host: '127.0.0.1',
+			// 	partition: 'cache'
+			// }]
 		});
 
 		// Configure connection
