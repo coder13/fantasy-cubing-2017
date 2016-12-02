@@ -78,7 +78,7 @@ const SelectPersonModal = React.createClass({
 	},
 
 	getCubers (input, cb) {
-		xhr.get(`${app.apiURL}/search/people/${input}`, (error, res, body) => {
+		xhr.get(`${app.apiURL}/search/people/${input}?eventId=${this.state.eventId}`, (error, res, body) => {
 			cb(null, {
 				options: _.uniqBy(JSON.parse(body).map(i => ({value: i.id, label: i.name + ` (${i.id})`})), 'value'),
 				complete:  true

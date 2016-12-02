@@ -10,11 +10,19 @@ module.exports = (base) => [{
 	path: `${base}/search/people/{name?}`,
 	config: {
 		handler: function (request, reply) {
-			sequelize.query(`SELECT * FROM PersonsPoints WHERE name LIKE '${request.params.name || ''}%' LIMIT 25;`).then(function (result) {
-				reply(result[0]);
-			}).catch(function (error) {
-				reply(Boom.badRequest('Invalid query'));
-			});
+			let name = request.params.name || '';
+
+			let where = `${isNaN(+name.slice(0,1)) ? 'name' : 'id'} LIKE '${name}%'`;
+
+			if (request.query && request.query.eventId) {
+				return sequelize.query(`SELECT * FROM PersonEventPoints WHERE eventId='${request.query.eventId}' AND ${where} LIMIT 25;`)
+					.then(result => reply(result[0]))
+					.catch(error => reply(Boom.wrap(error, 500)));
+			}
+
+			sequelize.query(`SELECT * FROM PersonsPoints WHERE ${where} LIMIT 25;`)
+				.then(result => reply(result[0]))
+				.catch(error => reply(Boom.wrap(error, 500)));
 		}
 	}
 }];

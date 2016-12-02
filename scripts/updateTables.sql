@@ -61,14 +61,32 @@ CREATE INDEX personEvent ON Points(personId, eventId);
 CREATE INDEX eventPerson ON Points(eventId, personId);
 CREATE INDEX personCountryEvent ON Points(personCountryId, eventId);
 CREATE INDEX competitionEvent ON Points(competitionId, eventId);
+CREATE INDEX idNameEvent ON Points(personId,personName,eventId);
 
 # ~1 minute
 
-DROP TABLE IF EXISTS `PersonsPoints`;
-CREATE TABLE PersonsPoints AS (
+DROP TABLE IF EXISTS `PersonPoints`;
+CREATE TABLE PersonPoints AS (
 SELECT personId id, personName name, SUM(compPoints) points
 FROM Points
 GROUP BY id, name
 ORDER BY points DESC);
 
 # ~10s
+
+DROP TABLE IF EXISTS `PersonEventPoints`;
+CREATE Table PersonEventPoints AS (
+SELECT personId id, personName name, eventId,
+sum(compPoints)+sum(wrSinglePoints)+sum(wrAveragePoints)+sum(crSinglePoints)+sum(crAveragePoints)+sum(nrSinglePoints)+sum(nrAveragePoints) totalPoints,
+sum(compPoints) compPoints,
+sum(wrSinglePoints) wrSinglePoints,
+sum(wrAveragePoints) wrAveragePoints,
+sum(crSinglePoints) crSinglePoints,
+sum(crAveragePoints) crAveragePoints,
+sum(nrSinglePoints) nrSinglePoints,
+sum(nrAveragePoints) nrAveragePoints
+FROM Points
+GROUP BY id, name, eventId
+ORDER BY totalPoints DESC);
+
+# ~25s
