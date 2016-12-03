@@ -8,7 +8,7 @@ const Select = require('react-select');
 const ampersandReactMixin = require('ampersand-react-mixin');
 const xhr = require('xhr');
 const Team = require('../models/team');
-const {Events, League} = require('../../../lib/wca');
+const {Events, EventNames, League} = require('../../../lib/wca');
 
 module.exports = React.createClass({
 	displayName: 'TeamPage',
@@ -49,7 +49,7 @@ module.exports = React.createClass({
 						<tbody>
 							{League.map((e) => 
 								_.times(e.slots, (i) => {
-									let eventTd = i === 0 ? <td rowSpan={e.slots}><b>{Events[e.eventId]}</b></td> : null;
+									let eventTd = i === 0 ? <td rowSpan={e.slots}><b>{EventNames[e.eventId]}</b></td> : null;
 									if (team && team.cubers[`${e.eventId}-${i}`]) {
 										return (
 											<tr style={{hover: '#dfdfdf'}}>
