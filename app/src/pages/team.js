@@ -8,7 +8,7 @@ const Select = require('react-select');
 const ampersandReactMixin = require('ampersand-react-mixin');
 const xhr = require('xhr');
 const Team = require('../models/team');
-const {Events, League} = require('../lib/wca');
+const {Events, League} = require('../../../lib/wca');
 
 module.exports = React.createClass({
 	displayName: 'TeamPage',

@@ -4,26 +4,7 @@ const shortId = require('shortid');
 
 let wcaId = (lName) => `${(2000 + Math.floor(Math.random() * 32) - 16)}${lName.slice(0,4).replace(/[^a-zA-Z ]/g, "").toUpperCase()}01`;
 
-const League = [
-	{eventId: '333', slots: 3},
-	{eventId: '222', slots: 2},
-	{eventId: '444', slots: 2},
-	{eventId: '555', slots: 2},
-	{eventId: '333oh', slots: 2},
-	{eventId: '333bf', slots: 2},
-	{eventId: '666', slots: 1},
-	{eventId: '777', slots: 1},
-	{eventId: '333fm', slots: 1},
-	{eventId: '333ft', slots: 1},
-	{eventId: 'sq1', slots: 1},
-	{eventId: 'pyram', slots: 1},
-	{eventId: 'skewb', slots: 1},
-	{eventId: 'mega', slots: 1},
-	{eventId: 'clock', slots: 1},
-	{eventId: '444bf', slots: 1},
-	{eventId: '555bf', slots: 1},
-	{eventId: '333mbf', slots: 1}
-];
+const {League} = require('../../lib/wca.js')
 
 module.exports = {
 	up: function (queryInterface, Sequelize) {

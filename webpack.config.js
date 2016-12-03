@@ -59,7 +59,7 @@ const config = module.exports = {
 		new HtmlWebpackPlugin({
 			title: 'Fantasy Cubing',
 			template: './app/src/index.html',
-			// favicon: './app/src/assets/favicon.png'
+			favicon: './app/src/favicon.png'
 		}),
 		new HtmlWebpackPlugin({
 			filename: '404.html',

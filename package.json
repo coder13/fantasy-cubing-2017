@@ -1,5 +1,7 @@
 {
+  "name": "fantasycubing",
   "main": "server",
+  "version": "1.0.0",
   "scripts": {
     "start": "npm run prod-server",
     "webpack": "NODE_ENV=dev ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --hot --inline",
@@ -31,6 +33,7 @@
     "bell": "^8.3.0",
     "boom": "^4.2.0",
     "bootstrap": "4.0.0-alpha.5",
+    "catbox-memory": "^2.0.4",
     "catbox-redis": "^2.0.2",
     "css-loader": "^0.25.0",
     "extract-text-webpack-plugin": "^1.0.1",
@@ -53,6 +56,7 @@
     "lodash": "^4.16.4",
     "moment": "^2.17.0",
     "mysql": "^2.11.1",
+    "postcss-loader": "^1.1.1",
     "qs": "^6.3.0",
     "react": "^15.3.2",
     "react-bootstrap": "^0.30.5",

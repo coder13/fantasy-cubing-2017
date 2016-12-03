@@ -7,13 +7,6 @@ const LIMIT = 25;
 
 const time = (hour, min, sec) => ((hour * 60 + min) * 60 + sec) * 1000;
 
-const Cache = {
-	expiresIn: time(48,0,0),
-	generateTimeout: 100000,
-	staleIn: time(16,0,0),
-	staleTimeout: 100
-};
-
 const cacheQueries = function (server) {
 	server.methods.getAllPersonEventPoints(wca.Events, (err, results) => {
 		if (err) {
@@ -45,37 +38,46 @@ module.exports.register = function(server, options, next) {
 
 	let sequelize = App.db.sequelize;
 
-	server.method('getAllPersonEventPoints', function (include, next) {
-		if (!include) {
-			include = wca.Events;
+	const sqlCache = {
+		cache: 'redisCache',
+		expiresIn: time(48,0,0),
+		generateTimeout: 100000,
+		staleIn: time(16,0,0),
+		staleTimeout: 100
+	};
+
+	server.method('getAllPersonEventPoints', function (events, next) {
+		if (!events) {
+			events = wca.Events;
 		}
 
-		return sequelize.query(queries.personEvent(include, LIMIT)).then(function (results) {
+		return sequelize.query(queries.personEvent(events, LIMIT)).then(function (results) {
 			next(null, results);
 		}).catch(error => next(error));
 	}, {
-		cache: Cache,
+		cache: sqlCache,
 		generateKey: function (array) {
+			console.log(60, array.join(','))
 			return array.join(',');
 		}
 	});
 
-	server.method('getAllCountryEventPoints', function (include, next) {
-		if (!include) {
-			include = wca.Events;
+	server.method('getAllCountryEventPoints', function (events, next) {
+		if (!events) {
+			events = wca.Events;
 		}
 
-		return sequelize.query(queries.countryEvent(include, LIMIT)).then(function (results) {
+		return sequelize.query(queries.countryEvent(events, LIMIT)).then(function (results) {
 			next(null, results);
 		}).catch(error => next(error));
 	});
 
-	server.method('getAllCompetitionEventPoints', function (include, next) {
-		if (!include) {
-			include = wca.Events;
+	server.method('getAllCompetitionEventPoints', function (events, next) {
+		if (!events) {
+			events = wca.Events;
 		}
 
-		return sequelize.query(queries.competitionEvent(include, LIMIT)).then(function (results) {
+		return sequelize.query(queries.competitionEvent(events, LIMIT)).then(function (results) {
 			next(null, results);
 		}).catch(error => next(error));
 	});

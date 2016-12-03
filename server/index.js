@@ -67,12 +67,12 @@ const App = global.App = app.extend({
 					}
 				}
 			},
-			// cache: [{
-			// 	name: 'redisCache',
-			// 	engine: require('catbox-redis'),
-			// 	host: '127.0.0.1',
-			// 	partition: 'cache'
-			// }]
+			cache: [{
+				name: 'redisCache',
+				engine: require('catbox-redis'),
+				host: '127.0.0.1',
+				partition: 'cache'
+			}]
 		});
 
 		// Configure connection

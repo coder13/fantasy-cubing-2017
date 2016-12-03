@@ -73,16 +73,29 @@ module.exports = (base) => [{
 		auth: 'session',
 		handler: function (request, reply) {
 			let profile = request.auth.credentials.profile;
+			let {league, owner, name} = request.payload;
 
-			Team.create({
-				id: shortId.generate(),
-				owner: profile.id,
-				name: request.payload.name,
-				league: 'Standard' // TODO: update for support for multiple leagues
+			if (profile.id !== +owner) {
+				return reply(Boom.unauthorized('Not allowed to create team'));
+			}
+
+			Team.find({
+				where: {owner}
 			}).then(function (team) {
-				request.server.log(`Created team '${request.payload.name}' for user ${profile.id} ${profile.name} (${profile.wca_id})`);
-				reply(team).code(200);
-			});
+				if (team) {
+					return reply(Boom.conflict('Already have a team'));
+				}
+
+				return Team.create({
+					id: shortId.generate(),
+					owner: owner,
+					name: name,
+					league: 'Standard' // TODO: update for support for multiple leagues
+				}).then(function (team) {
+					request.server.log('info', `Created team '${request.payload.name}' for user ${profile.id} ${profile.name} (${profile.wca_id})`);
+					return reply(team).code(200);
+				});
+			}).catch(error => reply(Boom.wrap(error, 500)));
 		}
 	}
 }, { // update
@@ -92,11 +105,15 @@ module.exports = (base) => [{
 		auth: 'session',
 		handler: function (request, reply) {
 			let profile = request.auth.credentials.profile;
-			let payload = JSON.parse(request.payload);
+			let {id, owner, name} = request.payload;
+
+			if (profile.id !== +owner) {
+				return reply(Boom.unauthorized('Not allowed to create team'));
+			}
 
 			let where = {
-				owner: profile.id,
-				id: payload.id
+				owner: owner,
+				id: id
 			};
 
 			Team.findById(request.params.id).then(function (team) {
@@ -108,7 +125,7 @@ module.exports = (base) => [{
 					return reply(Boom.unauthorized('Not allowed to edit team'));
 				}
 
-				return Team.update(_.extend(where, {name: request.payload.name}), {where}).then((team) => reply(team).code(201));
+				return Team.update(_.extend(where, {name: name}), {where}).then((team) => reply(team).code(201));
 			});
 		}
 	}
@@ -119,8 +136,8 @@ module.exports = (base) => [{
 		auth: 'session',
 		handler: function (request, reply) {
 			let weekend = request.server.methods.getWeekend();
-			if (moment().isSameOrAfter(weekend)) {
-				return reply(Boom.create(400, 'Team is locked from editing'))
+			if (moment().isSameOrAfter(weekend) && !process.env.NODE_ENV === 'dev') {
+				return reply(Boom.create(400, 'Team is locked from editing'));
 			}
 
 			let profile = request.auth.credentials.profile;

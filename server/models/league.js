@@ -63,7 +63,7 @@ module.exports = function(sequelize, DataTypes) {
 			type: DataTypes.INTEGER,
 			defaultValue: 0
 		},
-		'mega': {
+		'minx': {
 			type: DataTypes.INTEGER,
 			defaultValue: 0
 		},

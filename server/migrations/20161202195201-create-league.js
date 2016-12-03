@@ -13,7 +13,7 @@ const Leagues = [{
 	'333oh': 2,
 	'333fm': 1,
 	'333ft': 1,
-	'mega': 1,
+	'minx': 1,
 	'pyram': 1,
 	'sq1': 1,
 	'skewb': 1,
@@ -38,7 +38,7 @@ const Leagues = [{
 	'333oh': 2,
 	'333fm': 1,
 	'333ft': 1,
-	'mega': 0,
+	'minx': 0,
 	'sq1': 0,
 	'pyram': 1,
 	'skewb': 1,
@@ -104,7 +104,7 @@ module.exports = {
 				allowNull: false,
 				defaultValue: 0
 			},
-			'mega': {
+			'minx': {
 				type: Sequelize.INTEGER,
 				allowNull: false,
 				defaultValue: 0

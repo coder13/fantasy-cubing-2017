@@ -2,11 +2,55 @@ const app = require('ampersand-app');
 const React = require('react');
 const ampersandReactMixin = require('ampersand-react-mixin');
 const xhr = require('xhr');
+const RegionSelect = require('../components/regionSelect')
+const wca = require('../../../lib/wca');
 
-const prettyfy = (x) => x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const prettyfy = (x) => !x ? 0 : x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+
+const CubeIcon = function (props) {
+	return <span className={`cubing-icon event-${props.name}`} style={{fontSize: `${props.size || 1}em`}} title={wca.EventNames[props.name]} {...props}/>
+}
+
+const EventSelect = React.createClass({
+	getInitialState () {
+		return {
+			selected: (() => {
+				let events = {};
+				wca.Events.forEach(event => {
+					events[event] = true;
+				});
+				return events;
+			})()
+		};
+	},
+
+	toggleEvent (event) {
+		this.state.selected[event] = !this.state.selected[event];
+		this.forceUpdate();
+
+		if (this.props.onChange) {
+			this.props.onChange(wca.Events.filter(e => this.state.selected[e]));
+		}
+	},
+
+	render () {
+		let {selected} = this.state;
+
+		return (
+			<div>
+				{wca.Events.map((event, index) => 
+					<label key={index} style={{cursor: 'pointer', color: selected[event] ? 'black' : '#ccc'}} onClick={() => this.toggleEvent(event)}>
+						<CubeIcon name={event} size='2'/>
+					</label>
+				)}
+			</div>
+		)
+	}
+});
 
 module.exports = React.createClass({
-	displayName: 'HomePage',
+	displayName: 'StatsPage',
 	mixins: [ampersandReactMixin],
 
 	getDefaultProps () {
@@ -15,90 +59,64 @@ module.exports = React.createClass({
 
 	getInitialState() {
 		return {
-			tab: 'career',
+			events: wca.Events,
+			region: 'all',
 			points: []
 		};
 	},
 
 	componentDidMount() {
-		this.retrievePoints();
+		this.updateStats();
 	},
 
 	componentWillReceiveProps(props) {
 		this.props = props;
-		this.retrievePoints();
 	},
 
-	retrievePoints() {
-		console.log(33, this.props.past);
-		this.setState({points: []});
-		let that = this;
-		xhr.get(`${app.apiURL}/points${this.props.past?`?past=${this.props.past}`:''}`, function (err, data, body) {
-			if (data.statusCode === 200) {
-				that.setState({
+	updateStats() {
+		// if (this.request) {
+		// 	this.request.onreadystatechange = null;
+		// 	this.request.abort();
+		// }
+
+		console.log(this.state.events, this.state.events.join(','));
+		let self = this;
+		this.request = xhr.get(`${app.apiURL}/points/personEvent?events=${this.state.events.join(',')}`, function (err, res, body) {
+			if (err) {
+				console.error(err);
+			} else {
+				self.setState({
 					points: JSON.parse(body)
 				});
 			}
 		});
 	},
 
-	renderPoints() {
+	renderPoints () {
+		let {events, points} = this.state;
+
 		return (
 			<table style={{width: '100%'}}>
 				<thead>
 					<tr>
 						<th>Pos</th>
 						<th>Name</th>
-						<th>333</th>
-						<th>444</th>
-						<th>555</th>
-						<th>222</th>
-						<th>333bf</th>
-						<th>333oh</th>
-						<th>333fm</th>
-						<th>333ft</th>
-						<th>minx</th>
-						<th>pyram</th>
-						<th>sq1</th>
-						<th>clock</th>
-						<th>skewb</th>
-						<th>666</th>
-						<th>777</th>
-						<th>444bf</th>
-						<th>555bf</th>
-						<th>333mbf</th>
-						<th>Total Points</th>
-						<th>Comps</th>
-						<th>Points/Comp</th>
+						<th style={{width: '5em'}}>Total</th>
+						{events.map(i => 
+							<th key={i}>{wca.EventNames[i]}</th>
+						)}
 					</tr>
 				</thead>
 				<tbody>
-				{this.state.points ?
-					this.state.points.map((i,j) =>
-						<tr key={i.personId} style={{lineHeight: '1.75em'}}>
-							<td>{j+1}</td>
-							<td>{i.personName}</td>
-							<td>{prettyfy(i['333'])}</td>
-							<td>{prettyfy(i['444'])}</td>
-							<td>{prettyfy(i['555'])}</td>
-							<td>{prettyfy(i['222'])}</td>
-							<td>{prettyfy(i['333bf'])}</td>
-							<td>{prettyfy(i['333oh'])}</td>
-							<td>{prettyfy(i['333fm'])}</td>
-							<td>{prettyfy(i['333ft'])}</td>
-							<td>{prettyfy(i['minx'])}</td>
-							<td>{prettyfy(i['pyram'])}</td>
-							<td>{prettyfy(i['sq1'])}</td>
-							<td>{prettyfy(i['clock'])}</td>
-							<td>{prettyfy(i['skewb'])}</td>
-							<td>{prettyfy(i['666'])}</td>
-							<td>{prettyfy(i['777'])}</td>
-							<td>{prettyfy(i['444bf'])}</td>
-							<td>{prettyfy(i['555bf'])}</td>
-							<td>{prettyfy(i['333mbf'])}</td>
-							<td><b>{prettyfy(i.totalPoints)}</b></td>
-							<td>{i.comps}</td>
-							<td>{Math.round(i.pointsCompRatio*100)/100}</td>
+				{points ?
+					points.map((personPoints,index) =>
+						<tr key={index} style={{lineHeight: '1.75em'}}>
+							<td>{index+1}</td>
+							<td>{personPoints.name}</td>
+							<td><b>{prettyfy(personPoints.totalPoints)}</b></td>
+							{events.map(e => 
+								<td key={e}>{prettyfy(personPoints[e])}</td>
+							)}
 						</tr>)
 					: null}
 				</tbody>
@@ -106,18 +124,38 @@ module.exports = React.createClass({
 		);
 	},
 
+	changeEvents (events) {
+		console.log(30, events)
+		this.state.events = events;
+
+		this.updateStats();
+	},
+
+	changeRegion (region) {
+		this.setState({region})
+		this.updateStats();
+	},
+
 	render () {
 		return (
 			<div style={{margin: '1%'}}>
-				<h4>Total Points</h4>
-				<ul className='nav nav-tabs' style={{marginBottom: '5px'}}>
-					<li role='presentation' className={!this.props.past ? 'active' : ''}><a href='/stats'>Career</a></li>
-					<li role='presentation' className={this.props.past === 'year' ? 'active' : ''}><a href='/stats?past=year'>Past Year</a></li>
-					<li role='presentation' className={this.props.past === '6months' ? 'active' : ''}><a href='/stats?past=6months'>Past 6 Months</a></li>
-					<li role='presentation' className={this.props.past === '3months' ? 'active' : ''}><a href='/stats?past=3months'>Past 3 Months</a></li>
-				</ul>
+				<h2>Event Points</h2>
+				<div className='panel panel-default'>
+					<div className='panel-heading'>
+					<div className='form-inline list'>
+							<div className='form-group'>
+							  <label htmlFor='events'>Events</label>
+								<EventSelect onChange={this.changeEvents}/>
+							</div>
+						</div>
+					</div>
+				</div>
 				{this.renderPoints()}
 			</div>
 		);
 	}
 });
+							// <div className='form-group'>
+							//   <label htmlFor='region'>Region</label>
+							// 	<RegionSelect onChange={this.changeCountry} style={{display: 'block'}}/>
+							// </div>

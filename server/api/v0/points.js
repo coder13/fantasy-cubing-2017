@@ -48,8 +48,9 @@ module.exports = (base) => [{
 	path: `${base}/points/personEvent`,
 	config: {
 		handler: function (request, reply) {
-			let include = request.query.include ? request.query.include.split(',') : wca.Events;
-			request.server.methods.getAllPersonEventPoints(include, function (err, results) {
+			let events = request.query.events ? request.query.events.split(',') : wca.Events;
+			// let region = request.query.region ? request.query.region : 'all';
+			request.server.methods.getAllPersonEventPoints(events, function (err, results) {
 				if (err) {
 					return reply(Boom.wrap(err, 500));
 				}
@@ -62,8 +63,8 @@ module.exports = (base) => [{
 	path: `${base}/points/countryEvent`,
 	config: {
 		handler: function (request, reply) {
-			let include = request.query.include ? request.query.include.split(',') : wca.Events;
-			request.server.methods.getAllCountryEventPoints(include, function (err, results) {
+			let events = request.query.events ? request.query.events.split(',') : wca.Events;
+			request.server.methods.getAllCountryEventPoints(events, function (err, results) {
 				if (err) {
 					return reply(Boom.wrap(err, 500));
 				}
@@ -76,8 +77,8 @@ module.exports = (base) => [{
 	path: `${base}/points/competitionEvent`,
 	config: {
 		handler: function (request, reply) {
-			let include = request.query.include ? request.query.include.split(',') : wca.Events;
-			request.server.methods.getAllCompetitionEventPoints(include, function (err, results) {
+			let events = request.query.events ? request.query.events.split(',') : wca.Events;
+			request.server.methods.getAllCompetitionEventPoints(events, function (err, results) {
 				if (err) {
 					return reply(Boom.wrap(err, 500));
 				}

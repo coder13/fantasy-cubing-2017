@@ -7,7 +7,7 @@ SELECT id, name,
 (SELECT SUM(totalPoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND eventId in (${events.map(i => `'${i}'`).join(',')})) totalPoints,
 ${events.map(event => `(SELECT sum(totalPoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='${event}') \`${event}\``)}
 FROM (SELECT DISTINCT id, name FROM PersonEventPoints) p
-ORDER BY totalPoints DESCy
+ORDER BY totalPoints DESC
 LIMIT ${limit || LIMIT};`;
 
 module.exports.countryEvent = (events, limit) => `
