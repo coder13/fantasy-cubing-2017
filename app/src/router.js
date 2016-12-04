@@ -3,6 +3,7 @@ const xhr = require('xhr');
 const app = require('ampersand-app');
 const Router = require('ampersand-router');
 const ReactDOM = require('react-dom');
+const moment = require('moment');
 const Team = require('./models/team');
 const Layout = require('./pages/layout');
 const IndexPage = require('./pages/index');
@@ -68,16 +69,22 @@ module.exports = Router.extend({
 		renderPage(<ManageTeamPage me={app.me}/>, 'teams');
 	},
 
-	teams (id) {
+	teams (id, query) {
 		if (id === null) {
 			app.teams.fetch();
 			return renderPage(<TeamsPage teams={app.teams}/>);
 		}
 
+		query = qs.parse(query);
+
+		let week = +query.week || moment().week();
+
+		console.log(82, week)
+
 		let team = app.teams.get({id: id});
 		if (team) {
-			team.fetch();
-			renderPage(<TeamPage team={team}/>);
+			team.fetch({week});
+			renderPage(<TeamPage week={week} team={team}/>);
 		} else {
 			let team = new Team({id: id});
 			if (!team.isValid()) {
@@ -85,11 +92,13 @@ module.exports = Router.extend({
 			}
 
 			team.fetch({
+				week,
 				error: function () {
 					app.router.redirectTo('/');
 				}
 			});
-			renderPage(<TeamPage team={team}/>);
+
+			renderPage(<TeamPage week={week} team={team}/>);
 
 		}
 	},

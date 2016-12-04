@@ -1,6 +1,7 @@
 'use strict';
 const faker = require('faker');
 const shortId = require('shortid');
+const moment = require('moment');
 
 let wcaId = (lName) => `${(2000 + Math.floor(Math.random() * 32) - 16)}${lName.slice(0,4).replace(/[^a-zA-Z ]/g, "").toUpperCase()}01`;
 
@@ -17,8 +18,8 @@ module.exports = {
 				name: `${faker.name.firstName()} ${lName}`,
 				email: faker.internet.email(),
 				avatar: null,
-				createdAt: new Date(),
-				updatedAt: new Date()
+				// createdAt: new Date(),
+				// updatedAt: new Date()
 			});
 		}
 
@@ -27,36 +28,43 @@ module.exports = {
 			owner: user.id,
 			league: 'Standard',
 			name: `${user.name}'s Team`,
-			ELO: 1000 + Math.floor(Math.random() * 500) - 750,
+			ELO: 1500,
 			createdAt: new Date(),
 			updatedAt: new Date()
 		}));
 
-		return queryInterface.bulkInsert('Users', users, {}).then(() =>
-			queryInterface.bulkInsert('Teams', teams, {}).then(() =>
-				queryInterface.sequelize.query('SELECT * FROM Persons ORDER BY Rand() LIMIT 1000;', { type: queryInterface.sequelize.QueryTypes.SELECT }).then(function (persons) {
+		console.log('generated', teams.length, 'teams');
+
+		return queryInterface.bulkInsert('Users', users, {}).then(() => {
+			console.log(39)
+			return queryInterface.bulkInsert('Teams', teams, {}).then(() =>
+				queryInterface.sequelize.query('SELECT * FROM Persons ORDER BY Rand() LIMIT 2000;', {type: queryInterface.sequelize.QueryTypes.SELECT}).then(function (persons) {
 					let teamPeople = [];
-					teams.forEach(team => {
-						League.forEach(event => {
-							for (let i = 0; i < event.slots; i++) {
-								teamPeople.push({
-									owner: team.owner,
-									teamId: team.id,
-									eventId: event.eventId,
-									slot: i,
-									personId: persons[Math.floor(Math.random() * persons.length)].id,
-									createdAt: new Date(),
-									updatedAt: new Date()
-								});
-							}
+					for (let week = 0; week < 3; week++) {
+						console.log('week', week)
+						teams.forEach(team => {
+							League.forEach(event => {
+								for (let i = 0; i < event.slots; i++) {
+									teamPeople.push({
+										owner: team.owner,
+										teamId: team.id,
+										eventId: event.eventId,
+										slot: i,
+										week: moment().week() - week,
+										personId: persons[Math.floor(Math.random() * persons.length)].id,
+										createdAt: new Date(),
+										updatedAt: new Date()
+									});
+								}
+							});
 						});
-					});
+					}
 
 					console.log(teamPeople);
 					return queryInterface.bulkInsert('TeamPeople', teamPeople);
 				})
-			)
-		);
+			).catch(err => console.trace(err));
+		});
 	},
 
 	down: function (queryInterface, Sequelize) {

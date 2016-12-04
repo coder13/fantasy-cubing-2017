@@ -35,6 +35,18 @@ module.exports = React.createClass({
 				<h2>{team.name} <small><b>{team.ELO}</b> <span title='Wins-Losses-Ties'>({team.wins}-{team.losses}-{team.ties})</span></small></h2>
 				<br/>
 				<div>
+					<div className="btn-toolbar" style={{paddingBottom: '10px'}}>
+						<div className='btn-group'>
+							<button className='btn btn-default'>
+								<a href={`/teams/${this.props.team.id}?week=${this.props.week - 1}`}><span className='glyphicon glyphicon-chevron-left'/></a>
+							</button>
+							<button className='btn btn-default'>
+								<span className='glyphicon glyphicon-chevron-right'/>
+							</button>
+						</div>
+					</div>
+				</div>
+				<div>
 					<table className='table table-bordered'>
 						<thead>
 							<tr>
