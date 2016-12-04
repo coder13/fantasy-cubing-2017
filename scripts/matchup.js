@@ -28,9 +28,8 @@ db.User.findAll({
 
 	do {
 		let userA = users[0];
-		let m = Math.floor(Math.random() * (1 / 10 * users.length)) + 1;
+		let m = Math.ceil(Math.random() * Math.max(1 / 10 * users.length, users.map(i => i.ELO).lastIndexOf(userA.ELO)));
 		let userB = users[m];
-		console.log(userA);
 		db.Matchup.create({
 			home: userA.Teams[0].id,
 			away: userB.Teams[0].id,
