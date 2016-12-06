@@ -5,11 +5,11 @@ const base = '/api/v0';
 
 module.exports.register = function(server, options, next) {
 	server.log('info', 'Setting up api...');
-	require('./points')(server, base);
+	require('./leagues')(server, base);
 	require('./teams')(server, base);
 	require('./matchups')(server, base);
 	require('./search')(server, base);
-	require('./leagues')(server, base);
+	require('./points')(server, base);
 
 	server.route({
 		method: 'GET',

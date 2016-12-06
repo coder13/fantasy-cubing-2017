@@ -43,6 +43,7 @@ module.exports = Router.extend({
 		'profile': 'profile',
 		'profile/team': 'myTeam',
 		'matchups': 'matchups',
+		// 'matchups/:week': 'matchup',
 		'teams': 'teams',
 		'teams/:id': 'team',
 		'login': 'login',
@@ -60,8 +61,9 @@ module.exports = Router.extend({
 		renderPage(<StatsPage past={query.past}/>, 'stats');
 	},
 
-	matchups () {
-		app.matchups.setWeek(app.times.week || 0).fetch();
+	matchups (week) {
+		console.log(64)
+		app.matchups.setWeek(app.times.week || week).fetch();
 		renderPage(<MatchupsPage week={app.times.week || 0} matchups={app.matchups}/>, 'matchups');
 	},
 

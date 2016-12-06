@@ -54,7 +54,6 @@ module.exports = window.Team = Model.extend({
 			model.trigger('sync', model, resp, options);
 		};
 
-		console.log(options.url);
 		return this.sync('read', this, options);
 	},
 

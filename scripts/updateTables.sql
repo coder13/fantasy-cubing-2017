@@ -19,7 +19,7 @@ CREATE INDEX eventCountryDate ON ResultDates(eventId, personCountryId, date);
 
 DROP TABLE IF EXISTS `Points`;
 CREATE TABLE Points AS (
-SELECT competitionId, personId, personName, personCountryId, eventId, roundId, weekend, year(weekend) year, week(weekend) week,
+SELECT competitionId, personId, personName, personCountryId, eventId, roundId, weekend, year(weekend) year, week(weekend) + 1 week,
 if(regionalAverageRecord = 'WR',
 (SELECT COUNT(DISTINCT personId) FROM ResultDates rd
 WHERE rd.eventId=rd2.eventId AND rd.date <= rd2.date AND rd.average > -1), 0) wrAveragePoints,
