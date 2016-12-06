@@ -20,7 +20,11 @@ CREATE INDEX eventCountryDate ON ResultDates(eventId, personCountryId, date);
 DROP TABLE IF EXISTS `Points`;
 CREATE TABLE Points AS (
 <<<<<<< HEAD
+<<<<<<< HEAD
 SELECT competitionId, personId, personName, personCountryId, eventId, roundId, weekend, year(weekend) year, week(weekend) + 1 week,
+=======
+SELECT competitionId, personId, personName, personCountryId, eventId, roundId, weekend, year(weekend) year, week(weekend) week + 1,
+>>>>>>> b5473e9901dec34232ce0dea752ea1fc56246ef4
 =======
 SELECT competitionId, personId, personName, personCountryId, eventId, roundId, weekend, year(weekend) year, week(weekend) week + 1,
 >>>>>>> b5473e9901dec34232ce0dea752ea1fc56246ef4

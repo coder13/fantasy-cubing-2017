@@ -11,7 +11,6 @@ const time = (hour, min, sec) => ((hour * 60 + min) * 60 + sec) * 1000;
 
 const getWeek = () => moment().week();
 
-<<<<<<< HEAD
 const teamQuery = (teamId, week) => `
 	SELECT mine.eventId, mine.slot, mine.personId, Persons.name, Persons.countryId, p.points FROM (SELECT teamId, eventId, slot, MAX(week) week FROM TeamPeople WHERE teamId='${teamId}' AND week <= ${week} GROUP BY teamId,eventId,slot) tp
 	LEFT JOIN TeamPeople mine on tp.teamId=mine.teamId AND tp.eventId=mine.eventId AND tp.slot=mine.slot AND tp.week=mine.week
@@ -19,21 +18,6 @@ const teamQuery = (teamId, week) => `
 	LEFT JOIN (SELECT eventId,personId,week,personCountryId,personName,
 	SUM(compPoints)+SUM(wrAveragePoints)+SUM(wrSinglePoints)+SUM(crAveragePoints)+SUM(crSinglePoints)+SUM(nrAveragePoints)+SUM(nrSinglePoints) points
 		FROM Points WHERE year=2016 AND week=${week} GROUP BY eventId,personId,week,personCountryId,personName) p ON mine.personId=p.personId AND mine.eventId=p.eventId;`;
-=======
-module.exports = function (server, base) {
-	// TODO: optimize
-	const teamQuery = (teamId, week) => `
-		SELECT mine.eventId, mine.slot, mine.personId, Persons.name, Persons.countryId, p.points FROM (SELECT teamId, eventId, slot, MAX(week) week FROM TeamPeople WHERE teamId='${teamId}' AND week <= ${week} GROUP BY teamId,eventId,slot) tp
-		LEFT JOIN TeamPeople mine on tp.teamId=mine.teamId AND tp.eventId=mine.eventId AND tp.slot=mine.slot AND tp.week=mine.week
-		LEFT JOIN Persons ON Persons.id = mine.personId
-		LEFT JOIN (SELECT eventId,personId,week,personCountryId,personName,SUM(compPoints) points FROM Points WHERE year=2016 AND week=${week} GROUP BY eventId,personId,week,personCountryId,personName) p ON mine.personId=p.personId AND mine.eventId=p.eventId;`;
-
-
-// SELECT mine.eventId, mine.slot, mine.personId, p.points FROM (SELECT teamId, eventId, slot, MAX(week) week FROM TeamPeople WHERE owner = 2 AND week <= 48 GROUP BY teamId,eventId,slot) tp
-// LEFT JOIN TeamPeople mine on tp.teamId=mine.teamId AND  tp.eventId=mine.eventId AND tp.slot=mine.slot AND tp.week=mine.week
-// LEFT JOIN (SELECT eventId,personId,week,SUM(compPoints) points FROM Points WHERE year=2016 AND week=48 GROUP BY eventId,personId,week) p ON mine.personId=p.personId AND mine.eventId=p.eventId;
-
->>>>>>> b5473e9901dec34232ce0dea752ea1fc56246ef4
 
 module.exports = function (server, base) {
 	server.method('teams.get', function (id, week, next) {
