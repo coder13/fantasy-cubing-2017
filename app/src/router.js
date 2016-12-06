@@ -70,10 +70,8 @@ module.exports = Router.extend({
 	},
 
 	teams () {
-		if (id === null) {
-			app.teams.fetch();
-			return renderPage(<TeamsPage teams={app.teams}/>);
-		}
+		app.teams.fetch();
+		return renderPage(<TeamsPage teams={app.teams}/>);
 	},
 
 	team (id, query) {

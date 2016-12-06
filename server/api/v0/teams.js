@@ -19,11 +19,12 @@ const getWeek = () => moment().week();
 
 module.exports = function (server, base) {
 	// TODO: optimize
+	// NOTE: Hot fix ${week} -> ${week-1}. Fix after adjusting the 0 based week in points to 1 based
 	const teamQuery = (teamId, week) => `
-		SELECT mine.eventId, mine.slot, mine.personId, Persons.name, Persons.countryId, p.points FROM (SELECT teamId, eventId, slot, MAX(week) week FROM TeamPeople WHERE teamId='${teamId}' AND week <= ${week} GROUP BY teamId,eventId,slot) tp
+		SELECT mine.eventId, mine.slot, mine.personId, Persons.name, Persons.countryId, p.points FROM (SELECT teamId, eventId, slot, MAX(week) week FROM TeamPeople WHERE teamId='${teamId}' AND week <= ${week-1} GROUP BY teamId,eventId,slot) tp
 		LEFT JOIN TeamPeople mine on tp.teamId=mine.teamId AND tp.eventId=mine.eventId AND tp.slot=mine.slot AND tp.week=mine.week
 		LEFT JOIN Persons ON Persons.id = mine.personId
-		LEFT JOIN (SELECT eventId,personId,week,personCountryId,personName,SUM(compPoints) points FROM Points WHERE year=2016 AND week=${week} GROUP BY eventId,personId,week,personCountryId,personName) p ON mine.personId=p.personId AND mine.eventId=p.eventId;`;
+		LEFT JOIN (SELECT eventId,personId,week,personCountryId,personName,SUM(compPoints) points FROM Points WHERE year=2016 AND week=${week-1} GROUP BY eventId,personId,week,personCountryId,personName) p ON mine.personId=p.personId AND mine.eventId=p.eventId;`;
 
 
 // SELECT mine.eventId, mine.slot, mine.personId, p.points FROM (SELECT teamId, eventId, slot, MAX(week) week FROM TeamPeople WHERE owner = 2 AND week <= 48 GROUP BY teamId,eventId,slot) tp

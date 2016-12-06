@@ -81,7 +81,3 @@ GROUP BY id, name, eventId
 ORDER BY totalPoints DESC);
 
 # ~25s
-
-
-SELECT mine.eventId, mine.slot, mine.personId FROM (SELECT teamId, eventId, slot, MAX(week) week FROM TeamPeople WHERE owner = 2 AND week <= 48 GROUP BY teamId,eventId,slot) tp JOIN TeamPeople mine on tp.teamId=mine.teamId AND  tp.eventId=mine.eventId AND tp.slot=mine.slot AND tp.week=mine.week; 
-SELECT mine.eventId, mine.slot, mine.personId, p.points FROM (SELECT teamId, eventId, slot, MAX(week) week FROM TeamPeople WHERE owner = 2 AND week <= 48 GROUP BY teamId,eventId,slot) tp JOIN TeamPeople mine on tp.teamId=mine.teamId AND  tp.eventId=mine.eventId AND tp.slot=mine.slot AND tp.week=mine.week JOIN (SELECT eventId,personId,week,SUM(compPoints) points FROM Points WHERE year=2016 AND week=48 GROUP BY eventId,personId,week) p ON mine.personId=p.personId;
