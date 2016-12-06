@@ -44,7 +44,7 @@ module.exports = Router.extend({
 		'profile/team': 'myTeam',
 		'matchups': 'matchups',
 		'teams': 'teams',
-		'teams/:id': 'teams',
+		'teams/:id': 'team',
 		'login': 'login',
 		'logout': 'logout',
 		'authcallback?:query': 'authCallback',
@@ -69,38 +69,35 @@ module.exports = Router.extend({
 		renderPage(<ManageTeamPage me={app.me}/>, 'teams');
 	},
 
-	teams (id, query) {
+	teams () {
 		if (id === null) {
 			app.teams.fetch();
 			return renderPage(<TeamsPage teams={app.teams}/>);
 		}
+	},
 
+	team (id, query) {
 		query = qs.parse(query);
 
 		let week = +query.week || moment().week();
 
-		console.log(82, week)
-
-		let team = app.teams.get({id: id});
-		if (team) {
-			team.fetch({week});
-			renderPage(<TeamPage week={week} team={team}/>);
-		} else {
-			let team = new Team({id: id});
-			if (!team.isValid()) {
-				return this.redirectTo('/');
-			}
-
-			team.fetch({
-				week,
-				error: function () {
-					app.router.redirectTo('/');
-				}
-			});
-
-			renderPage(<TeamPage week={week} team={team}/>);
-
+		let team = new Team({id: id});
+		if (!team.isValid()) {
+			return this.redirectTo('/');
 		}
+
+		team.fetch({
+			week,
+			error: function (err) {
+				console.error(err);
+				app.router.redirectTo('/');
+			},
+			success: function () {
+				renderPage(<TeamPage week={week} team={team}/>);
+			}
+		});
+
+		renderPage(<TeamPage week={week} team={team}/>);
 	},
 
 	login () {

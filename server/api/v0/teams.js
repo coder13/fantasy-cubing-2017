@@ -19,22 +19,25 @@ const getWeek = () => moment().week();
 
 module.exports = function (server, base) {
 	// TODO: optimize
+	const teamQuery = (teamId, week) => `
+		SELECT mine.eventId, mine.slot, mine.personId, Persons.name, Persons.countryId, p.points FROM (SELECT teamId, eventId, slot, MAX(week) week FROM TeamPeople WHERE teamId='${teamId}' AND week <= ${week} GROUP BY teamId,eventId,slot) tp
+		LEFT JOIN TeamPeople mine on tp.teamId=mine.teamId AND tp.eventId=mine.eventId AND tp.slot=mine.slot AND tp.week=mine.week
+		LEFT JOIN Persons ON Persons.id = mine.personId
+		LEFT JOIN (SELECT eventId,personId,week,personCountryId,personName,SUM(compPoints) points FROM Points WHERE year=2016 AND week=${week} GROUP BY eventId,personId,week,personCountryId,personName) p ON mine.personId=p.personId AND mine.eventId=p.eventId;`;
+
+
+// SELECT mine.eventId, mine.slot, mine.personId, p.points FROM (SELECT teamId, eventId, slot, MAX(week) week FROM TeamPeople WHERE owner = 2 AND week <= 48 GROUP BY teamId,eventId,slot) tp
+// LEFT JOIN TeamPeople mine on tp.teamId=mine.teamId AND  tp.eventId=mine.eventId AND tp.slot=mine.slot AND tp.week=mine.week
+// LEFT JOIN (SELECT eventId,personId,week,SUM(compPoints) points FROM Points WHERE year=2016 AND week=48 GROUP BY eventId,personId,week) p ON mine.personId=p.personId AND mine.eventId=p.eventId;
+
+
 	server.method('teams.get', function (id, week, next) {
 		Team.findById(id).then(function (team) {
 			if (!team) {
 				return reply(Boom.notFound('Team not found', 400));
 			}
 
-			return TeamPerson.findAll({
-				where: {
-					owner: team.owner,
-					teamId: team.id,
-					week: {
-						$lte: week
-					}
-				},
-				include: [App.db.Person]
-			}).then(function (people) {
+			return App.db.sequelize.query(teamQuery(id, week)).then(people =>
 				next(null, {
 					owner: team.owner,
 					id: team.id,
@@ -43,22 +46,23 @@ module.exports = function (server, base) {
 					losses: team.losses,
 					ties: team.ties,
 					ELO: team.ELO,
-					cubers: _.chain(people).filter(i => !!i.personId).map(i => ({
-						eventId: i.eventId,
-						slot: i.slot,
-						personId: i.personId,
-						name: i.Person.name,
-						countryId: i.Person.countryId
-					})).keyBy((i) => `${i.eventId}-${i.slot}`).value()
-				});
-			}).catch(error => next(Boom.wrap(error, 500)));
-		}).catch(error => next(Boom.wrap(error, 500)));
+					cubers: _.chain(people[0]).filter(p => !!p.personId).map(p => ({
+						eventId: p.eventId,
+						slot: p.slot,
+						personId: p.personId,
+						name: p.name,
+						countryId: p.countryId,
+						points: p.points || 0
+					})).keyBy(p => `${p.eventId}-${p.slot}`).value()
+				})
+			).catch(error => next(error));
+		}).catch(error => next(error));
 	}, {
 		cache: {
 			cache: 'redisCache',
 			generateTimeout: 2000,
-			expiresIn: time(0,5,0),
-			staleIn: time(0,0,30),
+			expiresIn: time(0,0,30),
+			staleIn: time(0,0,10),
 			staleTimeout: 1000
 		}
 	});
@@ -73,7 +77,7 @@ module.exports = function (server, base) {
 		config: {
 			handler: function (request, reply) {
 				let {week, league} = request.query;
-				console.log(28, request.state);
+
 				Team.findAll({
 					where: {
 						league: league || 'Standard'
@@ -95,7 +99,7 @@ module.exports = function (server, base) {
 
 				server.methods.teams.get(request.params.id, week || moment().week(), function (err, team) {
 					if (err) {
-						return reply(err);
+						return reply(Boom.wrap(err, 500));
 					}
 
 					return reply(team);

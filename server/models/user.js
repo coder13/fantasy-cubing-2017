@@ -12,7 +12,7 @@ module.exports = function (sequelize, DataTypes) {
 				isEmail: true
 			}
 		},
-		avatar: DataTypes.STRING,
+		avatar: DataTypes.STRING
 	}, {
 		classMethods: {
 			associate: function(models) {

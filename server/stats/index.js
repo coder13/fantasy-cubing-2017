@@ -57,7 +57,6 @@ module.exports.register = function(server, options, next) {
 	}, {
 		cache: sqlCache,
 		generateKey: function (array) {
-			console.log(60, array.join(','))
 			return array.join(',');
 		}
 	});
