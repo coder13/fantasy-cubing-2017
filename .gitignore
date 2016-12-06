@@ -2,3 +2,4 @@ app/public
 node_modules
 secrets.js
 npm-debug.log.*
+dump.rdb

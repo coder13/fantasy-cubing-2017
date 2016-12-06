@@ -5,7 +5,10 @@ const Team = require('./team');
 module.exports = Model.extend({
 	props: {
 		week: 'number',
-		league: 'string',
+		league: 'string'
+	},
+
+	children: {
 		homeTeam: Team,
 		awayTeam: Team
 	}

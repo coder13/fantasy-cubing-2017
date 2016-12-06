@@ -62,9 +62,14 @@ module.exports = Router.extend({
 	},
 
 	matchups (week) {
+<<<<<<< HEAD
+		app.matchups.setWeek(week || app.currentWeek()).fetch();
+		renderPage(<MatchupsPage week={app.times.week || app.currentWeek()} matchups={app.matchups}/>, 'matchups');
+=======
 		console.log(64)
 		app.matchups.setWeek(app.times.week || week).fetch();
 		renderPage(<MatchupsPage week={app.times.week || 0} matchups={app.matchups}/>, 'matchups');
+>>>>>>> b5473e9901dec34232ce0dea752ea1fc56246ef4
 	},
 
 	myTeam () {
@@ -79,7 +84,7 @@ module.exports = Router.extend({
 	team (id, query) {
 		query = qs.parse(query);
 
-		let week = +query.week || moment().week();
+		let week = +query.week || app.currentWeek();
 
 		let team = new Team({id: id});
 		if (!team.isValid()) {

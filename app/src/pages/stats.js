@@ -79,7 +79,6 @@ module.exports = React.createClass({
 		// 	this.request.abort();
 		// }
 
-		console.log(this.state.events, this.state.events.join(','));
 		let self = this;
 		this.request = xhr.get(`${app.apiURL}/points/personEvent?events=${this.state.events.join(',')}`, function (err, res, body) {
 			if (err) {
@@ -125,7 +124,6 @@ module.exports = React.createClass({
 	},
 
 	changeEvents (events) {
-		console.log(30, events)
 		this.state.events = events;
 
 		this.updateStats();
@@ -155,7 +153,8 @@ module.exports = React.createClass({
 		);
 	}
 });
-							// <div className='form-group'>
-							//   <label htmlFor='region'>Region</label>
-							// 	<RegionSelect onChange={this.changeCountry} style={{display: 'block'}}/>
-							// </div>
+
+// <div className='form-group'>
+//   <label htmlFor='region'>Region</label>
+// 	<RegionSelect onChange={this.changeCountry} style={{display: 'block'}}/>
+// </div>

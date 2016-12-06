@@ -4,6 +4,7 @@ require('./lib/bootstrap.min.js');
 
 const App = require('ampersand-app');
 const xhr = require('xhr');
+const moment = require('moment');
 const Router = require('./router');
 const Me = require('./models/me');
 const Team = require('./models/team');
@@ -53,6 +54,10 @@ const app = window.app = App.extend({
 				app.matchups.fetch();
 			}
 		});
+	},
+
+	currentWeek () {
+		return app.times ? app.times.week || moment.utc().week() : moment.utc().week();
 	},
 
 	initRouter () {

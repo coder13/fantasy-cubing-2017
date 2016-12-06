@@ -5,7 +5,6 @@ module.exports = Collection.extend({
 	model: Matchup,
 
 	initialize (models, options) {
-		console.log(options)
 		this.league = options.league;
 		this.week = options.week;
 	},

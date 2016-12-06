@@ -42,6 +42,11 @@ module.exports = window.Team = Model.extend({
 	},
 
 	fetch(options) {
+<<<<<<< HEAD
+		options = options || {};
+		this.week = options.week || app.currentWeek();
+		return Model.prototype.fetch.apply(this, arguments);
+=======
 		if (options.week) {
 			options.url = `${this.url()}?week=${options.week}`;
 		}
@@ -55,9 +60,10 @@ module.exports = window.Team = Model.extend({
 		};
 
 		return this.sync('read', this, options);
+>>>>>>> b5473e9901dec34232ce0dea752ea1fc56246ef4
 	},
 
 	url () {
-		return `${app.apiURL}/teams/${this.id || ''}`;
+		return `${app.apiURL}/teams/${this.id || ''}${this.week ? `?week=${this.week}` : ''}`;
 	}
 });
