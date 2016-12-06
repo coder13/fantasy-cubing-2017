@@ -4,7 +4,6 @@ const fs = require('fs');
 const Boom = require('boom');
 const wca = require('../../../lib/wca');
 
-<<<<<<< HEAD
 module.exports = (server, base) => {
 	server.route([{
 		method: 'GET',
@@ -18,64 +17,16 @@ module.exports = (server, base) => {
 						return reply(Boom.wrap(err, 500));
 					}
 					reply(results[0]);
-=======
-const personQuery = (wca_id) => `
-SELECT personId,personName,
-sum(wrAveragePoints) wrAveragePoints,
-sum(wrSinglePoints) wrSinglePoints,
-sum(crAveragePoints) crAveragePoints,
-sum(crSinglePoints) crSinglePoints,
-sum(nrAveragePoints) nrAveragePoints,
-sum(nrSinglePoints) nrSinglePoints,
-sum(compPoints) compPoints,
-sum(wrAveragePoints+wrSinglePoints+crAveragePoints+crSinglePoints+nrAveragePoints+nrSinglePoints+compPoints) totalPoints
-FROM Points
-WHERE personId="${wca_id}"
-GROUP BY personId,personName`;
-
-const CachedQueries = {
-	'': 'totalPoints',
-	'year': 'totalPointsPastYear',
-	'3months': 'totalPointsPast3Months',
-	'6months': 'totalPointsPast6Months'
-};
-
-module.exports = (server, base) => {
-	server.route([{
-		method: 'GET',
-		path: `${base}/points`,
-		config: {
-			handler: function (request, reply) {
-				console.log(request.query);
-				let file = `cache/${CachedQueries[request.query.past || '']}.json`;
-				console.log(file);
-				fs.readFile(file, function (err, data) {
-					if (err) {
-						reply(null);
-						throw err;
-					} else {
-						reply(data);
-					}
->>>>>>> b5473e9901dec34232ce0dea752ea1fc56246ef4
 				});
 			}
 		}
 	}, {
 		method: 'GET',
-<<<<<<< HEAD
 		path: `${base}/points/countryEvent`,
 		config: {
 			handler: function (request, reply) {
 				let events = request.query.events ? request.query.events.split(',') : wca.Events;
 				request.server.methods.getAllCountryEventPoints(events, function (err, results) {
-=======
-		path: `${base}/points/personEvent`,
-		config: {
-			handler: function (request, reply) {
-				let events = request.query.events ? request.query.events.split(',') : wca.Events;
-				// let region = request.query.region ? request.query.region : 'all';
-				request.server.methods.getAllPersonEventPoints(events, function (err, results) {
->>>>>>> b5473e9901dec34232ce0dea752ea1fc56246ef4
 					if (err) {
 						return reply(Boom.wrap(err, 500));
 					}
@@ -83,30 +34,6 @@ module.exports = (server, base) => {
 				});
 			}
 		}
-	}, {
-		method: 'GET',
-<<<<<<< HEAD
-		path: `${base}/points/competitionEvent`,
-		config: {
-			handler: function (request, reply) {
-				let events = request.query.events ? request.query.events.split(',') : wca.Events;
-				request.server.methods.getAllCompetitionEventPoints(events, function (err, results) {
-=======
-		path: `${base}/points/countryEvent`,
-		config: {
-			handler: function (request, reply) {
-				let events = request.query.events ? request.query.events.split(',') : wca.Events;
-				request.server.methods.getAllCountryEventPoints(events, function (err, results) {
->>>>>>> b5473e9901dec34232ce0dea752ea1fc56246ef4
-					if (err) {
-						return reply(Boom.wrap(err, 500));
-					}
-					reply(results[0]);
-				});
-			}
-		}
-<<<<<<< HEAD
-=======
 	}, {
 		method: 'GET',
 		path: `${base}/points/competitionEvent`,
@@ -121,6 +48,5 @@ module.exports = (server, base) => {
 				});
 			}
 		}
->>>>>>> b5473e9901dec34232ce0dea752ea1fc56246ef4
 	}]);
 };
