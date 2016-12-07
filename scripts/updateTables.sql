@@ -1,4 +1,7 @@
+START TRANSACTION;
+
 CREATE INDEX compId on Results(competitionId);
+
 
 DROP TABLE IF EXISTS ResultDates;
 CREATE TABLE ResultDates AS (
@@ -19,15 +22,7 @@ CREATE INDEX eventCountryDate ON ResultDates(eventId, personCountryId, date);
 
 DROP TABLE IF EXISTS `Points`;
 CREATE TABLE Points AS (
-<<<<<<< HEAD
-<<<<<<< HEAD
 SELECT competitionId, personId, personName, personCountryId, eventId, roundId, weekend, year(weekend) year, week(weekend) + 1 week,
-=======
-SELECT competitionId, personId, personName, personCountryId, eventId, roundId, weekend, year(weekend) year, week(weekend) week + 1,
->>>>>>> b5473e9901dec34232ce0dea752ea1fc56246ef4
-=======
-SELECT competitionId, personId, personName, personCountryId, eventId, roundId, weekend, year(weekend) year, week(weekend) week + 1,
->>>>>>> b5473e9901dec34232ce0dea752ea1fc56246ef4
 if(regionalAverageRecord = 'WR',
 (SELECT COUNT(DISTINCT personId) FROM ResultDates rd
 WHERE rd.eventId=rd2.eventId AND rd.date <= rd2.date AND rd.average > -1), 0) wrAveragePoints,
@@ -89,3 +84,5 @@ GROUP BY id, name, eventId
 ORDER BY totalPoints DESC);
 
 # ~25s
+
+COMMIT;

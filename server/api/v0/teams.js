@@ -49,7 +49,7 @@ module.exports = function (server, base) {
 	}, {
 		cache: {
 			cache: 'redisCache',
-			generateTimeout: 10000,
+			generateTimeout: 20000,
 			expiresIn: time(1,0,0),
 			staleIn: time(0,1,0),
 			staleTimeout: 2000

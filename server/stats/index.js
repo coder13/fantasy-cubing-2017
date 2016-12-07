@@ -82,7 +82,7 @@ module.exports.register = function(server, options, next) {
 	});
 
 	if (process.env.NODE_ENV.slice(0,4) === 'prod') {
-		cacheQueries(server);
+//		cacheQueries(server);
 	}
 
 	next();
