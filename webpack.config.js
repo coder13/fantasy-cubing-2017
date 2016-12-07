@@ -1,22 +1,12 @@
 'use strict';
 
 const webpack = require('webpack');
+const autoprefixer = require('autoprefixer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const ENV = process.env.NODE_ENV || 'dev';
 
 console.log('NODE_ENV=', ENV);
-
-const Stylus = {
-	dev: {
-		test: /\.styl$/,
-		loader: 'style-loader!css-loader!postcss-loader!stylus-loader'
-	},
-	prod: {
-		test: /\.styl$/,
-		loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader!stylus-loader')
-	}
-};
 
 const config = module.exports = {
 	entry: ENV === 'dev' ? [
@@ -46,14 +36,18 @@ const config = module.exports = {
 		}, {
 			test: /\.css$/,
 			loader: 'style-loader!css-loader'
-		},	{
+		}, {
 			test: /\.styl$/,
-			loader: 'style-loader!css-loader!stylus-loader'
+			loader: 'style-loader!css-loader!postcss-loader!stylus-loader'
 		}, {
 			test: /\.json$/,
 			loaders: ['json']
 		}]
 	},
+
+	postcss: [
+		autoprefixer()
+	],
 
 	plugins: [
 		new HtmlWebpackPlugin({
@@ -65,7 +59,7 @@ const config = module.exports = {
 			filename: '404.html',
 			title: 'Fantasy Cubing',
 			template: './app/src/index.html',
-			// favicon: './app/src/assets/favicon.png'
+			favicon: './app/src/favicon.png'
 		}),
 		new webpack.optimize.OccurenceOrderPlugin(),
 		new webpack.NoErrorsPlugin()
