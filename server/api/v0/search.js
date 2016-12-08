@@ -13,16 +13,25 @@ module.exports = (server, base) => {
 			handler: function (request, reply) {
 				let name = request.params.name || '';
 
-				let where = `${isNaN(+name.slice(0,1)) ? 'name' : 'id'} LIKE '${name}%'`;
+				let where = `${isNaN(+name.slice(0,1)) ? 'name' : 'id'} LIKE :name`;
 
 				if (request.query && request.query.eventId) {
-					return sequelize.query(`SELECT * FROM PersonEventPoints WHERE eventId='${request.query.eventId}' AND ${where} LIMIT 25;`)
-						.then(result => reply(result[0]))
+					return sequelize.query(`SELECT id,name,totalPoints points FROM PersonEventPoints WHERE eventId=:event AND ${where} LIMIT 25;`, {
+						replacements: {
+							event: request.query.eventId,
+							name: `%${name}%`
+						},
+						type: sequelize.QueryTypes.SELECT
+					}).then(result => reply(result))
 						.catch(error => reply(Boom.wrap(error, 500)));
 				}
 
-				sequelize.query(`SELECT * FROM PersonsPoints WHERE ${where} LIMIT 25;`)
-					.then(result => reply(result[0]))
+				sequelize.query(`SELECT id,name,points FROM PersonsPoints WHERE ${where} LIMIT 25;`, {
+					replacements: {
+						name: `%${name}%`
+					}
+				})
+					.then(result => reply(result))
 					.catch(error => reply(Boom.wrap(error, 500)));
 			}
 		}
