@@ -5,19 +5,19 @@ const Boom = require('boom');
 const shortId = require('shortid');
 const moment = require('moment');
 
-const {User, Team, Person, TeamPerson} = App.db;
+const {sequelize, User, Team, Person, TeamPerson} = App.db;
 
 const time = (hour, min, sec) => ((hour * 60 + min) * 60 + sec) * 1000;
 
 const getWeek = () => moment().week();
 
-const teamQuery = (teamId, week) => `
-	SELECT mine.eventId, mine.slot, mine.personId, Persons.name, Persons.countryId, p.points FROM (SELECT teamId, eventId, slot, MAX(week) week FROM TeamPeople WHERE teamId='${teamId}' AND week <= ${week} GROUP BY teamId,eventId,slot) tp
-	LEFT JOIN TeamPeople mine on tp.teamId=mine.teamId AND tp.eventId=mine.eventId AND tp.slot=mine.slot AND tp.week=mine.week
-	LEFT JOIN Persons ON Persons.id = mine.personId
-	LEFT JOIN (SELECT eventId,personId,week,personCountryId,personName,
-	SUM(compPoints)+SUM(wrAveragePoints)+SUM(wrSinglePoints)+SUM(crAveragePoints)+SUM(crSinglePoints)+SUM(nrAveragePoints)+SUM(nrSinglePoints) points
-		FROM Points WHERE year=2016 AND week=${week} GROUP BY eventId,personId,week,personCountryId,personName) p ON mine.personId=p.personId AND mine.eventId=p.eventId;`;
+const teamQuery = `
+SELECT mine.eventId, mine.slot, mine.personId, Persons.name, Persons.countryId, p.points FROM (SELECT teamId, eventId, slot, MAX(week) week FROM TeamPeople WHERE teamId=:teamId AND week <= :week GROUP BY teamId,eventId,slot) tp
+LEFT JOIN TeamPeople mine on tp.teamId=mine.teamId AND tp.eventId=mine.eventId AND tp.slot=mine.slot AND tp.week=mine.week
+LEFT JOIN Persons ON Persons.id = mine.personId
+LEFT JOIN (SELECT eventId,personId,week,personCountryId,personName,
+SUM(compPoints)+SUM(wrAveragePoints)+SUM(wrSinglePoints)+SUM(crAveragePoints)+SUM(crSinglePoints)+SUM(nrAveragePoints)+SUM(nrSinglePoints) points
+	FROM Points WHERE year=2016 AND week=:week GROUP BY eventId,personId,week,personCountryId,personName) p ON mine.personId=p.personId AND mine.eventId=p.eventId;`;
 
 const getTeam = function (id, week, next) {
 	Team.findById(id).then(function (team) {
@@ -25,7 +25,13 @@ const getTeam = function (id, week, next) {
 			return next(Boom.notFound('Team not found'));
 		}
 
-		return App.db.sequelize.query(teamQuery(id, week)).then(people =>
+		return sequelize.query(teamQuery, {
+			replacements: {
+				teamId: id,
+				week: week
+			},
+			type: sequelize.QueryTypes.SELECT
+		}).then(people =>
 			next(null, {
 				owner: team.owner,
 				id: team.id,
@@ -34,7 +40,7 @@ const getTeam = function (id, week, next) {
 				losses: team.losses,
 				ties: team.ties,
 				ELO: team.ELO,
-				cubers: _.chain(people[0]).filter(p => !!p.personId).map((p,index) => ({
+				cubers: _.chain(people).filter(p => !!p.personId).map((p,index) => ({
 					eventId: p.eventId,
 					slot: p.slot,
 					personId: p.personId,
@@ -231,4 +237,4 @@ module.exports = function (server, base) {
 			}
 		}
 	}]);
-}
+};

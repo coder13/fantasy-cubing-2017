@@ -29,7 +29,8 @@ module.exports = (server, base) => {
 				sequelize.query(`SELECT id,name,points FROM PersonsPoints WHERE ${where} LIMIT 25;`, {
 					replacements: {
 						name: `%${name}%`
-					}
+					},
+					type: sequelize.QueryTypes.SELECT
 				})
 					.then(result => reply(result))
 					.catch(error => reply(Boom.wrap(error, 500)));
