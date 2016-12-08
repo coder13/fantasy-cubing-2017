@@ -64,11 +64,10 @@ module.exports = React.createClass({
 				<Menu>
 					<Menu.Item name='Fantasy Cubing' active={active === 'home'} href='/'/>
 					<Menu.Item name='teams' active={active === 'teams'} href='/teams'/>
-					<Menu.Item name='matchups' active={active === 'matchups'} href='/matchups'/>
 
 					{app.me.isLoggedIn ? 
 						<Menu.Menu position='right'>
-							<Menu.Item href='/profile/team'>{team.name}: <b title='ELO'>{team.ELO}</b> <span title='Wins-Losses-Ties'>({team.wins}-{team.losses}-{team.ties})</span></Menu.Item>
+							<Menu.Item href='/profile/team'>{team.name}: <b title='TotalPoints'>{team.Points}</b> <span title='Rank'></span></Menu.Item>
 							<Menu.Item as={Dropdown} trigger={<Image size={'mini'} src={app.me.avatar ? app.me.avatar.thumb_url : ''}/>}>
 								<Dropdown.Menu>
 									<Dropdown.Item text='Profile' icon='user' href=''/>

@@ -8,7 +8,6 @@ const Router = require('./router');
 const Me = require('./models/me');
 const Team = require('./models/team');
 const Teams = require('./models/teams');
-const Matchups = require('./models/matchups');
 const Config = require('./config');
 
 if (typeof window !== 'undefined') {
@@ -34,10 +33,6 @@ const app = window.app = App.extend({
 		this.teams = new Teams();
 		this.teams.fetch();
 
-		app.matchups = new Matchups([], {
-			league: 'Standard'
-		});
-
 		this.times = {};
 		this.getTimes();
 
@@ -49,8 +44,6 @@ const app = window.app = App.extend({
 		xhr.get(`${app.apiURL}/times`, function (err, res, body) {
 			if (body) {
 				app.times = JSON.parse(body);
-				app.matchups.setWeek(app.times.week);
-				app.matchups.fetch();
 			}
 		});
 	},

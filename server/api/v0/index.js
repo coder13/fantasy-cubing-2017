@@ -7,7 +7,6 @@ module.exports.register = function(server, options, next) {
 	server.log('info', 'Setting up api...');
 	require('./leagues')(server, base);
 	require('./teams')(server, base);
-	require('./matchups')(server, base);
 	require('./search')(server, base);
 	require('./points')(server, base);
 

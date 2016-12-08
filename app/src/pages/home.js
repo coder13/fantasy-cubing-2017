@@ -17,7 +17,6 @@ module.exports = React.createClass({
 				<div className='page-header' style={{margin: '20px'}}>
 					<h1 className='text-center' style={{margin: '20px'}}>Fantasy Cubing</h1>
 				</div>
-				<a className='c-link' href='/matchups'>View this weekend's matchups!</a>
 			</div>
 		);
 	}

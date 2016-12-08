@@ -30,9 +30,6 @@ module.exports = function(sequelize, DataTypes) {
 				Team.belongsTo(models.User, {foreignKey: 'owner'});
 
 				Team.hasMany(models.TeamPerson);
-
-				Team.hasMany(models.Matchup, {foreignKey: 'home'});
-				Team.hasMany(models.Matchup, {foreignKey: 'away'});
 			},
 			getOwner: function() {
 				return Person.findById(this.owner);

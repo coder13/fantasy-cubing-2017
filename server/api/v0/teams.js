@@ -35,7 +35,7 @@ module.exports = function (server, base) {
 					losses: team.losses,
 					ties: team.ties,
 					ELO: team.ELO,
-					cubers: _.chain(people[0]).filter(p => !!p.personId).map(p => ({
+					cubers: _.chain(people[0]).filter(p => !!p.personId).map((p,index) => ({
 						eventId: p.eventId,
 						slot: p.slot,
 						personId: p.personId,
@@ -49,6 +49,7 @@ module.exports = function (server, base) {
 	}, {
 		cache: {
 			cache: 'redisCache',
+			segment: 'teams',
 			generateTimeout: 20000,
 			expiresIn: time(1,0,0),
 			staleIn: time(0,1,0),

@@ -9,7 +9,6 @@ const Team = require('./models/team');
 const Layout = require('./pages/layout');
 const HomePage = require('./pages/home');
 const ProfilePage = require('./pages/profile');
-const MatchupsPage = require('./pages/matchups');
 const StatsPage = require('./pages/stats');
 const ManageTeamPage = require('./pages/manageTeam');
 const TeamPage = require('./pages/team');
@@ -44,8 +43,6 @@ module.exports = Router.extend({
 		// 'stats': 'stats',
 		'profile': 'profile',
 		'profile/team': 'myTeam',
-		'matchups': 'matchups',
-		// 'matchups/:week': 'matchup',
 		'teams': 'teams',
 		'teams/:id': 'team',
 		'login': 'login',
@@ -61,11 +58,6 @@ module.exports = Router.extend({
 	stats (query) {
 		query = qs.parse(query);
 		renderPage(<StatsPage past={query.past}/>, 'stats');
-	},
-
-	matchups (week) {
-		app.matchups.setWeek(week || app.currentWeek()).fetch();
-		renderPage(<MatchupsPage week={app.times.week || app.currentWeek()} matchups={app.matchups}/>, 'matchups');
 	},
 
 	myTeam () {
