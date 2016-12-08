@@ -31,7 +31,7 @@ const config = module.exports = {
 			exclude: /node_modules/,
 			loaders: ENV === 'dev' ? ['react-hot', 'babel?cacheDirectory'] : ['babel']
 		}, {
-			test: /\.(.png|jpe?g|gif|woff|woff2|eot|ttf|svg)$/,
+			test: /\.(png|jpe?g|gif|woff|woff2|eot|ttf|svg)$/,
 			loader: 'url-loader?limit=10000'
 		}, {
 			test: /\.css$/,

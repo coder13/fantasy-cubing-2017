@@ -1,5 +1,6 @@
 const app = require('ampersand-app');
 const React = require('react');
+const {Table} = require('semantic-ui-react');
 const ampersandReactMixin = require('ampersand-react-mixin');
 
 module.exports = React.createClass({
@@ -15,27 +16,27 @@ module.exports = React.createClass({
 		console.log(15, matchups.map(i => i))
 
 		return (
-			<table className='table table-bordered'>
-				<thead>
-					<tr>
-						<th>Team</th>
-						<th style={{textAlign: 'center', width: '1em'}}>Points</th>
-						<th style={{width: '1em'}}></th>
-						<th style={{textAlign: 'center', width: '1em'}}>Points</th>
-						<th>Team</th>
-					</tr>
-				</thead>
-				<tbody>
+			<Table>
+				<Table.Header>
+					<Table.Row>
+						<Table.HeaderCell>Team</Table.HeaderCell>
+						<Table.HeaderCell style={{textAlign: 'center', width: '1em'}}>Points</Table.HeaderCell>
+						<Table.HeaderCell style={{width: '1em'}}></Table.HeaderCell>
+						<Table.HeaderCell style={{textAlign: 'center', width: '1em'}}>Points</Table.HeaderCell>
+						<Table.HeaderCell>Team</Table.HeaderCell>
+					</Table.Row>
+				</Table.Header>
+				<Table.Body>
 					{matchups.map((matchup, index) => 
-						<tr key={index}>
-							<td>{matchup.homeTeam.name}</td>
-							<td>0</td>
-							<td>VS</td>
-							<td>0</td>
-							<td>{matchup.awayTeam.name}</td>
-						</tr>)}
-				</tbody>
-			</table>
+						<Table.Row key={index}>
+							<Table.Cell>{matchup.homeTeam.name}</Table.Cell>
+							<Table.Cell>0</Table.Cell>
+							<Table.Cell>VS</Table.Cell>
+							<Table.Cell>0</Table.Cell>
+							<Table.Cell>{matchup.awayTeam.name}</Table.Cell>
+						</Table.Row>)}
+				</Table.Body>
+			</Table>
 		);
 	},
 
@@ -43,7 +44,7 @@ module.exports = React.createClass({
 		let {matchups} = this.props;
 
 		return (
-			<div className='container'>
+			<div>
 				{matchups.length ? this.renderMatchups() :
 					<div>
 						<p>No Matchups yet, wait till the start of the weekend.</p>

@@ -5,8 +5,10 @@ const Router = require('ampersand-router');
 const ReactDOM = require('react-dom');
 const moment = require('moment');
 const Team = require('./models/team');
+
 const Layout = require('./pages/layout');
-const IndexPage = require('./pages/index');
+const HomePage = require('./pages/home');
+const ProfilePage = require('./pages/profile');
 const MatchupsPage = require('./pages/matchups');
 const StatsPage = require('./pages/stats');
 const ManageTeamPage = require('./pages/manageTeam');
@@ -39,7 +41,7 @@ module.exports = Router.extend({
 		'': 'index',
 		'teams': 'four',
 		'cubers': 'four',
-		'stats': 'stats',
+		// 'stats': 'stats',
 		'profile': 'profile',
 		'profile/team': 'myTeam',
 		'matchups': 'matchups',
@@ -53,7 +55,7 @@ module.exports = Router.extend({
 	},
 
 	index () {
-		renderPage(<IndexPage/>, 'home');
+		renderPage(<HomePage/>, 'home');
 	},
 
 	stats (query) {
@@ -67,12 +69,16 @@ module.exports = Router.extend({
 	},
 
 	myTeam () {
-		renderPage(<ManageTeamPage me={app.me}/>, 'teams');
+		renderPage(
+			<ProfilePage me={app.me}>
+				<ManageTeamPage me={app.me}/>)
+			</ProfilePage>
+		, 'teams')
 	},
 
 	teams () {
 		app.teams.fetch();
-		return renderPage(<TeamsPage teams={app.teams}/>);
+		return renderPage(<TeamsPage teams={app.teams}/>, 'teams');
 	},
 
 	team (id, query) {

@@ -1,6 +1,5 @@
-// require('./assets/favicon.png');
+require('../../semantic/dist/semantic.css');
 require('./styles/main.styl');
-require('./lib/bootstrap.min.js');
 
 const App = require('ampersand-app');
 const xhr = require('xhr');
