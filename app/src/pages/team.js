@@ -28,7 +28,8 @@ module.exports = React.createClass({
 
 	render () {
 		let {week, team} = this.props;
-		let points = team ? Object.keys(team.cubers).map(i => team.cubers[i].points || 0).reduce((a,b) => a+b) : 0;
+		let cubers = Object.keys(team.cubers);
+		let points = cubers.length > 0 ? cubers.map(i => team.cubers[i].points || 0).reduce((a,b) => a+b) : 0;
 
 		return (
 			<div className='container'>
@@ -40,7 +41,7 @@ module.exports = React.createClass({
 							<Button labelPosition='left' content='Last Week' icon='left chevron' onClick={() => app.router.history.navigate(`/teams/${team.id}?week=${week - 1}`)}/>
 							<Button labelPosition='right' content = 'Next Week' icon='right chevron' onClick={() => app.router.history.navigate(`/teams/${team.id}?week=${week + 1}`)}/>
 						</Button.Group>
-						Week: {week} Points: {points}
+						<span>Week: {week} Points: {points}</span>
 
 					</Segment>
 				</div>
