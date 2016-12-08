@@ -19,39 +19,43 @@ const teamQuery = (teamId, week) => `
 	SUM(compPoints)+SUM(wrAveragePoints)+SUM(wrSinglePoints)+SUM(crAveragePoints)+SUM(crSinglePoints)+SUM(nrAveragePoints)+SUM(nrSinglePoints) points
 		FROM Points WHERE year=2016 AND week=${week} GROUP BY eventId,personId,week,personCountryId,personName) p ON mine.personId=p.personId AND mine.eventId=p.eventId;`;
 
+const getTeam = function (id, week, next) {
+	Team.findById(id).then(function (team) {
+		if (!team) {
+			return next(Boom.notFound('Team not found'));
+		}
+
+		return App.db.sequelize.query(teamQuery(id, week)).then(people =>
+			next(null, {
+				owner: team.owner,
+				id: team.id,
+				name: team.name,
+				wins: team.wins,
+				losses: team.losses,
+				ties: team.ties,
+				ELO: team.ELO,
+				cubers: _.chain(people[0]).filter(p => !!p.personId).map((p,index) => ({
+					eventId: p.eventId,
+					slot: p.slot,
+					personId: p.personId,
+					name: p.name,
+					countryId: p.countryId,
+					points: p.points || 0
+				})).keyBy(p => `${p.eventId}-${p.slot}`).value()
+			})
+		).catch(error => next(error));
+	}).catch(error => next(error));
+};
+
 module.exports = function (server, base) {
 	server.method('teams.get', function (id, week, next) {
-		Team.findById(id).then(function (team) {
-			if (!team) {
-				return reply(Boom.notFound('Team not found', 400));
-			}
-
-			return App.db.sequelize.query(teamQuery(id, week)).then(people =>
-				next(null, {
-					owner: team.owner,
-					id: team.id,
-					name: team.name,
-					wins: team.wins,
-					losses: team.losses,
-					ties: team.ties,
-					ELO: team.ELO,
-					cubers: _.chain(people[0]).filter(p => !!p.personId).map((p,index) => ({
-						eventId: p.eventId,
-						slot: p.slot,
-						personId: p.personId,
-						name: p.name,
-						countryId: p.countryId,
-						points: p.points || 0
-					})).keyBy(p => `${p.eventId}-${p.slot}`).value()
-				})
-			).catch(error => next(error));
-		}).catch(error => next(error));
+		return getTeam(id, week, next);
 	}, {
 		cache: {
 			cache: 'redisCache',
 			segment: 'teams',
 			generateTimeout: 20000,
-			expiresIn: time(1,0,0),
+			expiresIn: time(2,0,0),
 			staleIn: time(0,1,0),
 			staleTimeout: 2000
 		}
