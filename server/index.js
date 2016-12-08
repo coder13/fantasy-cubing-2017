@@ -1,8 +1,5 @@
 'use strict';
 
-const DEV = process.env.NODE_ENV === 'dev';
-console.log('DEV: ' + DEV);
-
 const app = require('ampersand-app');
 const fs = require('fs');
 const path = require('path');
@@ -46,19 +43,17 @@ const plugins = [{
 	require('./api')
 ];
 
-if (DEV) {
-	plugins.push({
-		register: require('h2o2')
-	});
-}
-
 const App = global.App = app.extend({
 	init: function () {
 		App.config = config;
 
 		let server = this.server = new Hapi.Server({
+			app: {
+				dev: process.env.NODE_ENV !== 'prod'
+			},
 			debug: {
-				request: ['error']
+				request: ['error'],
+				log: ['error']
 			},
 			connections: {
 				routes: {
@@ -83,72 +78,18 @@ const App = global.App = app.extend({
 		// Database
 		this.db = require('./models/');
 
-		// this.db.sequelize.logging = (str) => server.log('info', 'str');
-		// console.log(78, this.db.sequelize.logging)
-
 		server.method('getWeekend', function () {
 			return moment().day(5).hour(8).minute(0).second(0).milliseconds(0);
 		});
 
 		server.register(plugins, function (err) {
-			if (err) {
-				server.log('error', err);
+			Hoek.assert(!err, 'Failed to register plugins: ' + err);
+
+			if (server.settings.app.dev) {
+				server.register(require('h2o2'));
 			}
 
-			const tryAuth = {
-				strategy: 'session',
-				mode: 'optional'
-			};
-
-			// Should go into seperate files:
-			if (DEV) {
-				// note: if not hot loading, make sure nodemon isn't watching the app directory
-				server.log('info', 'Setting up proxy...');
-				server.route({
-					method: 'GET',
-					path: '/{path*}',
-					config: {
-						auth: tryAuth,
-						plugins: {
-							'hapi-auth-cookie': {
-								redirectTo: false
-							}
-						},
-						handler: {
-							proxy: {
-								host: 'localhost',
-								port: '3000',
-								protocol: 'http',
-								passThrough: true
-							}
-						}
-					}
-				});
-			} else {
-				server.route({
-					method: 'GET',
-					path: '/{path*}',
-					handler: {
-						directory: {
-							path: '.',
-							index: true,
-							listing: false,
-							showHidden: false
-						}
-					}
-				});
-
-				server.ext('onPostHandler', function (request, reply) {
-					const response = request.response;
-					if (response.isBoom && response.output.statusCode === 404) {
-						return reply.file('404.html', {
-							filename: request.path
-						});
-					}
-
-					return reply.continue();
-				});
-			}
+			require('./routes')(server);
 
 			App.start();
 		});
@@ -158,7 +99,8 @@ const App = global.App = app.extend({
 		App.server.start(function (err) {
 			Hoek.assert(!err, 'Failed to start server: ' + err);
 
-			App.server.log('info', `Server running at: ${App.server.info.uri}`);
+			let isDev = App.server.settings.app.dev;
+			App.server.log('info', `${isDev ? 'Development' : 'Production'} Server running at: ${App.server.info.uri}`);
 		});
 	}
 });
