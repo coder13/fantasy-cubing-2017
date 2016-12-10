@@ -12,10 +12,7 @@ module.exports = window.Team = Model.extend({
 		owner: 'number',
 		name: 'string',
 		league: 'string',
-		wins: 'number',
-		losses: 'number',
-		ties: 'number',
-		ELO: 'number',
+		points: 'number',
 		cubers: {
 			type: 'object',
 			default: () => ({})

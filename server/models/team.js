@@ -8,22 +8,7 @@ module.exports = function(sequelize, DataTypes) {
 		league: DataTypes.STRING,
 		owner: DataTypes.INTEGER,
 		name: DataTypes.STRING,
-		wins: {
-			type: DataTypes.INTEGER,
-			defaultValue: 0
-		},
-		losses: {
-			type: DataTypes.INTEGER,
-			defaultValue: 0
-		},
-		ties: {
-			type: DataTypes.INTEGER,
-			defaultValue: 0
-		},
-		ELO: {
-			type: DataTypes.INTEGER,
-			defaultValue: 1500
-		}
+		points: DataTypes.INTEGER
 	}, {
 		classMethods: {
 			associate: function(models) {
