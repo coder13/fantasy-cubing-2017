@@ -7,12 +7,7 @@ module.exports = function(sequelize, DataTypes) {
 		eventId: DataTypes.STRING,
 		roundId: DataTypes.CHAR,
 		date: DataTypes.DATE,
-		wrAveragePoints: DataTypes.INTEGER,
-		wrsinglePoints: DataTypes.INTEGER,
-		crAveragePoints: DataTypes.INTEGER,
-		crsinglePoints: DataTypes.INTEGER,
-		nrAveragePoints: DataTypes.INTEGER,
-		nrsinglePoints: DataTypes.INTEGER,
+		worldPoints: DataTypes.INTEGER,
 		compPoints: DataTypes.INTEGER
 	}, {
 		timestamps: false,

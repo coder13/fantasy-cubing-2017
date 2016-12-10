@@ -63,7 +63,7 @@ module.exports = Router.extend({
 	myTeam () {
 		renderPage(
 			<ProfilePage me={app.me}>
-				<ManageTeamPage me={app.me}/>)
+				<ManageTeamPage me={app.me}/>
 			</ProfilePage>
 		, 'teams')
 	},

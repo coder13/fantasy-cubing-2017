@@ -3,13 +3,14 @@ require('react-select/dist/react-select.css');
 const _ = require('lodash');
 const app = require('ampersand-app');
 const React = require('react');
-const {Modal, Segment, Button} = require('semantic-ui-react');
+const {Modal, Segment, Button, Input} = require('semantic-ui-react');
 const Select = require('react-select');
 const ampersandReactMixin = require('ampersand-react-mixin');
 const xhr = require('xhr');
+const {Events, EventNames, League} = require('../../../lib/wca');
 const Team = require('../models/team');
 const TeamView = require('../components/team');
-const {Events, EventNames, League} = require('../../../lib/wca');
+const WeekSelector = require('../components/weekSelector');
 const CubeIcon = require('../components/cubeIcon');
 
 const CreateTeamModal = React.createClass({
@@ -45,13 +46,13 @@ const CreateTeamModal = React.createClass({
 		const {value} = this.state;
 
 		return (
-			<Modal show={true}>
+			<Modal size='small' open={true}>
 				<Modal.Header>Create Team</Modal.Header>
 
 				<Modal.Content>
-					<h5>Team Name:</h5>
+					<h3>Team Name:</h3>
 					<br/>
-					<input type='text' className='form-control' value={value} onChange={this.onChange}/>
+					<Input fluid type='text' value={value} onChange={this.onChange}/>
 				</Modal.Content>
 
 				<Modal.Actions>
@@ -74,19 +75,26 @@ module.exports = React.createClass({
 	},
 
 	getDefaultProps () {
-		return {};
+		return {
+			week: 0
+		};
 	},
 
 	render () {
+		let {week} = this.props;
 		let team = this.props.me.getTeam('Standard');
 
 		return (
-			<div className='container'>
-				<div className='button-group pull-right'>
-				</div>
-				<div>
-					<TeamView editable={true} team={team}/>
-				</div>
+			<div>
+				<Segment>
+					<h2>{team ? team.name : ''}</h2>
+					<div>
+						<Segment basic>
+							<WeekSelector week={week} last={() => app.router.history.navigate(`/teams/${team.id}?week=${week - 1}`)} next={() => app.router.history.navigate(`/teams/${team.id}?week=${week + 1}`)}/>
+						</Segment>
+						<TeamView editable={true} team={team}/>
+					</div>
+				</Segment>
 				{!team || !team.id ? <CreateTeamModal/> : null}
 			</div>
 		);

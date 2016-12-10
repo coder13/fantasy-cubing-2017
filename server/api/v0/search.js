@@ -16,7 +16,7 @@ module.exports = (server, base) => {
 				let where = `${isNaN(+name.slice(0,1)) ? 'name' : 'id'} LIKE :name`;
 
 				if (request.query && request.query.eventId) {
-					return sequelize.query(`SELECT id,name,totalPoints points FROM PersonEventPoints WHERE eventId=:event AND ${where} LIMIT 25;`, {
+					return sequelize.query(`SELECT id wca_id, name, totalPoints points FROM PersonEventPoints WHERE eventId=:event AND ${where} LIMIT 25;`, {
 						replacements: {
 							event: request.query.eventId,
 							name: `%${name}%`
@@ -26,7 +26,7 @@ module.exports = (server, base) => {
 						.catch(error => reply(Boom.wrap(error, 500)));
 				}
 
-				sequelize.query(`SELECT id,name,points FROM PersonsPoints WHERE ${where} LIMIT 25;`, {
+				sequelize.query(`SELECT id wca_id, name, points FROM PersonsPoints WHERE ${where} LIMIT 25;`, {
 					replacements: {
 						name: `%${name}%`
 					},

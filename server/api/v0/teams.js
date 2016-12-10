@@ -11,13 +11,24 @@ const time = (hour, min, sec) => ((hour * 60 + min) * 60 + sec) * 1000;
 
 const getWeek = () => moment().week();
 
+let classes = [{
+	slots: 2,
+	events: ['333']
+}, {
+	slots: 4,
+	events: ['444', '555', '222', 'skewb', 'pyram', '333oh', '333bf']
+}, {
+	slots: 4,
+	events: ['333fm', '333ft', 'minx', 'sq1', 'clock', '666', '777', '444bf', '555bf', '333mbf']
+}];
+
 const teamQuery = `
-SELECT mine.eventId, mine.slot, mine.personId, Persons.name, Persons.countryId, p.points FROM (SELECT teamId, eventId, slot, MAX(week) week FROM TeamPeople WHERE teamId=:teamId AND week <= :week GROUP BY teamId,eventId,slot) tp
+SELECT mine.eventId, mine.slot, mine.personId, Persons.name, Persons.countryId FROM (SELECT teamId, eventId, slot, MAX(week) week FROM TeamPeople WHERE teamId=:teamId AND week <= :week GROUP BY teamId,eventId,slot) tp
 LEFT JOIN TeamPeople mine on tp.teamId=mine.teamId AND tp.eventId=mine.eventId AND tp.slot=mine.slot AND tp.week=mine.week
-LEFT JOIN Persons ON Persons.id = mine.personId
-LEFT JOIN (SELECT eventId,personId,week,personCountryId,personName,
-SUM(compPoints)+SUM(wrAveragePoints)+SUM(wrSinglePoints)+SUM(crAveragePoints)+SUM(crSinglePoints)+SUM(nrAveragePoints)+SUM(nrSinglePoints) points
-	FROM Points WHERE year=2016 AND week=:week GROUP BY eventId,personId,week,personCountryId,personName) p ON mine.personId=p.personId AND mine.eventId=p.eventId;`;
+LEFT JOIN Persons ON Persons.id = mine.personId`;
+// LEFT JOIN (SELECT eventId,personId,week,personCountryId,personName,
+// SUM(compPoints)+SUM(wrAveragePoints)+SUM(wrSinglePoints)+SUM(crAveragePoints)+SUM(crSinglePoints)+SUM(nrAveragePoints)+SUM(nrSinglePoints) points
+// 	FROM Points WHERE year=2016 AND week=:week GROUP BY eventId,personId,week,personCountryId,personName) p ON mine.personId=p.personId AND mine.eventId=p.eventId;`;
 
 const getTeam = function (id, week, next) {
 	Team.findById(id).then(function (team) {
@@ -36,18 +47,14 @@ const getTeam = function (id, week, next) {
 				owner: team.owner,
 				id: team.id,
 				name: team.name,
-				wins: team.wins,
-				losses: team.losses,
-				ties: team.ties,
-				ELO: team.ELO,
+				points: team.points,
 				cubers: _.chain(people).filter(p => !!p.personId).map((p,index) => ({
-					eventId: p.eventId,
 					slot: p.slot,
+					eventId: p.eventId,
 					personId: p.personId,
 					name: p.name,
-					countryId: p.countryId,
-					points: p.points || 0
-				})).keyBy(p => `${p.eventId}-${p.slot}`).value()
+					countryId: p.countryId
+				})).keyBy(p => p.slot).toArray().value()
 			})
 		).catch(error => next(error));
 	}).catch(error => next(error));
@@ -71,7 +78,6 @@ module.exports = function (server, base) {
 		method: 'GET',
 		path: `${base}/teams`,
 		/* Query Params
-		 * week: defaults to current
 		 * league: defaults to Standard
 		 */
 		config: {
@@ -168,7 +174,7 @@ module.exports = function (server, base) {
 		}
 	}, { // Set Cuber
 		method: 'PUT',
-		path: `${base}/teams/{id}/{eventId}/{slot}`,
+		path: `${base}/teams/{id}/{slot}`,
 		config: {
 			auth: 'session',
 			handler: function (request, reply) {
@@ -179,14 +185,21 @@ module.exports = function (server, base) {
 
 				let profile = request.auth.credentials.profile;
 				let payload = JSON.parse(request.payload);
-				let {id, eventId, slot} = request.params;
+				let {id, slot} = request.params;
+
+				if (payload.eventId) {
+					let c = payload.slot < 2 ? 0 : payload.slot < 6 ? 1 : 2;
+					if (classes[c].events.indexOf(payload.eventId) === -1) {
+						return reply(Boom.create(400, 'Invalid event selection for class'));
+					}
+				}
 
 				let where = {
 					owner: profile.id,
 					id: id
 				};
 
-				Team.findById(id).then(function (team) {
+				return Team.findById(id).then(function (team) {
 					if (!team) {
 						return reply(Boom.notFound('Team not found'));
 					}
@@ -196,12 +209,12 @@ module.exports = function (server, base) {
 					}
 
 					payload.personId = payload.personId || '';
+					payload.eventId = payload.eventId || '';
 
 					let TeamPersonWhere = {
 						teamId: id,
 						owner: profile.id,
-						eventId: request.params.eventId,
-						slot: request.params.slot,
+						slot: slot,
 						week: getWeek()
 					};
 
@@ -219,16 +232,17 @@ module.exports = function (server, base) {
 
 						return TeamPerson.find({where: TeamPersonWhere}).then(function (teamPerson) {
 							let newTeamPerson = _.extend(TeamPersonWhere, {
-								personId: payload.personId
+								personId: payload.personId,
+								eventId: payload.eventId
 							});
 
 							let createOrUpdate = teamPerson ? TeamPerson.update(newTeamPerson, {where: TeamPersonWhere}) : TeamPerson.create(newTeamPerson);
 							createOrUpdate.then(() => {
-								request.server.log('info', `Set team member '${payload.personId}' in ${request.params.eventId}-${request.params.slot} for team '${payload.teamId}'`);
+								request.server.log('info', `Set team member '${payload.personId}' with event ${request.params.eventId} for slot ${request.params.slot} on team '${payload.teamId}'`);
 								if (payload.personId) {
-									Person.findById(payload.personId).then(person => reply(JSON.stringify(person)).code(201));
+									return Person.findById(payload.personId).then(person => reply(JSON.stringify(person)).code(201));
 								} else {
-									reply(null);
+									return reply(null);
 								}
 							});
 						});

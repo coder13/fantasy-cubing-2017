@@ -16,21 +16,9 @@ module.exports = {
 			name: {
 				type: Sequelize.STRING
 			},
-			wins: {
+			points: {
 				type: Sequelize.INTEGER,
 				defaultValue: 0
-			},
-			losses: {
-				type: Sequelize.INTEGER,
-				defaultValue: 0
-			},
-			ties: {
-				type: Sequelize.INTEGER,
-				defaultValue: 0
-			},
-			ELO: {
-				type: Sequelize.INTEGER,
-				defaultValue: 1500
 			},
 			createdAt: {
 				allowNull: false,

@@ -3,64 +3,109 @@ require('react-select/dist/react-select.css');
 const _ = require('lodash');
 const app = require('ampersand-app');
 const React = require('react');
-const Select = require('react-select');
 const ampersandReactMixin = require('ampersand-react-mixin');
-const {Button, Modal, Table} = require('semantic-ui-react');
+const {Form, Grid, Button, Label, Modal, Table, Select, Search, Segment, Header} = require('semantic-ui-react');
 const xhr = require('xhr');
+const {Events, EventNames, League, Input} = require('../../../lib/wca');
 const Team = require('../models/team');
-const {Events, EventNames, League} = require('../../../lib/wca');
+
+const prettyfy = (x) => !x ? 0 : x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+let classes = [{
+	slots: 2,
+	events: ['333']
+}, {
+	slots: 4,
+	events: ['444', '555', '222', 'skewb', 'pyram', '333oh', '333bf']
+}, {
+	slots: 4,
+	events: ['333fm', '333ft', 'minx', 'sq1', 'clock', '666', '777', '444bf', '555bf', '333mbf']
+}]
 
 const SelectPersonModal = React.createClass({
 	displayName: 'SelectPersonModal',
 
 	getInitialState () {
 		return {
+			isLoading: false,
 			showModal: false,
 			eventId: '333',
 			slot: 0,
-			value: ''
+			value: '',
+			results: []
 		};
 	},
 
 	submit () {
 		if (this.props.submit) {
-			this.props.submit(this.state.eventId, this.state.slot, this.state.value.value);
+			this.props.submit(this.state.slot, this.state.value, this.state.eventId);
 		}
-		this.setState(this.getInitialState())
+
+		this.closeModal();
 	},
 
-	getCubers (input, cb) {
-		xhr.get(`${app.apiURL}/search/people/${input}?eventId=${this.state.eventId}`, (error, res, body) => {
-			cb(null, {
-				options: _.uniqBy(JSON.parse(body).map(i => ({value: i.id, label: i.name + ` (${i.id})`})), 'value'),
-				complete:  true
-			});
+	getCubers (value, cb) {
+		xhr.get(`${app.apiURL}/search/people/${value}${this.state.eventId ? `?eventId=${this.state.eventId}` : ''}`, (error, res, body) => {
+			cb(null, _.uniqBy(JSON.parse(body), 'wca_id').map(cuber => ({
+				title: cuber.wca_id,
+				description: `${cuber.name} (${prettyfy(cuber.points)} Points)`
+			})));
 		});
 	},
 
-	open (eventId, slot) {
-		this.setState({showModal: true, eventId, slot});
+	open (slot) {
+		this.setState({showModal: true, slot});
 	},
 
 	closeModal () {
-		this.setState({showModal: false});
+		this.setState(this.getInitialState());
 	},
 
-	change (value) {
-		this.setState({value})
+	select (e, result) {
+		this.setState({value: result.title});
+	},
+
+	change (e, value) {
+		this.setState({isLoading: true, value});
+
+		this.getCubers(value, (err, results) => {
+			this.setState({isLoading: false, results: results})
+		});
+	},
+
+	changeEvent (raw, e) {
+		this.setState({
+			isLoading: true,
+			eventId: e.value
+		});
+
+		this.getCubers(this.state.value, (err, results) => {
+			this.setState({isLoading: false, results: results})
+		});
 	},
 
 	render() {
-		const {eventId, slot, value, showModal} = this.state;
+		const {isLoading, eventId, slot, value, showModal, results} = this.state;
+		let c = slot < 2 ? 0 : slot < 6 ? 1 : 2;
 
 		return (
-			<Modal open={showModal}>
+			<Modal open={showModal} size='small'>
 				<Modal.Header>Select Cuber</Modal.Header>
 
 				<Modal.Content>
-					<h5>Select cuber for {eventId} slot {slot+1}</h5>
+					<h4>Select Cuber For Slot {slot+1}</h4>
 					<br/>
-					<Select.Async name='name' value={value} onChange={this.change} loadOptions={this.getCubers}/>
+
+					<Form>
+						<Form.Field inline>
+							<label>Event: </label>
+							<Select className='eventSelect' value={eventId} onChange={this.changeEvent} options={classes[c].events.map((e,i) => ({value: e, text: EventNames[e]}))}/>
+						</Form.Field>
+						<Form.Field inline>
+							<label>Name: </label>
+							<Form as={Search} fluid loading={isLoading} onResultSelect={this.select} onSearchChange={this.change} results={results} value={value}/>
+						</Form.Field>
+					</Form>
 				</Modal.Content>
 
 				<Modal.Actions>
@@ -89,63 +134,108 @@ module.exports = React.createClass({
 		};
 	},
 
-	openChangePersonModal (eventId, slot) {
-		this.modals.selectPersonModal.open(eventId, slot);
+	openChangePersonModal (slot) {
+		this.modals.selectPersonModal.open(slot);
 	},
 
-	handleSelectPerson (eventId, slot, cuber) {
-		this.props.team.setCuber(eventId, slot, cuber);
+	handleSelectPerson (slot, cuber, eventId) {
+		this.props.team.setCuber(slot, cuber, eventId);
 	},
 
 	render () {
 		let {editable, team} = this.props;
 
+		let personRow = (i) =>
+			<Table.Row key={i} className='cuberRow'>
+				<Table.Cell>{team && team.cubers[i]? EventNames[team.cubers[i].eventId] : ''}</Table.Cell>
+				<Table.Cell>{team && team.cubers[i]? `${team.cubers[i].name} (${team.cubers[i].personId})` : ''}</Table.Cell>
+				<Table.Cell>{team && team.cubers[i]? team.cubers[i].countryId : ''}</Table.Cell>
+				<Table.Cell>{team && team.cubers[i]? team.cubers[i].points : ''}</Table.Cell>
+				{editable ? <Table.Cell><div style={{cursor: 'pointer'}} onClick={() => this.openChangePersonModal(i)}>{team && team.cubers[i] ? 'Change' : 'Choose'}</div></Table.Cell> : null}
+			</Table.Row>;
+
 		return (
-			<Table celled selectable>
-				<Table.Header>
-					<Table.Row>
-						<Table.HeaderCell>Event</Table.HeaderCell>
-						<Table.HeaderCell>Slot</Table.HeaderCell>
-						<Table.HeaderCell>Name</Table.HeaderCell>
-						<Table.HeaderCell>WCA ID</Table.HeaderCell>
-						<Table.HeaderCell>Country</Table.HeaderCell>
-						<Table.HeaderCell style={{width: '1em'}} title='Points for the weekend'>Points</Table.HeaderCell>
-						{editable ? <Table.HeaderCell/> : null}
-					</Table.Row>
-				</Table.Header>
-				<Table.Body>
-					{League.map((e) =>
-						_.times(e.slots, (i) => {
-							let eventTd = i === 0 ? <Table.Cell rowSpan={e.slots}><b>{EventNames[e.eventId]}</b></Table.Cell> : null;
-							if (team && team.cubers[`${e.eventId}-${i}`]) {
-								return (
-									<Table.Row>
-										{eventTd}
-										<Table.Cell>{i+1}</Table.Cell>
-										<Table.Cell>{team.cubers[`${e.eventId}-${i}`].name}</Table.Cell>
-										<Table.Cell>{team.cubers[`${e.eventId}-${i}`].personId}</Table.Cell>
-										<Table.Cell>{team.cubers[`${e.eventId}-${i}`].countryId}</Table.Cell>
-										<Table.Cell>{team.cubers[`${e.eventId}-${i}`].points}</Table.Cell>
-										{editable ? <Table.Cell><div style={{cursor: 'pointer'}} onClick={() => this.openChangePersonModal(e.eventId, i)}>Change</div></Table.Cell> : null}
-									</Table.Row>
-								);
-							} else {
-								return (
-									<Table.Row>
-										{eventTd}
-										<Table.Cell>{i+1}</Table.Cell>
-										<Table.Cell></Table.Cell>
-										<Table.Cell></Table.Cell>
-										<Table.Cell></Table.Cell>
-										<Table.Cell></Table.Cell>
-										{editable ? <Table.Cell><div style={{cursor: 'pointer'}} onClick={() => this.openChangePersonModal(e.eventId, i)}>Choose</div></Table.Cell> : null}
-									</Table.Row>
-								);
-							}
-					}))}
-				</Table.Body>
+			<div>
+				<Table celled structured attached='top'>
+					<Table.Header>
+						<Table.Row>
+							<Table.HeaderCell className='cubersHeaderCell'>Event</Table.HeaderCell>
+							<Table.HeaderCell className='cubersHeaderCell'>Name</Table.HeaderCell>
+							<Table.HeaderCell className='cubersHeaderCell'>Country</Table.HeaderCell>
+							<Table.HeaderCell className='cubersHeaderCell' style={{width: '1em'}} title='Points for the weekend'>Points</Table.HeaderCell>
+							{editable ? <Table.HeaderCell selectable className='cubersHeaderCell'/> : null}
+						</Table.Row>
+					</Table.Header>
+
+					<Table.Body>
+						<Table.Row className='classHeader'>
+							<Table.Cell>
+								<h4>Class 1: 3x3</h4>
+							</Table.Cell>
+							<Table.Cell colSpan='4'>
+								<p>Events: {classes[0].events.map(i => EventNames[i]).join(', ')}</p>
+							</Table.Cell>
+						</Table.Row>
+
+						{_.times(classes[0].slots, (i) =>
+							personRow(i)
+						)}
+
+						<Table.Row className='classHeader'>
+							<Table.Cell>
+								<h4>Class 2: Main Events</h4>
+							</Table.Cell>
+							<Table.Cell colSpan='4'>
+								<p>Events: {classes[1].events.map(i => EventNames[i]).join(', ')}</p>
+							</Table.Cell>
+						</Table.Row>
+
+						{_.times(classes[1].slots, (i) =>
+							personRow(2 + i)
+						)}
+
+						<Table.Row className='classHeader'>
+							<Table.Cell>
+								<h4>Class 3: Side Events</h4>
+							</Table.Cell>
+							<Table.Cell colSpan='4'>
+								<p>Events: {classes[2].events.map(i => EventNames[i]).join(', ')}</p>
+							</Table.Cell>
+						</Table.Row>
+
+						{_.times(classes[2].slots, (i) =>
+							personRow(6 + i)
+						)}
+
+					</Table.Body>
+				</Table>
+
 				{editable ? <SelectPersonModal ref={(modal) => this.modals.selectPersonModal = modal} submit={this.handleSelectPerson}/> : null}
-			</Table>
+			</div>
 		);
 	}
 });
+
+					// 	if (team && team.cubers[i]) {
+					// 		return (
+					// 			<Table.Row>
+					// 				<Table.Cell>{i+1}</Table.Cell>
+					// 				<Table.Cell>{team.cubers[i].name}</Table.Cell>
+					// 				<Table.Cell>{team.cubers[i].countryId} ({team.cubers[i].personId})</Table.Cell>
+					// 				<Table.Cell>{team.cubers[i].points}</Table.Cell>
+					// 				{editable ? <Table.Cell><div style={{cursor: 'pointer'}} onClick={() => this.openChangePersonModal(e.eventId, i)}>Change</div></Table.Cell> : null}
+					// 			</Table.Row>
+					// 		);
+					// 	} else {
+					// 		return (
+					// 			<Table.Row>
+					// 				<Table.Cell>{i+1}</Table.Cell>
+					// 				<Table.Cell></Table.Cell>
+					// 				<Table.Cell></Table.Cell>
+					// 				<Table.Cell></Table.Cell>
+					// 				<Table.Cell></Table.Cell>
+					// 				{editable ? <Table.Cell><div style={{cursor: 'pointer'}} onClick={() => this.openChangePersonModal(e.eventId, i)}>Choose</div></Table.Cell> : null}
+					// 			</Table.Row>
+					// 		);
+					// 	}
+					// })}

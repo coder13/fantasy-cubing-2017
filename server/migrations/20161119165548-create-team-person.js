@@ -11,13 +11,13 @@ module.exports = {
 			week: {
 				type: Sequelize.INTEGER
 			},
-			eventId: {
-				type: Sequelize.STRING
-			},
 			slot: {
 				type: Sequelize.INTEGER
 			},
 			personId: {
+				type: Sequelize.STRING
+			},
+			eventId: {
 				type: Sequelize.STRING
 			},
 			createdAt: {

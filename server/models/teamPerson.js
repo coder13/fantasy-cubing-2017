@@ -4,8 +4,8 @@ module.exports = function(sequelize, DataTypes) {
 		owner: DataTypes.STRING,
 		teamId: DataTypes.STRING,
 		week: DataTypes.INTEGER,
-		eventId: DataTypes.STRING,
 		slot: DataTypes.INTEGER,
+		eventId: DataTypes.STRING,
 		personId: DataTypes.STRING
 	}, {
 		classMethods: {

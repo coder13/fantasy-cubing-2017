@@ -14,25 +14,27 @@ module.exports = window.Team = Model.extend({
 		league: 'string',
 		points: 'number',
 		cubers: {
-			type: 'object',
+			type: 'array',
 			default: () => ({})
 		}
 	},
 
-	setCuber(eventId, slot, personId) {
+	setCuber(slot, personId, eventId) {
 		let self = this;
-		xhr.put(`${app.apiURL}/teams/${this.id}/${eventId}/${slot}`, {body: JSON.stringify({eventId, slot, personId, teamId: this.id})}, function (err, res, body) {
+		xhr.put(`${app.apiURL}/teams/${this.id}/${slot}`, {body: JSON.stringify({eventId, slot, personId, teamId: this.id})}, function (err, res, body) {
 			if (err) {
 				return console.error(err);
 			}
 
 			if (res.body === null) {
-				delete self.cubers[`${eventId}-${slot}`];
+				delete self.cubers[slot];
 				self.trigger('change');
 			} else if (res.statusCode < 400) {
 				let cuber = JSON.parse(body);
 				cuber.personId = personId;
-				self.cubers[`${eventId}-${slot}`] = cuber;
+				cuber.eventId = eventId;
+
+				self.cubers[slot] = cuber;
 				self.trigger('change');
 			}
 		});

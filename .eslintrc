@@ -50,7 +50,6 @@
         "eqeqeq": 1,
         "curly": [2, "all"],
         "no-eval": 2,
-        "no-else-return": 2,
         "no-return-assign": 2,
         "no-new-wrappers": 2,
         "comma-dangle": 2,

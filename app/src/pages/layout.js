@@ -2,7 +2,7 @@ const app = require('ampersand-app');
 const React = require('react');
 const ampersandMixin = require('ampersand-react-mixin');
 const moment = require('moment');
-const {Container, Menu, Dropdown, Image} = require('semantic-ui-react');
+const {Container, Message, Menu, Dropdown, Image} = require('semantic-ui-react');
 const NavHelper = require('../components/nav-helper');
 
 module.exports = React.createClass({
@@ -67,7 +67,8 @@ module.exports = React.createClass({
 
 					{app.me.isLoggedIn ? 
 						<Menu.Menu position='right'>
-							<Menu.Item href='/profile/team'>{team.name}: <b title='TotalPoints'>{team.Points}</b> <span title='Rank'></span></Menu.Item>
+							{team ? <Menu.Item href='/profile/team'>{team.name}: <b title='TotalPoints'>{team.Points}</b> <span title='Rank'></span></Menu.Item> :
+								<Menu.Item href='/profile/team'>Make your team!</Menu.Item>}
 							<Menu.Item as={Dropdown} trigger={<Image size={'mini'} src={app.me.avatar ? app.me.avatar.thumb_url : ''}/>}>
 								<Dropdown.Menu>
 									<Dropdown.Item text='Profile' icon='user' href=''/>
@@ -81,19 +82,21 @@ module.exports = React.createClass({
 					}
 				</Menu>
 
-				<div id='alerts' className='container'>
+				<Container id='alerts'>
 					{app.me.isLoggedIn && !team ?
-						<div className='alert alert-danger' role='alert'>
-							You don't have a team yet, make yours <a href='/profile/team' className='alert-link'>here</a>!
-						</div>
+						<Message negative>
+							<p>You don't have a team yet, make yours <a href='/profile/team' className='c-link'>here</a>!</p>
+						</Message>
 					: null}
-				</div>
+				</Container>
+
+				<br/>
 
 				<Container id='body'>
 					{this.props.children}
 				</Container>
 
-				<div id='footer' style={{height: '2em'}}/>
+				<Container id='footer' style={{height: '2em'}}/>
 			</NavHelper>
 		);
 	}

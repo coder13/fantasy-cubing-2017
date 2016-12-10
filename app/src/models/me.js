@@ -23,8 +23,7 @@ module.exports = Model.extend({
 		name: 'string',
 		wca_id: 'string',
 		avatar: 'object',
-		email: 'string',
-		ELO: 'number'
+		email: 'string'
 	},
 
 	collections: {
