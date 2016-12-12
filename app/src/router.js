@@ -60,10 +60,13 @@ module.exports = Router.extend({
 		renderPage(<StatsPage past={query.past}/>, 'stats');
 	},
 
-	myTeam () {
+	myTeam (query) {
+		query = qs.parse(query);
+		let week = +query.week || app.currentWeek();
+
 		renderPage(
 			<ProfilePage me={app.me}>
-				<ManageTeamPage me={app.me}/>
+				<ManageTeamPage week={week} me={app.me}/>
 			</ProfilePage>
 		, 'teams')
 	},

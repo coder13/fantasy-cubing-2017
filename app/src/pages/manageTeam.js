@@ -90,9 +90,9 @@ module.exports = React.createClass({
 					<h2>{team ? team.name : ''}</h2>
 					<div>
 						<Segment basic>
-							<WeekSelector week={week} last={() => app.router.history.navigate(`/teams/${team.id}?week=${week - 1}`)} next={() => app.router.history.navigate(`/teams/${team.id}?week=${week + 1}`)}/>
+							<WeekSelector week={week} last={() => app.router.history.navigate(`/profile/team?week=${week - 1}`)} next={() => app.router.history.navigate(`/profile/team?week=${week + 1}`)}/>
 						</Segment>
-						<TeamView editable={true} team={team}/>
+						<TeamView editable={week === app.currentWeek()} team={team}/>
 					</div>
 				</Segment>
 				{!team || !team.id ? <CreateTeamModal/> : null}
