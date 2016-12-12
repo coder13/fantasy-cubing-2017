@@ -27,14 +27,17 @@ module.exports = window.Team = Model.extend({
 			}
 
 			if (res.body === null) {
-				delete self.cubers[slot];
+				_.remove(self.cubers, c => c.slot === slot);
 				self.trigger('change');
 			} else if (res.statusCode < 400) {
 				let cuber = JSON.parse(body);
 				cuber.personId = personId;
 				cuber.eventId = eventId;
+				cuber.slot = slot;
 
-				self.cubers[slot] = cuber;
+				_.remove(self.cubers, c => c.slot === slot);
+				self.cubers.push(cuber);
+
 				self.trigger('change');
 			}
 		});

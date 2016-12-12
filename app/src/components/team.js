@@ -29,7 +29,7 @@ const SelectPersonModal = React.createClass({
 		return {
 			isLoading: false,
 			showModal: false,
-			eventId: '333',
+			eventId: '',
 			slot: 0,
 			value: '',
 			results: []
@@ -144,14 +144,16 @@ module.exports = React.createClass({
 
 	render () {
 		let {editable, team} = this.props;
+		let exists = team && team.cubers.length > 0;
+		let findCuber = (slot) => team.cubers.find(c => c.slot === slot);
 
-		let personRow = (i) =>
-			<Table.Row key={i} className='cuberRow'>
-				<Table.Cell>{team && team.cubers[i]? EventNames[team.cubers[i].eventId] : ''}</Table.Cell>
-				<Table.Cell>{team && team.cubers[i]? `${team.cubers[i].name} (${team.cubers[i].personId})` : ''}</Table.Cell>
-				<Table.Cell>{team && team.cubers[i]? team.cubers[i].countryId : ''}</Table.Cell>
-				<Table.Cell>{team && team.cubers[i]? team.cubers[i].points : ''}</Table.Cell>
-				{editable ? <Table.Cell><div style={{cursor: 'pointer'}} onClick={() => this.openChangePersonModal(i)}>{team && team.cubers[i] ? 'Change' : 'Choose'}</div></Table.Cell> : null}
+		let personRow = (slot) =>
+			<Table.Row key={slot} className='cuberRow'>
+				<Table.Cell>{exists && findCuber(slot) ? EventNames[findCuber(slot).eventId] : ''}</Table.Cell>
+				<Table.Cell>{exists && findCuber(slot) ? `${findCuber(slot).name} (${findCuber(slot).personId})` : ''}</Table.Cell>
+				<Table.Cell>{exists && findCuber(slot) ? findCuber(slot).countryId : ''}</Table.Cell>
+				<Table.Cell>{exists && findCuber(slot) ? findCuber(slot).points : ''}</Table.Cell>
+				{editable ? <Table.Cell><div style={{cursor: 'pointer'}} onClick={() => this.openChangePersonModal(slot)}>{exists ? 'Change' : 'Choose'}</div></Table.Cell> : null}
 			</Table.Row>;
 
 		return (

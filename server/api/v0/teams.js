@@ -23,23 +23,30 @@ let classes = [{
 }];
 
 const teamQuery = `
-SELECT mine.eventId, mine.slot, mine.personId, Persons.name, Persons.countryId FROM (SELECT teamId, eventId, slot, MAX(week) week FROM TeamPeople WHERE teamId=:teamId AND week <= :week GROUP BY teamId,eventId,slot) tp
-LEFT JOIN TeamPeople mine on tp.teamId=mine.teamId AND tp.eventId=mine.eventId AND tp.slot=mine.slot AND tp.week=mine.week
-LEFT JOIN Persons ON Persons.id = mine.personId`;
+SELECT mine.eventId, mine.slot, mine.personId, Persons.name, Persons.countryId FROM (SELECT teamId, slot, MAX(week) week FROM TeamPeople WHERE teamId=:teamId AND week <= :week GROUP BY teamId,slot) tp
+LEFT JOIN TeamPeople mine ON tp.teamId = mine.teamId AND tp.slot = mine.slot AND tp.week = mine.week
+INNER JOIN Persons ON Persons.id = mine.personId`;
 // LEFT JOIN (SELECT eventId,personId,week,personCountryId,personName,
 // SUM(compPoints)+SUM(wrAveragePoints)+SUM(wrSinglePoints)+SUM(crAveragePoints)+SUM(crSinglePoints)+SUM(nrAveragePoints)+SUM(nrSinglePoints) points
 // 	FROM Points WHERE year=2016 AND week=:week GROUP BY eventId,personId,week,personCountryId,personName) p ON mine.personId=p.personId AND mine.eventId=p.eventId;`;
 
-const getTeam = function (id, week, next) {
-	Team.findById(id).then(function (team) {
+/*
+ *	key: {
+ *		id: (teamId),
+ *		week: (number),
+ *		points: (true/false)
+ *	}
+*/
+const getTeam = function (key, next) {
+	return Team.findById(key.id).then(function (team) {
 		if (!team) {
 			return next(Boom.notFound('Team not found'));
 		}
 
 		return sequelize.query(teamQuery, {
 			replacements: {
-				teamId: id,
-				week: week
+				teamId: key.id,
+				week: key.week
 			},
 			type: sequelize.QueryTypes.SELECT
 		}).then(people =>
@@ -48,30 +55,31 @@ const getTeam = function (id, week, next) {
 				id: team.id,
 				name: team.name,
 				points: team.points,
-				cubers: _.chain(people).filter(p => !!p.personId).map((p,index) => ({
-					slot: p.slot,
-					eventId: p.eventId,
-					personId: p.personId,
-					name: p.name,
-					countryId: p.countryId
-				})).keyBy(p => p.slot).toArray().value()
+				cubers: people
 			})
 		).catch(error => next(error));
 	}).catch(error => next(error));
 };
 
 module.exports = function (server, base) {
-	server.method('teams.get', function (id, week, next) {
-		return getTeam(id, week, next);
-	}, {
-		cache: {
-			cache: 'redisCache',
-			segment: 'teams',
-			generateTimeout: 20000,
-			expiresIn: time(2,0,0),
-			staleIn: time(0,1,0),
-			staleTimeout: 2000
+	const teamCache = server.cache({
+		cache: 'redisCache',
+		segment: 'teams',
+		generateTimeout: false,
+		expiresIn: time(2,0,0),
+		staleIn: time(0,1,0),
+		staleTimeout: 2000,
+		generateFunc: function (key, next) {
+			return getTeam(key, next);
 		}
+	});
+
+	server.method('teams.get', function (key, next) {
+		teamCache.get(key, next);
+	});
+
+	server.method('teams.set', function (key, team, next) {
+		teamCache.set(key, team, 0, next);
 	});
 
 	server.route([{
@@ -100,7 +108,10 @@ module.exports = function (server, base) {
 			handler: function (request, reply) {
 				const {week} = request.query;
 
-				server.methods.teams.get(request.params.id, week || moment().week(), function (err, team) {
+				getTeam({//server.methods.teams.get({
+					id: request.params.id,
+					week: week || moment().week()
+				}, function (err, team) {
 					if (err) {
 						return reply(Boom.wrap(err, 500));
 					}
@@ -135,7 +146,7 @@ module.exports = function (server, base) {
 						name: name,
 						league: 'Standard' // TODO: update for support for multiple leagues
 					}).then(function (team) {
-						request.server.log('info', `Created team '${request.payload.name}' for user ${profile.id} ${profile.name} (${profile.wca_id})`);
+						server.log('info', `Created team '${request.payload.name}' for user ${profile.id} ${profile.name} (${profile.wca_id})`);
 						return reply(team).code(200);
 					});
 				}).catch(error => reply(Boom.wrap(error, 500)));
@@ -178,7 +189,7 @@ module.exports = function (server, base) {
 		config: {
 			auth: 'session',
 			handler: function (request, reply) {
-				let weekend = request.server.methods.getWeekend();
+				let weekend = server.methods.getWeekend();
 				if (moment().isSameOrAfter(weekend) && !process.env.NODE_ENV === 'dev') {
 					return reply(Boom.create(400, 'Team is locked from editing'));
 				}
@@ -226,7 +237,7 @@ module.exports = function (server, base) {
 							week: getWeek()
 						}
 					}).then(function (alreadyUsedPerson) {
-						if (alreadyUsedPerson && alreadyUsedPerson.personId !== '') {
+						if (alreadyUsedPerson && (alreadyUsedPerson.personId !== '' && alreadyUsedPerson.personId !== payload.personId)) {
 							return reply(Boom.badRequest('Person already exists in Team.'));
 						}
 
@@ -238,7 +249,8 @@ module.exports = function (server, base) {
 
 							let createOrUpdate = teamPerson ? TeamPerson.update(newTeamPerson, {where: TeamPersonWhere}) : TeamPerson.create(newTeamPerson);
 							createOrUpdate.then(() => {
-								request.server.log('info', `Set team member '${payload.personId}' with event ${request.params.eventId} for slot ${request.params.slot} on team '${payload.teamId}'`);
+								server.log('info', `Set team member '${payload.personId}' with event ${payload.eventId} for slot ${request.params.slot} on team '${payload.teamId}'`);
+								getTeam({id, week: getWeek()}, team => server.methods.teams.set({id, week: getWeek()}, team));
 								if (payload.personId) {
 									return Person.findById(payload.personId).then(person => reply(JSON.stringify(person)).code(201));
 								} else {
