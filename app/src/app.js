@@ -10,6 +10,8 @@ const Team = require('./models/team');
 const Teams = require('./models/teams');
 const Config = require('./config');
 
+window.xhr = xhr;
+
 if (typeof window !== 'undefined') {
 	window.React = require('react');
 }
