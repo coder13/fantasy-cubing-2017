@@ -1,4 +1,3 @@
-'use strict';
 const qs = require('qs');
 const Boom = require('boom');
 

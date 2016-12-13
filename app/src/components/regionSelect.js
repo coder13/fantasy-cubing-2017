@@ -12,7 +12,7 @@ module.exports = React.createClass({
 		this.setState({value: event.target.value});
 
 		if (this.props.onChange) {
-			this.props.onChange(event.target.value)
+			this.props.onChange(event.target.value);
 		}
 	},
 
@@ -236,6 +236,6 @@ module.exports = React.createClass({
 					<option value='Zimbabwe'>Zimbabwe</option>
 				</optgroup>
 			</select>
-		)
+		);
 	}
 });

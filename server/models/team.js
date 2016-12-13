@@ -1,4 +1,3 @@
-'use strict';
 module.exports = function(sequelize, DataTypes) {
 	let Team = sequelize.define('Team', {
 		id: {

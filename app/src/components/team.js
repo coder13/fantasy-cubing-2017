@@ -20,7 +20,7 @@ let classes = [{
 }, {
 	slots: 4,
 	events: ['333fm', '333ft', 'minx', 'sq1', 'clock', '666', '777', '444bf', '555bf', '333mbf']
-}]
+}];
 
 const SelectPersonModal = React.createClass({
 	displayName: 'SelectPersonModal',
@@ -69,7 +69,7 @@ const SelectPersonModal = React.createClass({
 		this.setState({isLoading: true, value});
 
 		this.getCubers(value, (err, results) => {
-			this.setState({isLoading: false, results: results})
+			this.setState({isLoading: false, results: results});
 		});
 	},
 
@@ -80,7 +80,7 @@ const SelectPersonModal = React.createClass({
 		});
 
 		this.getCubers(this.state.value, (err, results) => {
-			this.setState({isLoading: false, results: results})
+			this.setState({isLoading: false, results: results});
 		});
 	},
 
@@ -93,7 +93,7 @@ const SelectPersonModal = React.createClass({
 				<Modal.Header>Select Cuber</Modal.Header>
 
 				<Modal.Content>
-					<h4>Select Cuber For Slot {slot+1}</h4>
+					<h4>Select Cuber For Slot {slot + 1}</h4>
 					<br/>
 
 					<Form>
@@ -212,32 +212,8 @@ module.exports = React.createClass({
 					</Table.Body>
 				</Table>
 
-				{editable ? <SelectPersonModal ref={(modal) => this.modals.selectPersonModal = modal} submit={this.handleSelectPerson}/> : null}
+				{editable ? <SelectPersonModal ref={modal => {this.modals.selectPersonModal = modal;}} submit={this.handleSelectPerson}/> : null}
 			</div>
 		);
 	}
 });
-
-					// 	if (team && team.cubers[i]) {
-					// 		return (
-					// 			<Table.Row>
-					// 				<Table.Cell>{i+1}</Table.Cell>
-					// 				<Table.Cell>{team.cubers[i].name}</Table.Cell>
-					// 				<Table.Cell>{team.cubers[i].countryId} ({team.cubers[i].personId})</Table.Cell>
-					// 				<Table.Cell>{team.cubers[i].points}</Table.Cell>
-					// 				{editable ? <Table.Cell><div style={{cursor: 'pointer'}} onClick={() => this.openChangePersonModal(e.eventId, i)}>Change</div></Table.Cell> : null}
-					// 			</Table.Row>
-					// 		);
-					// 	} else {
-					// 		return (
-					// 			<Table.Row>
-					// 				<Table.Cell>{i+1}</Table.Cell>
-					// 				<Table.Cell></Table.Cell>
-					// 				<Table.Cell></Table.Cell>
-					// 				<Table.Cell></Table.Cell>
-					// 				<Table.Cell></Table.Cell>
-					// 				{editable ? <Table.Cell><div style={{cursor: 'pointer'}} onClick={() => this.openChangePersonModal(e.eventId, i)}>Choose</div></Table.Cell> : null}
-					// 			</Table.Row>
-					// 		);
-					// 	}
-					// })}

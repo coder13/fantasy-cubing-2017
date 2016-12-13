@@ -1,5 +1,3 @@
-'use strict';
-
 const Boom = require('boom');
 const handlers = require('./handlers');
 const User = App.db.User;

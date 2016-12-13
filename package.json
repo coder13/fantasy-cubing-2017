@@ -8,9 +8,7 @@
     "build": "NODE_ENV=prod webpack --progress",
     "prod-server": "NODE_ENV=prod forever server",
     "dev-server": "NODE_ENV=dev nodemon server",
-    "lint:server": "(cd ./server && eslint .)",
-    "lint:app": "(cd ./app && eslint .)",
-    "lint": "npm run lint:server; npm run lint:app",
+    "lint": "./node_modules/.bin/eslint ./",
     "validate": "npm ls",
     "test": ""
   },
@@ -31,7 +29,6 @@
     "babel-preset-react": "^6.16.0",
     "babel-preset-react-hmre": "^1.1.1",
     "bell": "^8.3.0",
-    "blaze": "^3.2.0",
     "boom": "^4.2.0",
     "catbox-memory": "^2.0.4",
     "catbox-redis": "^2.0.2",
@@ -59,11 +56,8 @@
     "postcss-loader": "^1.1.1",
     "qs": "^6.3.0",
     "react": "^15.3.2",
-    "react-blazecss": "^0.4.3",
-    "react-bootstrap": "^0.30.5",
     "react-dom": "^15.3.2",
     "react-hot-loader": "^1.3.0",
-    "react-select": "^1.0.0-rc.2",
     "react-transform-hmr": "^1.0.4",
     "redis": "^2.6.3",
     "semantic-ui": "^2.2.6",
@@ -81,6 +75,13 @@
     "xhr": "^2.2.2"
   },
   "devDependencies": {
+    "eslint": "^3.12.1",
     "faker": "^3.1.0"
-  }
+  },
+  "private": true,
+  "pre-commit": [
+    "validate",
+    "lint",
+    "test"
+  ]
 }

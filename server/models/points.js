@@ -1,4 +1,3 @@
-'use strict';
 module.exports = function(sequelize, DataTypes) {
 	let Points = sequelize.define('Points', {
 		competitionId: DataTypes.STRING,

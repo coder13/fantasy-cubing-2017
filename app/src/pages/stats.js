@@ -2,15 +2,12 @@ const app = require('ampersand-app');
 const React = require('react');
 const ampersandReactMixin = require('ampersand-react-mixin');
 const xhr = require('xhr');
-const RegionSelect = require('../components/regionSelect')
+const RegionSelect = require('../components/regionSelect');
+const CubeIcon = require('../components/cubeIcon');
 const wca = require('../../../lib/wca');
 
 const prettyfy = (x) => !x ? 0 : x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-
-const CubeIcon = function (props) {
-	return <span className={`cubing-icon event-${props.name}`} style={{fontSize: `${props.size || 1}em`}} title={wca.EventNames[props.name]} {...props}/>
-}
 
 const EventSelect = React.createClass({
 	getInitialState () {
@@ -39,13 +36,13 @@ const EventSelect = React.createClass({
 
 		return (
 			<div>
-				{wca.Events.map((event, index) => 
+				{wca.Events.map((event, index) =>
 					<label key={index} style={{cursor: 'pointer', color: selected[event] ? 'black' : '#ccc'}} onClick={() => this.toggleEvent(event)}>
 						<CubeIcon name={event} size='2'/>
 					</label>
 				)}
 			</div>
-		)
+		);
 	}
 });
 
@@ -101,7 +98,7 @@ module.exports = React.createClass({
 						<th>Pos</th>
 						<th>Name</th>
 						<th style={{width: '5em'}}>Total</th>
-						{events.map(i => 
+						{events.map(i =>
 							<th key={i}>{wca.EventNames[i]}</th>
 						)}
 					</tr>
@@ -110,10 +107,10 @@ module.exports = React.createClass({
 				{points ?
 					points.map((personPoints,index) =>
 						<tr key={index} style={{lineHeight: '1.75em'}}>
-							<td>{index+1}</td>
+							<td>{index + 1}</td>
 							<td>{personPoints.name}</td>
 							<td><b>{prettyfy(personPoints.totalPoints)}</b></td>
-							{events.map(e => 
+							{events.map(e =>
 								<td key={e}>{prettyfy(personPoints[e])}</td>
 							)}
 						</tr>)
@@ -130,7 +127,7 @@ module.exports = React.createClass({
 	},
 
 	changeRegion (region) {
-		this.setState({region})
+		this.setState({region});
 		this.updateStats();
 	},
 
@@ -142,7 +139,7 @@ module.exports = React.createClass({
 					<div className='panel-heading'>
 					<div className='form-inline list'>
 							<div className='form-group'>
-							  <label htmlFor='events'>Events</label>
+								<label htmlFor='events'>Events</label>
 								<EventSelect onChange={this.changeEvents}/>
 							</div>
 						</div>
@@ -153,8 +150,3 @@ module.exports = React.createClass({
 		);
 	}
 });
-
-// <div className='form-group'>
-//   <label htmlFor='region'>Region</label>
-// 	<RegionSelect onChange={this.changeCountry} style={{display: 'block'}}/>
-// </div>

@@ -1,5 +1,3 @@
-'use strict';
-
 const app = require('ampersand-app');
 const fs = require('fs');
 const path = require('path');

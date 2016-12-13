@@ -1,5 +1,3 @@
-'use strict';
-
 const fs = require('fs');
 const Boom = require('boom');
 const wca = require('../../../lib/wca');

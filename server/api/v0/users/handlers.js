@@ -1,5 +1,3 @@
-'use strict';
-
 const Joi = require('joi');
 const Boom = require('boom');
 const mongoose = require('mongoose');

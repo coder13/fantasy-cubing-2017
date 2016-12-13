@@ -1,4 +1,3 @@
-'use strict';
 const moment = require('moment');
 const wca = require('../../lib/wca');
 const queries = require('./queries');

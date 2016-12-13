@@ -1,4 +1,3 @@
-'use strict';
 module.exports = function(sequelize, DataTypes) {
 	let TeamPerson = sequelize.define('TeamPerson', {
 		owner: DataTypes.STRING,

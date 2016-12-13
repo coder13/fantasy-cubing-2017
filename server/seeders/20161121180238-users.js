@@ -1,9 +1,8 @@
-'use strict';
 const faker = require('faker');
 const shortId = require('shortid');
 const moment = require('moment');
 
-let wcaId = (lName) => `${(2000 + Math.floor(Math.random() * 32) - 16)}${lName.slice(0,4).replace(/[^a-zA-Z ]/g, "").toUpperCase()}01`;
+let wcaId = (lName) => `${(2000 + Math.floor(Math.random() * 32) - 16)}${lName.slice(0,4).replace(/[^a-zA-Z ]/g, '').toUpperCase()}01`;
 
 const {Events} = require('../../lib/wca.js');
 

@@ -65,7 +65,7 @@ module.exports = React.createClass({
 					<Menu.Item name='Fantasy Cubing' active={active === 'home'} href='/'/>
 					<Menu.Item name='teams' active={active === 'teams'} href='/teams'/>
 
-					{app.me.isLoggedIn ? 
+					{app.me.isLoggedIn ?
 						<Menu.Menu position='right'>
 							{team ? <Menu.Item href='/profile/team'>{team.name}: <b title='TotalPoints'>{team.Points}</b> <span title='Rank'></span></Menu.Item> :
 								<Menu.Item href='/profile/team'>Make your team!</Menu.Item>}

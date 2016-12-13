@@ -7,5 +7,5 @@ module.exports = function (props) {
 			<Menu.Item disabled name={`Week: ${props.week}`}/>
 			<Menu.Item icon='right chevron' onClick={props.next}/>
 		</Menu>
-	)
+	);
 };

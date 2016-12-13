@@ -38,8 +38,6 @@ const renderPage = function (page, active, title) {
 module.exports = Router.extend({
 	routes: {
 		'': 'index',
-		'teams': 'four',
-		'cubers': 'four',
 		// 'stats': 'stats',
 		'profile': 'profile',
 		'profile/team': 'myTeam',
@@ -68,7 +66,7 @@ module.exports = Router.extend({
 			<ProfilePage me={app.me}>
 				<ManageTeamPage week={week} me={app.me}/>
 			</ProfilePage>
-		, 'teams')
+		, 'teams');
 	},
 
 	teams () {

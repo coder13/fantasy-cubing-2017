@@ -27,7 +27,7 @@ module.exports = React.createClass({
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{teams.models.sort((a,b) => -compare(a.points, b.points)).map((team, index) => 
+						{teams.models.sort((a,b) => -compare(a.points, b.points)).map((team, index) =>
 							<Table.Row key={index}>
 								<Table.Cell><a href={`/teams/${team.id}`}>{team.name}</a></Table.Cell>
 								<Table.Cell>{team.points}</Table.Cell>
