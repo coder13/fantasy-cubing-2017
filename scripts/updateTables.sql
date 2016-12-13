@@ -66,7 +66,7 @@ FROM Points GROUP BY id, name ORDER BY points DESC);
 
 DROP TABLE IF EXISTS `PersonEventPoints`;
 CREATE Table PersonEventPoints AS (
-SELECT personId id, personName name, eventId, SUM(totalPoints)/18 points
+SELECT personId id, personName name, eventId, AVG(totalPoints) points
 FROM Points GROUP BY id, name, eventId ORDER BY points DESC);
 
 # ~25s
