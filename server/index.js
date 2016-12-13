@@ -5,7 +5,7 @@ const Hapi = require('hapi');
 const Hoek = require('hoek');
 const shortId = require('shortid');
 const moment = require('moment');
-const config = require('./serverconfig.js');
+const config = require('config');
 
 const plugins = [{
 	register: require('good'),
@@ -69,9 +69,7 @@ const App = global.App = app.extend({
 		});
 
 		// Configure connection
-		server.connection({
-			port: config.port
-		});
+		server.connection(config.server);
 
 		// Database
 		this.db = require('./models/');

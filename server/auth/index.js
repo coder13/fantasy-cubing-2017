@@ -4,8 +4,8 @@ const Users = require('./users');
 module.exports.register = function(server, options, next) {
 	server.log('info', 'Setting up auth...');
 
-	if (!app.config.auth.CLIENT_ID || !app.config.auth.CLIENT_SECRET) {
-		throw new Error('Enviroment variables CLIENT_ID and/or CLIENT_SECRET not defined.');
+	if (!(app.config.auth.CLIENT_ID && app.config.auth.CLIENT_SECRET)) {
+		throw new Error('Auth config variables CLIENT_ID and/or CLIENT_SECRET are not defined.');
 	}
 
 	// Setup the social WCA login strategy
