@@ -1,10 +1,7 @@
-require('react-select/dist/react-select.css');
-
 const _ = require('lodash');
 const app = require('ampersand-app');
 const React = require('react');
 const {Modal, Segment, Button, Input} = require('semantic-ui-react');
-const Select = require('react-select');
 const ampersandReactMixin = require('ampersand-react-mixin');
 const xhr = require('xhr');
 const {Events, EventNames, League} = require('../../../lib/wca');
@@ -81,8 +78,7 @@ module.exports = React.createClass({
 	},
 
 	render () {
-		let {week} = this.props;
-		let team = this.props.me.getTeam('Standard');
+		let {week, team} = this.props;
 
 		return (
 			<div>

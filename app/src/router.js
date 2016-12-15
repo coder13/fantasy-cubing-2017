@@ -60,13 +60,44 @@ module.exports = Router.extend({
 
 	myTeam (query) {
 		query = qs.parse(query);
+
+		if (query.week && isNaN(+query.week)) {
+			return this.redirectTo('profile/team');
+		}
+
 		let week = +query.week || app.currentWeek();
 
-		renderPage(
-			<ProfilePage me={app.me}>
-				<ManageTeamPage week={week} me={app.me}/>
-			</ProfilePage>
-		, 'teams');
+		let team = app.me.getTeam('Standard');
+
+		if (team) {
+			let renderTeam = (team) => {
+				renderPage(
+					<ProfilePage me={app.me}>
+						<ManageTeamPage week={week} team={team}/>
+					</ProfilePage>
+				);
+			};
+
+			if (week) {
+				team = new Team({id: team.id});
+				team.fetch({
+					week,
+					error: err => {
+						app.router.redirectTo('/profile/team');
+					},
+					success: () => renderTeam(team)
+				});
+			} else {
+				team.fetch({
+					error: err => {
+						app.router.redirectTo('/');
+					},
+					success: () => renderTeam(team)
+				});
+			}
+		} else {
+			renderPage(<ProfilePage me={app.me}/>, 'teams');
+		}
 	},
 
 	teams () {
@@ -76,6 +107,10 @@ module.exports = Router.extend({
 
 	team (id, query) {
 		query = qs.parse(query);
+
+		if (query.week && isNaN(+query.week)) {
+			return this.redirectTo('/teams/' + id);
+		}
 
 		let week = +query.week || app.currentWeek();
 

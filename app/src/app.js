@@ -26,19 +26,16 @@ const app = window.app = App.extend({
 	init () {
 		this.me = new Me();
 		this.me.fetch({
-			success: function () {
+			success: function (model, res, options) {
 				app.me.teams.fetch();
+				app.initRouter(); // cheap
 			}
 		});
 
-		/* Global list of team */
 		this.teams = new Teams();
-		this.teams.fetch();
 
 		this.times = {};
 		this.getTimes();
-
-		this.initRouter();
 	},
 
 	/* Helps us stay on track with the current week and weekend time */

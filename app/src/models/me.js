@@ -42,6 +42,7 @@ module.exports = Model.extend({
 	initialize (options) {
 		this.set(options);
 
+
 		this.listenTo(this.teams, 'sync', (type) => {
 			this.trigger('change');
 		}, this);

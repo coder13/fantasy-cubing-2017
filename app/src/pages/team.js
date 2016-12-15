@@ -1,10 +1,7 @@
-require('react-select/dist/react-select.css');
-
 const _ = require('lodash');
 const app = require('ampersand-app');
 const React = require('react');
 const {Modal, Segment, Menu, Button} = require('semantic-ui-react');
-const Select = require('react-select');
 const ampersandReactMixin = require('ampersand-react-mixin');
 const xhr = require('xhr');
 const {Events, EventNames, League} = require('../../../lib/wca');

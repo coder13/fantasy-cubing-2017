@@ -1,5 +1,3 @@
-require('react-select/dist/react-select.css');
-
 const _ = require('lodash');
 const app = require('ampersand-app');
 const React = require('react');

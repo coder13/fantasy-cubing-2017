@@ -20,10 +20,19 @@ let classes = [{
 	events: ['333fm', '333ft', 'minx', 'sq1', 'clock', '666', '777', '444bf', '555bf', '333mbf']
 }];
 
+/* Just grab the most recent team thus every new week, your team will be blank. No more cascading. */
 const teamQuery = `
-SELECT mine.eventId, mine.slot, mine.personId, Persons.name, Persons.countryId FROM (SELECT teamId, slot, MAX(week) week FROM TeamPeople WHERE teamId=:teamId AND week <= :week GROUP BY teamId,slot) tp
-LEFT JOIN TeamPeople mine ON tp.teamId = mine.teamId AND tp.slot = mine.slot AND tp.week = mine.week
-INNER JOIN Persons ON Persons.id = mine.personId`;
+SELECT tp.eventId, tp.slot, tp.personId, Persons.name, Persons.countryId
+FROM TeamPeople tp
+JOIN Persons ON Persons.id = tp.personId
+WHERE teamId=:teamId AND week=:week
+`;
+
+// const teamQuery = `
+// SELECT mine.eventId, mine.slot, mine.personId, Persons.name, Persons.countryId FROM (SELECT teamId, slot, MAX(week) week FROM TeamPeople WHERE teamId=:teamId AND week <= :week GROUP BY teamId,slot) tp
+// LEFT JOIN TeamPeople mine ON tp.teamId = mine.teamId AND tp.slot = mine.slot AND tp.week = mine.week
+// INNER JOIN Persons ON Persons.id = mine.personId`;
+
 // LEFT JOIN (SELECT eventId,personId,week,personCountryId,personName,
 // SUM(compPoints)+SUM(wrAveragePoints)+SUM(wrSinglePoints)+SUM(crAveragePoints)+SUM(crSinglePoints)+SUM(nrAveragePoints)+SUM(nrSinglePoints) points
 // 	FROM Points WHERE year=2016 AND week=:week GROUP BY eventId,personId,week,personCountryId,personName) p ON mine.personId=p.personId AND mine.eventId=p.eventId;`;
@@ -104,11 +113,12 @@ module.exports = function (server, base) {
 		path: `${base}/teams/{id}`,
 		config: {
 			handler: function (request, reply) {
-				const {week} = request.query;
+				const week = +request.query.week;
+				console.log(request.query)
 
 				getTeam({//server.methods.teams.get({
 					id: request.params.id,
-					week: week || moment().week()
+					week: week
 				}, function (err, team) {
 					if (err) {
 						return reply(Boom.wrap(err, 500));
