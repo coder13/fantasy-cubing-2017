@@ -114,7 +114,6 @@ module.exports = function (server, base) {
 		config: {
 			handler: function (request, reply) {
 				const week = +request.query.week;
-				console.log(request.query)
 
 				getTeam({//server.methods.teams.get({
 					id: request.params.id,
@@ -198,9 +197,7 @@ module.exports = function (server, base) {
 			auth: 'session',
 			handler: function (request, reply) {
 				let weekend = server.methods.getWeekend();
-				if (moment().isSameOrAfter(weekend) && !process.env.NODE_ENV === 'dev') {
-					return reply(Boom.create(400, 'Team is locked from editing'));
-				}
+				let week = getWeek();
 
 				let profile = request.auth.credentials.profile;
 				let payload = JSON.parse(request.payload);
@@ -245,18 +242,18 @@ module.exports = function (server, base) {
 							week: getWeek()
 						}
 					}).then(function (alreadyUsedPerson) {
-						if (alreadyUsedPerson && (alreadyUsedPerson.personId !== '' && alreadyUsedPerson.personId !== payload.personId)) {
-							return reply(Boom.badRequest('Person already exists in Team.'));
-						}
+						// Deny person if we already use him. Deduce that we already use him by if he exists in a different slot if it's the same name. If not, then it's ok because we're changing events most likely
+						if (alreadyUsedPerson && (alreadyUsedPerson.personId !== '' && (alreadyUsedPerson.personId === payload.personId ? alreadyUsedPerson.slot !== slot : false))) {
+							reply(Boom.badRequest('Person already exists in Team.'));
+						} else {
+							return TeamPerson.find({where: TeamPersonWhere}).then(function (teamPerson) {
+								let newTeamPerson = _.extend(TeamPersonWhere, {
+									personId: payload.personId,
+									eventId: payload.eventId
+								});
 
-						return TeamPerson.find({where: TeamPersonWhere}).then(function (teamPerson) {
-							let newTeamPerson = _.extend(TeamPersonWhere, {
-								personId: payload.personId,
-								eventId: payload.eventId
-							});
-
-							let createOrUpdate = teamPerson ? TeamPerson.update(newTeamPerson, {where: TeamPersonWhere}) : TeamPerson.create(newTeamPerson);
-							createOrUpdate.then(() => {
+								return teamPerson ? TeamPerson.update(newTeamPerson, {where: TeamPersonWhere}) : TeamPerson.create(newTeamPerson);
+							}).then(function () {
 								server.log('info', `Set team member '${payload.personId}' with event ${payload.eventId} for slot ${request.params.slot} on team '${payload.teamId}'`);
 								getTeam({id, week: getWeek()}, team => server.methods.teams.set({id, week: getWeek()}, team));
 								if (payload.personId) {
@@ -265,7 +262,7 @@ module.exports = function (server, base) {
 									return reply(null);
 								}
 							});
-						});
+						}
 					});
 				});
 			}
