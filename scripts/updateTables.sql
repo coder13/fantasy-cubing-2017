@@ -9,8 +9,8 @@ CREATE INDEX compId on Results(competitionId);
 DROP TABLE IF EXISTS ResultDates;
 CREATE TABLE ResultDates AS (
 	SELECT R.personId, R.personName, R.personCountryId, c.continentId personContinentId, R.competitionId, R.eventId, R.roundId, R.formatId, R.pos, R.average, R.best, R.regionalAverageRecord, R.regionalSingleRecord,
-	DATE_ADD(MAKEDATE(year, day), INTERVAL month-1 MONTH) date,
-	DATE_SUB(DATE_ADD(MAKEDATE(year, day), INTERVAL month-1 MONTH), INTERVAL DAYOFWEEK(DATE_ADD(MAKEDATE(year, day), INTERVAL month-1 MONTH))-1 DAY) weekend
+	@date := DATE(CONCAT(year, '-', month, '-', day)) date,
+	@weekend := DATE_SUB(@subdate:=DATE_SUB(@date, INTERVAL 5 DAY), INTERVAL DAYOFWEEK(@subDate)-6 DAY) weekend
 	FROM Results R
 	JOIN Competitions comps ON comps.id = R.competitionId
 	JOIN (SELECT Countries.id, Continents.recordName continentId FROM Countries LEFT JOIN Continents ON Countries.continentid = Continents.id) c ON c.id = R.personCountryId
@@ -33,7 +33,7 @@ CREATE INDEX rsr ON ResultDates(regionalSingleRecord);
 
 DROP TABLE Points;
 CREATE TABLE Points AS (
-SELECT R.competitionId, R.personId, R.personName, R.personCountryId, R.eventId, R.roundId, R.average, R.best, weekend, year(weekend) year, week(weekend) + 1 week,
+SELECT R.competitionId, R.personId, R.personName, R.personCountryId, R.eventId, R.roundId, R.average, R.best, weekend, year(weekend) year, week(weekend) week,
 @WPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0 AND R.best > 0, 50 * (W.average / R.average + W.best / R.best), if(R.best > 0, 50 * W.best / R.best, 0)), 2) AS worldPoints,
 @CPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0 AND R.best > 0, 50 * (C.average / R.average + C.best / R.best), if(R.best > 0, 50 * C.best / R.best, 0)), 2) AS continentPoints,
 @NPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0 AND R.best > 0, 50 * (N.average / R.average + N.best / R.best), if(R.best > 0, 50 * N.best / R.best, 0)), 2) AS countryPoints,

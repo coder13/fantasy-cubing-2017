@@ -75,7 +75,7 @@ const App = global.App = app.extend({
 		this.db = require('./models/');
 
 		server.method('getWeekend', function () {
-			return moment().day(5).hour(8).minute(0).second(0).milliseconds(0);
+			return moment().day(4).hour(12).minute(0).second(0).milliseconds(0);
 		});
 
 		server.register(plugins, function (err) {

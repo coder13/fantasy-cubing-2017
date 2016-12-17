@@ -5,9 +5,11 @@ module.exports = function(sequelize, DataTypes) {
 		personName: DataTypes.STRING,
 		eventId: DataTypes.STRING,
 		roundId: DataTypes.CHAR,
-		date: DataTypes.DATE,
-		worldPoints: DataTypes.INTEGER,
-		compPoints: DataTypes.INTEGER
+		year: DataTypes.INTEGER,
+		week: DataTypes.INTEGER,
+		compPoints: DataTypes.INTEGER,
+		skillPoints: DataTypes.INTEGER,
+		totalPoints: DataTypes.INTEGER
 	}, {
 		timestamps: false,
 		freezeTableName: true,
