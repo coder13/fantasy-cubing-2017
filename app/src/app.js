@@ -48,7 +48,7 @@ const app = window.app = App.extend({
 	},
 
 	currentWeek () {
-		return app.times ? app.times.week || moment.utc().week() : moment.utc().week();
+		return app.times ? app.times.week : moment.utc().week();
 	},
 
 	initRouter () {

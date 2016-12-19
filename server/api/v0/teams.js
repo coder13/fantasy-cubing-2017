@@ -7,8 +7,6 @@ const {sequelize, User, Team, Person, TeamPerson} = App.db;
 
 const time = (hour, min, sec) => ((hour * 60 + min) * 60 + sec) * 1000;
 
-const getWeek = () => moment().week();
-
 let classes = [{
 	slots: 2,
 	events: ['333']
@@ -113,7 +111,7 @@ module.exports = function (server, base) {
 		path: `${base}/teams/{id}`,
 		config: {
 			handler: function (request, reply) {
-				const week = +request.query.week;
+				let week = request.query.week ? +request.query.week : server.methods.getWeek();
 
 				getTeam({//server.methods.teams.get({
 					id: request.params.id,
@@ -197,7 +195,7 @@ module.exports = function (server, base) {
 			auth: 'session',
 			handler: function (request, reply) {
 				let weekend = server.methods.getWeekend();
-				let week = getWeek();
+				let week = server.methods.getWeek();
 
 				let profile = request.auth.credentials.profile;
 				let payload = JSON.parse(request.payload);
@@ -231,7 +229,7 @@ module.exports = function (server, base) {
 						teamId: id,
 						owner: profile.id,
 						slot: slot,
-						week: getWeek()
+						week: server.methods.getWeek()
 					};
 
 					return TeamPerson.find({
@@ -239,7 +237,7 @@ module.exports = function (server, base) {
 							teamId: id,
 							owner: profile.id,
 							personId: payload.personId,
-							week: getWeek()
+							week: server.methods.getWeek()
 						}
 					}).then(function (alreadyUsedPerson) {
 						// Deny person if we already use him. Deduce that we already use him by if he exists in a different slot if it's the same name. If not, then it's ok because we're changing events most likely
@@ -255,7 +253,7 @@ module.exports = function (server, base) {
 								return teamPerson ? TeamPerson.update(newTeamPerson, {where: TeamPersonWhere}) : TeamPerson.create(newTeamPerson);
 							}).then(function () {
 								server.log('info', `Set team member '${payload.personId}' with event ${payload.eventId} for slot ${request.params.slot} on team '${payload.teamId}'`);
-								getTeam({id, week: getWeek()}, team => server.methods.teams.set({id, week: getWeek()}, team));
+								getTeam({id, week: server.methods.getWeek()}, team => server.methods.teams.set({id, week: server.methods.getWeek()}, team));
 								if (payload.personId) {
 									return Person.findById(payload.personId).then(person => reply(JSON.stringify(person)).code(201));
 								} else {

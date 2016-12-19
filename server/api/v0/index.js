@@ -15,7 +15,7 @@ module.exports.register = function(server, options, next) {
 		config: {
 			handler: function (request, reply) {
 				reply({
-					week: moment().week(),
+					week: server.methods.getWeek(),
 					weekend: server.methods.getWeekend().unix()
 				});
 			}

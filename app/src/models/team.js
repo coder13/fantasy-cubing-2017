@@ -45,7 +45,7 @@ module.exports = window.Team = Model.extend({
 
 	fetch(options) {
 		options = options || {};
-		this.week = options.week || app.currentWeek();
+		this.week = options.week ? options.week : undefined;
 		return Model.prototype.fetch.apply(this, arguments);
 	},
 

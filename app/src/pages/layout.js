@@ -27,15 +27,6 @@ module.exports = React.createClass({
 
 	renderTimeTillWeekend () {
 		if (app.times) {
-			let diff = app.times.weekend - moment().unix();
-			if (diff < 0) {
-				return (
-					<div id='timeline'>
-						<p style={{textAlign: 'center'}}>New week starts <span title={moment().endOf('week').toString()}>{moment().endOf('week').fromNow()}</span></p>
-					</div>
-				);
-			}
-
 			let timeTillWeekend = moment.duration(app.times.weekend - moment().unix(), 'seconds');
 
 			let days = timeTillWeekend.days();
