@@ -29,6 +29,9 @@ const app = window.app = App.extend({
 			success: function (model, res, options) {
 				app.me.teams.fetch();
 				app.initRouter(); // cheap
+			},
+			error: function (model, res, options) {
+				app.initRouter(); // cheap
 			}
 		});
 
