@@ -1,41 +1,16 @@
 const moment = require('moment');
 const wca = require('../../lib/wca');
-const queries = require('./queries');
 
 const LIMIT = 25;
 
 const time = (hour, min, sec) => ((hour * 60 + min) * 60 + sec) * 1000;
 
-const cacheQueries = function (server) {
-	server.methods.getAllPersonEventPoints(wca.Events, (err, results) => {
-		if (err) {
-			server.log('err', err);
-		} else {
-			console.log('cached getAllPersonEventPoints');
-		}
-	});
-
-	server.methods.getAllCountryEventPoints(wca.Events, (err, results) => {
-		if (err) {
-			server.log('err', err);
-		} else {
-			console.log('cached getAllCountryEventPoints');
-		}
-	});
-
-	server.methods.getAllCompetitionEventPoints(wca.Events, (err, results) => {
-		if (err) {
-			server.log('err', err);
-		} else {
-			console.log('cached getAllCompetitionEventPoints');
-		}
-	});
-};
-
 module.exports.register = function(server, options, next) {
 	server.log('info', 'Setting up stats...');
 
 	let sequelize = App.db.sequelize;
+
+	let queries = require('./queries')(sequelize);
 
 	const sqlCache = {
 		cache: 'redisCache',
@@ -45,44 +20,31 @@ module.exports.register = function(server, options, next) {
 		staleTimeout: 100
 	};
 
-	server.method('getAllPersonEventPoints', function (events, next) {
-		if (!events) {
-			events = wca.Events;
-		}
-
-		return sequelize.query(queries.personEvent(events, LIMIT)).then(function (results) {
-			next(null, results);
-		}).catch(error => next(error));
-	}, {
+	let methodOptions = {
 		cache: sqlCache,
 		generateKey: function (array) {
 			return array.join(',');
 		}
-	});
+	};
 
-	server.method('getAllCountryEventPoints', function (events, next) {
-		if (!events) {
-			events = wca.Events;
-		}
+	server.method('points.weeklyPoints', function (params, next) {
+		let week = +params.week || (server.methods.getWeek() - 1);
+		return queries.weeklyPoints(week, params.limit)
+		.then(results => next(null, results))
+		.catch(error => next(error));
+	}, options);
 
-		return sequelize.query(queries.countryEvent(events, LIMIT)).then(function (results) {
-			next(null, results);
-		}).catch(error => next(error));
-	});
+	server.method('points.weeklyMVPs', function (params, next) {
+		return queries.weeklyPoints(server.methods.getWeek() - 1, 5)
+		.then(results => next(null, results))
+		.catch(error => next(error));
+	}, options);
 
-	server.method('getAllCompetitionEventPoints', function (events, next) {
-		if (!events) {
-			events = wca.Events;
-		}
-
-		return sequelize.query(queries.competitionEvent(events, LIMIT)).then(function (results) {
-			next(null, results);
-		}).catch(error => next(error));
-	});
-
-	if (process.env.NODE_ENV.slice(0,4) === 'prod') {
-//		cacheQueries(server);
-	}
+	server.method('points.teamLeaders', function (params, next) {
+		return queries.teamLeaders(5)
+		.then(results => next(null, results))
+		.catch(error => next(error));
+	}, options);
 
 	next();
 };

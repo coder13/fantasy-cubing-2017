@@ -1,27 +1,56 @@
-let sumPoints = 'SUM(compPoints)+SUM(wrSinglePoints)+SUM(wrAveragePoints)+SUM(crSinglePoints)+SUM(crAveragePoints)+SUM(nrSinglePoints)+SUM(nrAveragePoints)';
-
 const LIMIT = 50;
 
-module.exports.personEvent = (events, limit) => `
-SELECT id, name,
-(SELECT SUM(totalPoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND eventId in (${events.map(i => `'${i}'`).join(',')})) totalPoints,
-${events.map(event => `(SELECT sum(totalPoints) FROM PersonEventPoints pep WHERE pep.id=p.id AND pep.eventId='${event}') \`${event}\``)}
-FROM (SELECT DISTINCT id, name FROM PersonEventPoints) p
-ORDER BY totalPoints DESC
-LIMIT ${limit || LIMIT};`;
+const Queries = {
+	weeklyPoints: `
+		SELECT personId, personName, personCountryId, TRUNCATE(avg(totalPoints), 2) points
+		FROM Points
+		WHERE week = :week AND year=2016
+		GROUP BY personId, personName, personCountryId
+		ORDER BY points DESC
+		LIMIT :limit;
+	`,
+	pointsByEvent: `
+		SELECT personId, personName, personCountryId, eventId, TRUNCATE(avg(totalPoints), 2) points
+		FROM Points
+		WHERE week = :week AND year=2016
+		GROUP BY personId, personName, personCountryId, eventId
+		ORDER BY points DESC
+		LIMIT :limit;
+	`,
+	teamLeaders: `
+		SELECT u.name owner, t.name, t.points
+		FROM Teams t
+		JOIN Users u ON t.owner = u.id
+		ORDER BY t.points DESC, t.name, u.name
+		LIMIT :limit
+	`
+};
 
-module.exports.countryEvent = (events, limit) => `
-SELECT id,
-(SELECT ${sumPoints} FROM Points p WHERE p.personCountryId=c.id AND eventId in (${events.map(i => `'${i}'`).join(',')})) totalPoints,
-${events.map(event => `(SELECT ${sumPoints} FROM Points p WHERE p.personCountryId=c.id AND p.eventId='${event}') \`${event}\``)}
-FROM (SELECT DISTINCT personCountryId id FROM Points) c
-ORDER BY totalPoints DESC
-LIMIT ${limit || LIMIT};`;
+module.exports = function (sequelize) {
+	let queries = {};
 
-module.exports.competitionEvent = (events, limit) => `
-SELECT id,
-(SELECT ${sumPoints} FROM Points p WHERE p.competitionId=c.id AND eventId in (${events.map(i => `'${i}'`).join(',')})) totalPoints,
-${events.map(event => `(SELECT ${sumPoints} FROM Points p WHERE p.competitionId=c.id AND p.eventId='${event}') \`${event}\``)}
-FROM (SELECT DISTINCT competitionId id FROM Points) c
-ORDER BY totalPoints DESC
-LIMIT ${limit || LIMIT};`;
+	queries.weeklyPoints = (week, limit) => sequelize.query(Queries.weeklyPoints, {
+		replacements: {
+			week,
+			limit: limit || LIMIT
+		},
+		type: sequelize.QueryTypes.SELECT
+	});
+
+	queries.weeklyPointsByEvent = (week, limit) => sequelize.query(Queries.pointsByEvent, {
+		replacements: {
+			week,
+			limit: limit || LIMIT
+		},
+		type: sequelize.QueryTypes.SELECT
+	});
+
+	queries.teamLeaders = (limit) => sequelize.query(Queries.teamLeaders, {
+		replacements: {
+			limit: limit || LIMIT
+		},
+		type: sequelize.QueryTypes.SELECT
+	});
+
+	return queries;
+};

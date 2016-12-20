@@ -7,7 +7,7 @@ module.exports.register = function(server, options, next) {
 	require('./leagues')(server, base);
 	require('./teams')(server, base);
 	require('./search')(server, base);
-	require('./points')(server, base);
+	require('./stats')(server, base);
 
 	server.route({
 		method: 'GET',

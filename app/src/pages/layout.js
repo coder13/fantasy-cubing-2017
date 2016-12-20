@@ -44,7 +44,6 @@ module.exports = React.createClass({
 		}
 	},
 
-					// <Menu.Item name='stats' active={active === 'stats'} href='/stats'/>
 	render () {
 		let {active} = this.props;
 		let team = app.me.getTeam('Standard');
