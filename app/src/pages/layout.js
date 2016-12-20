@@ -2,7 +2,7 @@ const app = require('ampersand-app');
 const React = require('react');
 const ampersandMixin = require('ampersand-react-mixin');
 const moment = require('moment');
-const {Container, Message, Menu, Dropdown, Image} = require('semantic-ui-react');
+const {Segment, Container, Message, Menu, Dropdown, Image} = require('semantic-ui-react');
 const NavHelper = require('../components/nav-helper');
 
 module.exports = React.createClass({
@@ -50,6 +50,7 @@ module.exports = React.createClass({
 
 		return (
 			<NavHelper id='layout' style={{height: '100%', width: '100%'}}>
+				<div id='wrap'>
 				{this.renderTimeTillWeekend()}
 				<Menu>
 					<Menu.Item name='Fantasy Cubing' active={active === 'home'} href='/'/>
@@ -86,7 +87,20 @@ module.exports = React.createClass({
 					{this.props.children}
 				</Container>
 
-				<Container id='footer' style={{height: '2em'}}/>
+				</div>
+				<Segment id='footer'>
+					<p style={{textAlign: 'center', margin: '5px'}}><strong>Fantasy Cubing</strong> By <a href='https://github.com/coder13' className='c-link'>Caleb Hoover</a></p>
+					<p style={{textAlign: 'center', margin: '5px'}}>
+						<span title='English'> English </span>|
+						<span title='Spanish'> Español </span>|
+						<span title='Canadian French'> Français (CA) </span>|
+						<span title='Korean'> 한국어 </span>|
+						<span title='Brazilian portuguese'> Português (BR) </span>|
+						<span title='Finnish'> Suomi </span>|
+						<span title='Swedish'> Svenska </span>
+					</p>
+					<p style={{textAlign: 'center', margin: '5px'}}>Not listed? Help Us Translate!</p>
+				</Segment>
 			</NavHelper>
 		);
 	}
