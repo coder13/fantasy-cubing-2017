@@ -20,20 +20,13 @@ let classes = [{
 
 /* Just grab the most recent team thus every new week, your team will be blank. No more cascading. */
 const teamQuery = `
-SELECT tp.eventId, tp.slot, tp.personId, Persons.name, Persons.countryId
+SELECT tp.eventId, tp.slot, tp.personId, Persons.name, Persons.countryId, p.points
 FROM TeamPeople tp
 JOIN Persons ON Persons.id = tp.personId
-WHERE teamId=:teamId AND week=:week
+LEFT JOIN (SELECT personId, eventId, TRUNCATE(AVG(totalPoints), 2) points FROM Points WHERE week=:week AND year=2016 GROUP BY personId, eventId) p
+	ON tp.personId=p.personId AND tp.eventId=p.eventId
+WHERE teamId=:teamId AND tp.week=:week
 `;
-
-// const teamQuery = `
-// SELECT mine.eventId, mine.slot, mine.personId, Persons.name, Persons.countryId FROM (SELECT teamId, slot, MAX(week) week FROM TeamPeople WHERE teamId=:teamId AND week <= :week GROUP BY teamId,slot) tp
-// LEFT JOIN TeamPeople mine ON tp.teamId = mine.teamId AND tp.slot = mine.slot AND tp.week = mine.week
-// INNER JOIN Persons ON Persons.id = mine.personId`;
-
-// LEFT JOIN (SELECT eventId,personId,week,personCountryId,personName,
-// SUM(compPoints)+SUM(wrAveragePoints)+SUM(wrSinglePoints)+SUM(crAveragePoints)+SUM(crSinglePoints)+SUM(nrAveragePoints)+SUM(nrSinglePoints) points
-// 	FROM Points WHERE year=2016 AND week=:week GROUP BY eventId,personId,week,personCountryId,personName) p ON mine.personId=p.personId AND mine.eventId=p.eventId;`;
 
 /*
  *	key: {
@@ -97,13 +90,28 @@ module.exports = function (server, base) {
 			handler: function (request, reply) {
 				let {week, league} = request.query;
 
-				Team.findAll({
-					where: {
-						league: league || 'Standard'
-					}
+				sequelize.query(`
+					SELECT t.name, t.points, u.name ownerName
+					FROM Teams t
+					LEFT JOIN Users u ON t.owner = u.id
+					ORDER BY t.points DESC
+				`, {
+					type: sequelize.QueryTypes.SELECT
 				}).then(function (teams) {
 					reply(teams);
 				});
+
+				// Team.findAll({
+				// 	where: {
+				// 		league: league || 'Standard'
+				// 	},
+				// 	include: [{
+				// 		model: User,
+				// 		as: 'owner'
+				// 	}]
+				// }).then(function (teams) {
+				// 	reply(teams);
+				// });
 			}
 		}
 	}, {
@@ -113,7 +121,7 @@ module.exports = function (server, base) {
 			handler: function (request, reply) {
 				let week = request.query.week ? +request.query.week : server.methods.getWeek();
 
-				getTeam({//server.methods.teams.get({
+				getTeam({
 					id: request.params.id,
 					week: week
 				}, function (err, team) {

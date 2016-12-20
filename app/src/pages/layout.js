@@ -58,7 +58,7 @@ module.exports = React.createClass({
 
 					{app.me.isLoggedIn ?
 						<Menu.Menu position='right'>
-							{team ? <Menu.Item href='/profile/team'>{team.name}: <b title='TotalPoints'>{team.Points}</b> <span title='Rank'></span></Menu.Item> :
+							{team ? <Menu.Item href='/profile/team'>{team.name}: <b title='TotalPoints'>{team.points}</b> <span title='Rank'></span></Menu.Item> :
 								<Menu.Item href='/profile/team'>Make your team!</Menu.Item>}
 							<Menu.Item as={Dropdown} trigger={<Image size={'mini'} src={app.me.avatar ? app.me.avatar.thumb_url : ''}/>}>
 								<Dropdown.Menu>

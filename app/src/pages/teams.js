@@ -17,21 +17,21 @@ module.exports = React.createClass({
 		const {teams} = this.props;
 
 		return (
-			<div className='container'>
-				<Table>
+			<div>
+				<Table compact selectable>
 					<Table.Header>
 						<Table.Row>
+							<Table.HeaderCell>Owner</Table.HeaderCell>
 							<Table.HeaderCell>Team</Table.HeaderCell>
-							<Table.HeaderCell style={{textAlign: 'center', width: '1em'}}>Weekend Points</Table.HeaderCell>
 							<Table.HeaderCell style={{textAlign: 'center', width: '1em'}}>Total Points</Table.HeaderCell>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
 						{teams.models.sort((a,b) => -compare(a.points, b.points)).map((team, index) =>
 							<Table.Row key={index}>
+								<Table.Cell>{team.ownerName}</Table.Cell>
 								<Table.Cell><a href={`/teams/${team.id}`}>{team.name}</a></Table.Cell>
 								<Table.Cell>{team.points}</Table.Cell>
-								<Table.Cell></Table.Cell>
 							</Table.Row>)}
 					</Table.Body>
 				</Table>

@@ -10,6 +10,7 @@ module.exports = window.Team = Model.extend({
 			// test: (value) => shortid.isValid(value) ? false : 'Invalid id'
 		},
 		owner: 'number',
+		ownerName: 'string',
 		name: 'string',
 		league: 'string',
 		points: 'number',

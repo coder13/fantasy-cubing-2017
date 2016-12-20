@@ -6,5 +6,5 @@ if (!(config.database && config.username && config.password)) {
 }
 
 module.exports = new Sequelize(config.database, config.username, config.password, {
-	logging: global.App ? (str) => App.server.log('sql', str) : false
+	logging: global.App ? (str) => App.server.log('sql', str) : console.log
 });

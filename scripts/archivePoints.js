@@ -1,33 +1,34 @@
 const weekArg = process.argv[2];
 const _ = require('lodash/fp');
 const moment = require('moment');
-const {TeamPerson, Points, Archive, sequelize} = require('../server/models');
+const {Team, TeamPerson, Points, Archive, sequelize} = require('../server/models');
 const week = weekArg ? +weekArg : moment().subtract(5, 'days').subtract(9, 'hours').week() - 1;
 
 console.log(`Week: ${week}`);
 
-TeamPerson.findAll({
-	where: {week}
-}).then(function (people) {
-	let teams = _.chain(people).map(p => p.teamId).uniq().map(t => ({
-		teamId: t,
-		week: week,
-		points: 0
-	})).value();
+let getTeamPeoplePoints = `
+INSERT INTO Archive (week, teamId, points)
+	SELECT ${week} week, teams.teamId, SUM(teams.points) points
+	FROM (SELECT tp.week, tp.teamId, tp.slot, tp.personId, tp.eventId, AVG(p.totalPoints) points
+		FROM TeamPeople tp
+		JOIN Points p ON tp.week=p.week AND tp.personId=p.personId AND tp.eventId=p.eventId AND p.year=2016
+		WHERE tp.week=${week}
+		GROUP BY tp.week, tp.teamId, tp.slot, tp.personId, tp.eventId) teams
+	GROUP BY teams.teamId
+ON DUPLICATE KEY UPDATE
+	points = values(points),
+	updatedAt = NOW();
+`;
 
-	return Points.findAll({
-		where: {
-			year: 2016,
-			week: week
-		}
-	}).then(function (points) {
-		people.forEach(function (person) {
-			let pops = points.filter(p => p.personId === person.personId && p.eventId === person.eventId) || [];
-			let personPoints = pops.length ? _(pops).map(p => p.totalPoints).sum() / pops.length : 0;
+let updateTeams = `
+UPDATE Teams teams
+LEFT JOIN (SELECT teamId, SUM(points) points FROM Archive GROUP BY teamId) points ON
+	teams.id = points.teamId
+SET
+	teams.points = points.points,
+	teams.updatedAt = NOW();
+`;
 
-			teams[teams.findIndex(t => t.teamId === person.teamId)].points += personPoints;
-		});
-
-		return Promise.all(teams.map(team => Archive.upsert(team)));
-	});
-}).then(() => sequelize.close());
+sequelize.query(getTeamPeoplePoints, {logging: console.log})
+.then(() => sequelize.query(updateTeams, {logging: console.log}))
+.then(() => sequelize.close());
