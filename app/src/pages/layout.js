@@ -62,8 +62,8 @@ module.exports = React.createClass({
 								<Menu.Item href='/profile/team'>Make your team!</Menu.Item>}
 							<Menu.Item as={Dropdown} trigger={<Image size={'mini'} src={app.me.avatar ? app.me.avatar.thumb_url : ''}/>}>
 								<Dropdown.Menu>
-									<Dropdown.Item text='Profile' icon='user' href=''/>
 									<Dropdown.Item text='Manage Team' href='/profile/team'/>
+									<Dropdown.Item text='Logout' href='logout'/>
 								</Dropdown.Menu>
 							</Menu.Item>
 						</Menu.Menu> :
