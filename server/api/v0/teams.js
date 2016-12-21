@@ -91,7 +91,7 @@ module.exports = function (server, base) {
 				let {week, league} = request.query;
 
 				sequelize.query(`
-					SELECT t.name, t.points, u.name ownerName
+					SELECT t.id, t.name, t.points, u.name ownerName
 					FROM Teams t
 					LEFT JOIN Users u ON t.owner = u.id
 					ORDER BY t.points DESC
@@ -100,18 +100,6 @@ module.exports = function (server, base) {
 				}).then(function (teams) {
 					reply(teams);
 				});
-
-				// Team.findAll({
-				// 	where: {
-				// 		league: league || 'Standard'
-				// 	},
-				// 	include: [{
-				// 		model: User,
-				// 		as: 'owner'
-				// 	}]
-				// }).then(function (teams) {
-				// 	reply(teams);
-				// });
 			}
 		}
 	}, {
