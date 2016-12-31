@@ -1,10 +1,11 @@
 const LIMIT = 50;
+const YEAR = 2017;
 
 const Queries = {
 	weeklyPoints: `
 		SELECT personId, personName, personCountryId, TRUNCATE(avg(totalPoints), 2) points
 		FROM Points
-		WHERE week = :week AND year=2016
+		WHERE week = :week AND year=${YEAR}
 		GROUP BY personId, personName, personCountryId
 		ORDER BY points DESC
 		LIMIT :limit;
@@ -12,7 +13,7 @@ const Queries = {
 	pointsByEvent: `
 		SELECT personId, personName, personCountryId, eventId, TRUNCATE(avg(totalPoints), 2) points
 		FROM Points
-		WHERE week = :week AND year=2016
+		WHERE week = :week AND year=${YEAR}
 		GROUP BY personId, personName, personCountryId, eventId
 		ORDER BY points DESC
 		LIMIT :limit;

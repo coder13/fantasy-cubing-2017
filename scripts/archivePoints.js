@@ -11,7 +11,7 @@ INSERT INTO Archive (week, teamId, points)
 	SELECT ${week} week, teams.teamId, SUM(teams.points) points
 	FROM (SELECT tp.week, tp.teamId, tp.slot, tp.personId, tp.eventId, AVG(p.totalPoints) points
 		FROM TeamPeople tp
-		JOIN Points p ON tp.week=p.week AND tp.personId=p.personId AND tp.eventId=p.eventId AND p.year=2016
+		JOIN Points p ON tp.week=p.week AND tp.personId=p.personId AND tp.eventId=p.eventId AND p.year=2017
 		WHERE tp.week=${week}
 		GROUP BY tp.week, tp.teamId, tp.slot, tp.personId, tp.eventId) teams
 	GROUP BY teams.teamId

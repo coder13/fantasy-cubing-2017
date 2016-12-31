@@ -23,7 +23,7 @@ const teamQuery = `
 SELECT tp.eventId, tp.slot, tp.personId, Persons.name, Persons.countryId, p.points
 FROM TeamPeople tp
 JOIN Persons ON Persons.id = tp.personId
-LEFT JOIN (SELECT personId, eventId, TRUNCATE(AVG(totalPoints), 2) points FROM Points WHERE week=:week AND year=2016 GROUP BY personId, eventId) p
+LEFT JOIN (SELECT personId, eventId, TRUNCATE(AVG(totalPoints), 2) points FROM Points WHERE week=:week AND year=2017 GROUP BY personId, eventId) p
 	ON tp.personId=p.personId AND tp.eventId=p.eventId
 WHERE teamId=:teamId AND tp.week=:week
 `;

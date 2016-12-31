@@ -92,31 +92,6 @@ const App = global.App = app.extend({
 				server.register(require('h2o2'));
 			}
 
-
-			server.state('beta', {
-				isSecure: false,
-				domain: null,
-				encoding: 'base64json'
-			});
-
-			server.route({
-				method: 'GET',
-				path: '/betad41d8cd98f',
-				config: {
-					handler: function (request, reply) {
-						reply().state('beta', true).redirect('/');
-					}
-				}
-			});
-
-			server.ext('onPreResponse', function (request, reply) {
-				if (request.state.beta || request.path === '/betad41d8cd98f') {
-					reply.continue();
-				} else {
-					reply('Coming soon!');
-				}
-			});
-
 			require('./routes')(server);
 
 			App.start();
