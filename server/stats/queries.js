@@ -17,12 +17,21 @@ const Queries = {
 		ORDER BY points DESC
 		LIMIT :limit;
 	`,
-	teamLeaders: `
-		SELECT u.name owner, t.name, t.points
+	rankings: (limit) => `
+		SELECT u.name owner, t.name, t.id, t.points
 		FROM Teams t
 		JOIN Users u ON t.owner = u.id
 		ORDER BY t.points DESC, t.name, u.name
-		LIMIT :limit
+		${limit ? 'LIMIT :limit' : ''};
+	`,
+	weeklyRankings: (week, limit) => `
+		SELECT u.name owner, t.name, t.id, a.points
+		FROM Archive a
+		JOIN Teams t ON a.teamId = t.id
+		JOIN Users u ON t.owner = u.id
+		WHERE a.week = :week
+		ORDER BY a.points DESC, t.name, u.name
+		${limit ? 'LIMIT :limit' : ''};		
 	`
 };
 
@@ -45,7 +54,15 @@ module.exports = function (sequelize) {
 		type: sequelize.QueryTypes.SELECT
 	});
 
-	queries.teamLeaders = (limit) => sequelize.query(Queries.teamLeaders, {
+	queries.weeklyRankings = (week, limit) => sequelize.query(Queries.weeklyRankings(week, limit), {
+		replacements: {
+			limit: limit || LIMIT,
+			week
+		},
+		type: sequelize.QueryTypes.SELECT
+	});
+
+	queries.rankings = (limit) => sequelize.query(Queries.rankings(limit), {
 		replacements: {
 			limit: limit || LIMIT
 		},

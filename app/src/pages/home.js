@@ -15,8 +15,8 @@ const stats = {
 				<Table.Cell>{row.points}</Table.Cell>
 			</Table.Row>
 	},
-	teamLeaders: {
-		name: 'Team Leaders',
+	quickRankings: {
+		name: 'Weekly Top 5',
 		header: ['Owner', 'Name', 'Points'],
 		row: (row, index) =>
 			<Table.Row key={index}>
@@ -99,7 +99,7 @@ module.exports = React.createClass({
 				<Grid>
 					<Grid.Row columns={2}>
 						<Grid.Column><QuickStat stat='weeklyMVPs'/></Grid.Column>
-						<Grid.Column><QuickStat stat='teamLeaders'/></Grid.Column>
+						<Grid.Column><QuickStat stat='quickRankings'/></Grid.Column>
 					</Grid.Row>
 				</Grid>
 			</div>

@@ -1,5 +1,4 @@
 const qs = require('qs');
-const xhr = require('xhr');
 const app = require('ampersand-app');
 const Router = require('ampersand-router');
 const ReactDOM = require('react-dom');
@@ -12,7 +11,7 @@ const ProfilePage = require('./pages/profile');
 const StatsPage = require('./pages/stats');
 const ManageTeamPage = require('./pages/manageTeam');
 const TeamPage = require('./pages/team');
-const TeamsPage = require('./pages/teams');
+const RankingsPage = require('./pages/rankings');
 
 const auth = function (name) {
 	return function () {
@@ -41,7 +40,7 @@ module.exports = Router.extend({
 		// 'stats': 'stats',
 		'profile': 'profile',
 		'profile/team': 'myTeam',
-		'teams': 'teams',
+		'rankings': 'rankings',
 		'teams/:id': 'team',
 		'login': 'login',
 		'logout': 'logout',
@@ -81,6 +80,7 @@ module.exports = Router.extend({
 			if (week) {
 				team = new Team({id: team.id});
 				team.fetch({
+
 					week,
 					error: err => {
 						app.router.redirectTo('/profile/team');
@@ -100,9 +100,10 @@ module.exports = Router.extend({
 		}
 	},
 
-	teams () {
-		app.teams.fetch();
-		return renderPage(<TeamsPage teams={app.teams}/>, 'teams');
+	rankings (query) {
+		query = qs.parse(query);
+
+		return renderPage(<RankingsPage view={query.week ? 'weekly' : 'allTime'} week={query.week}/>, 'rankings');
 	},
 
 	team (id, query) {

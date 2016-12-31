@@ -54,7 +54,7 @@ module.exports = React.createClass({
 				{this.renderTimeTillWeekend()}
 				<Menu>
 					<Menu.Item name='Fantasy Cubing' active={active === 'home'} href='/'/>
-					<Menu.Item name='teams' active={active === 'teams'} href='/teams'/>
+					<Menu.Item name='Rankings' active={active === 'rankings'} href='/rankings'/>
 
 					{app.me.isLoggedIn ?
 						<Menu.Menu position='right'>

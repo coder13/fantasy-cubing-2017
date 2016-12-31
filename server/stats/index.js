@@ -40,8 +40,20 @@ module.exports.register = function(server, options, next) {
 		.catch(error => next(error));
 	}, options);
 
-	server.method('points.teamLeaders', function (params, next) {
-		return queries.teamLeaders(5)
+	server.method('points.quickRankings', function (params, next) {
+		return queries.weeklyRankings(server.methods.getWeek() - 1, 5)
+		.then(results => next(null, results))
+		.catch(error => next(error));
+	}, options);
+
+	server.method('points.rankings', function (params, next) {
+		return queries.rankings()
+		.then(results => next(null, results))
+		.catch(error => next(error));
+	}, options);
+
+	server.method('points.weeklyRankings', function (params, next) {
+		return queries.weeklyRankings(params.week, params.limit)
 		.then(results => next(null, results))
 		.catch(error => next(error));
 	}, options);
