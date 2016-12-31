@@ -96,7 +96,9 @@ module.exports = Router.extend({
 				});
 			}
 		} else {
-			renderPage(<ProfilePage me={app.me}/>, 'teams');
+			renderPage(<ProfilePage me={app.me}>
+				<ManageTeamPage me={app.me} team={team}/>
+			</ProfilePage>, 'teams');
 		}
 	},
 

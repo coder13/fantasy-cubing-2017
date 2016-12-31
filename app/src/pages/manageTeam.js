@@ -29,6 +29,7 @@ const CreateTeamModal = React.createClass({
 		team.save(null, {
 			success: function () {
 				app.me.teams.add(team);
+				app.router.myTeam();
 			}
 		});
 	},
@@ -79,6 +80,7 @@ module.exports = React.createClass({
 
 	render () {
 		let {week, team} = this.props;
+		console.log(team)
 
 		return (
 			<div>
