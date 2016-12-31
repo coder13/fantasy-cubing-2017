@@ -76,7 +76,7 @@ const App = global.App = app.extend({
 
 		server.method('getWeek', function () {
 			// 09:00 PST / 12:00 EST / 17:00 UTC / 04:00 (Thursday) NZDT
-			return moment().subtract(5, 'days').subtract(9, 'hours').week();
+			return moment().subtract(5, 'days').subtract(9, 'hours').week() % 53;
 		});
 
 		server.method('getWeekend', function () {
