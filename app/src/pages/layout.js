@@ -55,6 +55,7 @@ module.exports = React.createClass({
 				<Menu>
 					<Menu.Item name='Fantasy Cubing' active={active === 'home'} href='/'/>
 					<Menu.Item name='Rankings' active={active === 'rankings'} href='/rankings'/>
+					<Menu.Item name='How To Play' href='https://docs.google.com/document/d/19RREAJCZZPHIBhVGkEn47fB8Xy2vu7NuYFg7Kq6qHKk'/>
 
 					{app.me.isLoggedIn ?
 						<Menu.Menu position='right'>
