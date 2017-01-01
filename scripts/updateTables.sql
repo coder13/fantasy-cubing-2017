@@ -37,7 +37,7 @@ CREATE INDEX eventContinentDateRsrBest ON ResultDates(eventId, personContinentId
 
 # ~30s
 
-DROP TABLE Points;
+DROP TABLE IF EXISTS Points;
 CREATE TABLE Points AS (
 SELECT R.competitionId, R.personId, R.personName, R.personCountryId, R.eventId, R.roundId, R.average, R.best, weekend, year(weekend) year, week(weekend) week,
 @WPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0 AND R.best > 0, 100 * (W.average / R.average + W.best / R.best), if(R.best > 0, 100 * W.best / R.best, 0)), 2) AS worldPoints,

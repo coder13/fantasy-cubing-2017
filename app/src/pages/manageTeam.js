@@ -10,6 +10,63 @@ const TeamView = require('../components/team');
 const WeekSelector = require('../components/weekSelector');
 const CubeIcon = require('../components/cubeIcon');
 
+const EditTeamModal = React.createClass({
+	displayName: 'EditTeamModal',
+
+	getDefaultProps () {
+		return {};
+	},
+
+	getInitialState () {
+		return {
+			value: ''
+		};
+	},
+
+	open () {
+		this.setState({show: true});
+	},
+
+	close () {
+		this.setState({show: false});
+	},
+
+	submit () {
+		let {team} = this.props;
+		let {value} = this.state;
+
+		team.save({name: value});
+
+		this.close();
+	},
+
+	onChange (eventId) {
+		this.setState({
+			value: eventId.target.value
+		});
+	},
+
+	render () {
+		const {value, show} = this.state;
+
+		return (
+			<Modal size='small' open={show}>
+				<Modal.Header>Edit Team</Modal.Header>
+
+				<Modal.Content>
+					<h3>Team Name:</h3>
+					<br/>
+					<Input fluid type='text' value={value} onChange={this.onChange}/>
+				</Modal.Content>
+
+				<Modal.Actions>
+					<Button positive disabled={!value} onClick={this.submit}>Edit</Button>
+				</Modal.Actions>
+			</Modal>
+		);
+	}
+});
+
 const CreateTeamModal = React.createClass({
 	displayName: 'CreateTeamModal',
 
@@ -84,7 +141,7 @@ module.exports = React.createClass({
 		return (
 			<div>
 				<Segment>
-					<h2>{team ? team.name : ''}</h2>
+					<h2>{team ? team.name : ''} <small style={{fontSize: '.5em'}}><a href='' onClick={() => this.EditTeamModal.open()}>(edit)</a></small></h2>
 					<div>
 						<Segment basic>
 							<WeekSelector week={week} last={() => app.router.history.navigate(`/profile/team?week=${week - 1}`)} next={() => app.router.history.navigate(`/profile/team?week=${week + 1}`)}/>
@@ -93,6 +150,7 @@ module.exports = React.createClass({
 					</div>
 				</Segment>
 				{!team || !team.id ? <CreateTeamModal/> : null}
+				<EditTeamModal team={team} ref={ref => {this.EditTeamModal = ref;}}/>
 			</div>
 		);
 	}

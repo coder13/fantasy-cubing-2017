@@ -161,6 +161,7 @@ module.exports = function (server, base) {
 			handler: function (request, reply) {
 				let profile = request.auth.credentials.profile;
 				let {id, owner, name} = request.payload;
+				console.log(request.payload);
 
 				if (profile.id !== +owner) {
 					return reply(Boom.unauthorized('Not allowed to create team'));
@@ -180,6 +181,7 @@ module.exports = function (server, base) {
 						return reply(Boom.unauthorized('Not allowed to edit team'));
 					}
 
+					server.log('info', `Updated team '${request.payload.name}' (${team.id}) for user ${profile.id} ${profile.name} (${profile.wca_id})`);
 					return Team.update(_.extend(where, {name: name}), {where}).then((team) => reply(team).code(201));
 				});
 			}
