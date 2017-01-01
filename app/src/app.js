@@ -24,6 +24,12 @@ const app = window.app = App.extend({
 	},
 
 	init () {
+		this.times = {
+			week: moment.utc().week()
+		};
+
+		this.getTimes();
+
 		this.me = new Me();
 		this.me.fetch({
 			success: function (model, res, options) {
@@ -34,11 +40,6 @@ const app = window.app = App.extend({
 				app.initRouter(); // cheap
 			}
 		});
-
-		this.teams = new Teams();
-
-		this.times = {};
-		this.getTimes();
 	},
 
 	/* Helps us stay on track with the current week and weekend time */

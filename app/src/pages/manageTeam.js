@@ -80,7 +80,6 @@ module.exports = React.createClass({
 
 	render () {
 		let {week, team} = this.props;
-		console.log(team)
 
 		return (
 			<div>
