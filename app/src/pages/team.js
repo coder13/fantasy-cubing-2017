@@ -22,11 +22,12 @@ module.exports = React.createClass({
 
 	getDefaultProps () {
 		return {
+			canView: true
 		};
 	},
 
 	render () {
-		let {week, team} = this.props;
+		let {week, team, canView} = this.props;
 
 		return (
 			<div className='container'>
@@ -36,7 +37,12 @@ module.exports = React.createClass({
 						<Segment basic>
 							<WeekSelector week={week} last={() => app.router.history.navigate(`/teams/${team.id}?week=${week - 1}`)} next={() => app.router.history.navigate(`/teams/${team.id}?week=${week + 1}`)}/>
 						</Segment>
-						<TeamView team={team}/>
+						{canView ?
+							<TeamView team={team}/> :
+							<div>
+								<p>Cannot view team for week {week} until deadline is over</p>
+							</div>
+						}
 					</div>
 				</Segment>
 			</div>

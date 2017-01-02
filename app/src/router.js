@@ -119,21 +119,22 @@ module.exports = Router.extend({
 
 		let team = new Team({id: id});
 		if (!team.isValid()) {
-			return this.redirectTo('/');
+			return this.redirectTo('/rankings');
 		}
 
 		team.fetch({
 			week,
-			error: function (err) {
-				console.error(err);
-				app.router.redirectTo('/');
+			error: function (model, res, body) {
+				if (res.statusCode === 401) {
+					renderPage(<TeamPage week={week} team={team} canView={false}/>);
+				} else {
+					this.redirectTo('/rankings');
+				}
 			},
 			success: function () {
 				renderPage(<TeamPage week={week} team={team}/>);
 			}
 		});
-
-		renderPage(<TeamPage week={week} team={team}/>);
 	},
 
 	login () {

@@ -106,7 +106,9 @@ module.exports = function (server, base) {
 		method: 'GET',
 		path: `${base}/teams/{id}`,
 		config: {
+			auth: 'session',
 			handler: function (request, reply) {
+				let profile = request.auth.credentials.profile;
 				let week = request.query.week ? +request.query.week : server.methods.getWeek();
 
 				getTeam({
@@ -115,6 +117,10 @@ module.exports = function (server, base) {
 				}, function (err, team) {
 					if (err) {
 						return reply(Boom.wrap(err, 500));
+					}
+
+					if (profile.id !== +team.owner && week >= server.methods.getWeek()) {
+						return reply(Boom.unauthorized('Not allowed to view current team'));
 					}
 
 					return reply(team);
