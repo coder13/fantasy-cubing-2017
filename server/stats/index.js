@@ -58,6 +58,12 @@ module.exports.register = function(server, options, next) {
 		.catch(error => next(error));
 	}, options);
 
+	server.method('points.weeklyCompProgress', function (params, next) {
+		return queries.weeklyCompProgress(params.week)
+		.then(results => next(null, results[0]))
+		.catch(error => next(error));
+	}, options);
+
 	next();
 };
 

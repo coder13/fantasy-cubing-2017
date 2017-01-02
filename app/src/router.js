@@ -9,7 +9,6 @@ const Layout = require('./pages/layout');
 const HomePage = require('./pages/home');
 const ProfilePage = require('./pages/profile');
 const StatsPage = require('./pages/stats');
-const ManageTeamPage = require('./pages/manageTeam');
 const TeamPage = require('./pages/team');
 const RankingsPage = require('./pages/rankings');
 
@@ -61,7 +60,7 @@ module.exports = Router.extend({
 		query = qs.parse(query);
 
 		if (query.week && isNaN(+query.week)) {
-			return this.redirectTo('profile/team');
+			return this.redirectTo('/profile/team');
 		}
 
 		let week = +query.week || app.currentWeek();
@@ -72,7 +71,7 @@ module.exports = Router.extend({
 			let renderTeam = (team) => {
 				renderPage(
 					<ProfilePage me={app.me}>
-						<ManageTeamPage week={week} team={team}/>
+						<TeamPage week={week} canEdit={true} team={team}/>
 					</ProfilePage>
 				);
 			};
@@ -97,7 +96,7 @@ module.exports = Router.extend({
 			}
 		} else {
 			renderPage(<ProfilePage me={app.me}>
-				<ManageTeamPage me={app.me} team={team}/>
+				<TeamPage me={app.me} week={week} canEdit={true} team={team}/>
 			</ProfilePage>, 'teams');
 		}
 	},

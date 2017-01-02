@@ -33,6 +33,16 @@ const Queries = {
 		WHERE a.week = :week
 		ORDER BY a.points DESC, t.name, u.name
 		${limit ? 'LIMIT :limit' : ''};		
+	`,
+	weeklyCompProgress: () => `
+		SELECT (SELECT COUNT(DISTINCT competitionId) FROM Points WHERE year=2017 AND week=:week) completed,
+		(SELECT count(id) FROM (
+			SELECT id,
+			@date := DATE(CONCAT(year, '-', month, '-', day)) date,
+			@weekend := DATE_SUB(@date, INTERVAL (DAYOFWEEK(@date) + 2) % 7 DAY) weekend,
+			@week:= week(@weekend) week, year
+			FROM Competitions WHERE id NOT IN (SELECT DISTINCT competitionId FROM Points)) comps
+		WHERE year=2017 AND week=:week) pending;
 	`
 };
 
@@ -67,6 +77,11 @@ module.exports = function (sequelize) {
 		replacements: {
 			limit: limit || LIMIT
 		},
+		type: sequelize.QueryTypes.SELECT
+	});
+
+	queries.weeklyCompProgress = (week) => sequelize.query(Queries.weeklyCompProgress(), {
+		replacements: {week},
 		type: sequelize.QueryTypes.SELECT
 	});
 
