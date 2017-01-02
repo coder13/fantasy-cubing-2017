@@ -170,8 +170,6 @@ module.exports = React.createClass({
 
 		let url = canEdit ? '/profile/team' : ('/teams/' + team.id);
 
-		console.log(173, team.weeks);
-
 		return (
 			<div>
 				<Segment.Group>
@@ -194,8 +192,8 @@ module.exports = React.createClass({
 						</Segment>
 					: null}
 					{canView ?
-						<Segment loading={!team.weeks[week]}>
-								<WeekView week={team.weeks[week]} editable={canEdit && week >= app.currentWeek()}/>
+						<Segment loading={team && !team.weeks[week]}>
+								<WeekView week={team ? team.weeks[week] : null} editable={canEdit && week >= app.currentWeek()}/>
 						</Segment> :
 						<Segment as={Message}>
 							<Icon name='warning'/>

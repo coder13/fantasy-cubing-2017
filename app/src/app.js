@@ -34,12 +34,10 @@ const app = window.app = App.extend({
 		this.me.fetch({
 			success: function (model, res, options) {
 				app.me.teams.fetch();
-				app.initRouter(); // cheap
-			},
-			error: function (model, res, options) {
-				app.initRouter(); // cheap
 			}
 		});
+
+		app.initRouter();
 	},
 
 	/* Helps us stay on track with the current week and weekend time */

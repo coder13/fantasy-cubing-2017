@@ -37,7 +37,6 @@ module.exports = Router.extend({
 	routes: {
 		'': 'index',
 		// 'stats': 'stats',
-		'profile': 'profile',
 		'profile/team': 'myTeam',
 		'rankings': 'rankings',
 		'teams/:id': 'team',
@@ -57,6 +56,10 @@ module.exports = Router.extend({
 	},
 
 	myTeam (query) {
+		if (!app.me.isLoggedIn) {
+			return this.redirectTo('/');
+		}
+
 		query = qs.parse(query);
 
 		if (query.week && isNaN(+query.week)) {
