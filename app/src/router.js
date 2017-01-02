@@ -68,37 +68,13 @@ module.exports = Router.extend({
 		let team = app.me.getTeam('Standard');
 
 		if (team) {
-			let renderTeam = (team) => {
-				renderPage(
-					<ProfilePage me={app.me}>
-						<TeamPage week={week} canEdit={true} team={team}/>
-					</ProfilePage>
-				);
-			};
-
-			if (week) {
-				team = new Team({id: team.id});
-				team.fetch({
-
-					week,
-					error: err => {
-						app.router.redirectTo('/profile/team');
-					},
-					success: () => renderTeam(team)
-				});
-			} else {
-				team.fetch({
-					error: err => {
-						app.router.redirectTo('/');
-					},
-					success: () => renderTeam(team)
-				});
-			}
-		} else {
-			renderPage(<ProfilePage me={app.me}>
-				<TeamPage me={app.me} week={week} canEdit={true} team={team}/>
-			</ProfilePage>, 'teams');
+			team.fetch();
+			team.fetchWeek(week);
 		}
+
+		renderPage(<ProfilePage me={app.me}>
+			<TeamPage me={app.me} team={team} week={week} canEdit={true}/>
+		</ProfilePage>, 'teams');
 	},
 
 	rankings (query) {
@@ -121,8 +97,8 @@ module.exports = Router.extend({
 			return this.redirectTo('/rankings');
 		}
 
-		team.fetch({
-			week,
+		team.fetch();
+		team.fetchWeek(week, {
 			error: function (model, res, body) {
 				if (res.statusCode === 401) {
 					renderPage(<TeamPage week={week} team={team} canView={false}/>);
@@ -130,7 +106,7 @@ module.exports = Router.extend({
 					this.redirectTo('/rankings');
 				}
 			},
-			success: function () {
+			success: function (model, res, body) {
 				renderPage(<TeamPage week={week} team={team}/>);
 			}
 		});

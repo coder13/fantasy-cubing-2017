@@ -2,6 +2,7 @@ const app = require('ampersand-app');
 const Model = require('ampersand-model');
 const xhr = require('xhr');
 const shortid = require('shortid');
+const Week = require('./week');
 
 module.exports = window.Team = Model.extend({
 	props: {
@@ -10,15 +11,12 @@ module.exports = window.Team = Model.extend({
 			// test: (value) => shortid.isValid(value) ? false : 'Invalid id'
 		},
 		owner: 'number',
-		ownerName: 'string',
 		name: 'string',
 		league: 'string',
-		points: 'number',
-		cubers: {
-			type: 'array',
-			default: () => ({})
-		}
+		points: 'number'
 	},
+
+	weeks: {},
 
 	setCuber(slot, personId, eventId) {
 		let self = this;
@@ -44,13 +42,21 @@ module.exports = window.Team = Model.extend({
 		});
 	},
 
-	fetch(options) {
-		options = options || {};
-		this.week = options.week ? options.week : undefined;
-		return Model.prototype.fetch.apply(this, arguments);
+	fetchWeek(weekNo, options) {
+		let week = new Week({
+			teamId: this.id,
+			week: weekNo
+		});
+
+		week.on('change', () => {
+			this.trigger('change');
+		});
+
+		week.fetch(options);
+		this.weeks[weekNo] = week;
 	},
 
 	url () {
-		return `${app.apiURL}/teams/${this.id || ''}${this.week ? `?week=${this.week}` : ''}`;
+		return `${app.apiURL}/teams/${this.id || ''}`;
 	}
 });

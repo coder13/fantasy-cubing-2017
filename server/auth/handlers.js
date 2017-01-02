@@ -57,6 +57,7 @@ module.exports = {
 			}
 
 			return Team.findAll({
+				attributes: ['id', 'owner', 'name', 'league', 'points'],
 				where: {
 					owner: profile.id
 				}

@@ -6,7 +6,8 @@ const {Input, Modal, Segment, Menu, Button, Message, Progress, Icon} = require('
 const fetch = require('isomorphic-fetch');
 const {Events, EventNames, League} = require('../../../lib/wca');
 const Team = require('../models/team');
-const TeamView = require('../components/team');
+const Week = require('../models/week');
+const WeekView = require('../components/week');
 const WeekSelector = require('../components/weekSelector');
 
 const EditTeamModal = React.createClass({
@@ -123,6 +124,7 @@ module.exports = React.createClass({
 
 	getInitialState () {
 		return {
+			loadingTeam: true,
 			editing: false
 		};
 	},
@@ -156,47 +158,51 @@ module.exports = React.createClass({
 
 	componentWillReceiveProps (props) {
 		this.props = props;
+		this.setState({
+			progress: undefined
+		});
 		this.getProgress();
 	},
 
 	render () {
 		let {week, team, canView, canEdit} = this.props;
-		let {progress} = this.state;
+		let {progress, loadingTeam} = this.state;
 
 		let url = canEdit ? '/profile/team' : ('/teams/' + team.id);
 
+		console.log(173, team.weeks);
+
 		return (
 			<div>
-				<Segment>
-					<h2>
-						{team ? team.name : ''}
-						{canEdit ? <small style={{fontSize: '.5em'}}><a href='' onClick={() => this.EditTeamModal.open()}> (edit)</a></small> : null}
-					</h2>
-					<div>
-						<Segment.Group>
-							<Segment>
-								<WeekSelector week={week} last={() => app.router.history.navigate(`${url}?week=${week - 1}`)} next={() => app.router.history.navigate(`${url}?week=${week + 1}`)}/>
-							</Segment>
-							{canView ?
-								<Segment>
-									{progress ?
-										<Progress value={progress.completed} size='small' total={progress.pending + progress.pending}>
-										{progress.completed} / {progress.completed + progress.pending} Week {week} Competitions
-									</Progress> : <Progress/>}
-								</Segment>
-							: null}
-							{canView ?
-								<Segment loading={!team}>
-										<TeamView team={team} editable={canEdit && week >= app.currentWeek()}/>
-								</Segment> :
-								<Segment as={Message}>
-									<Icon name='warning'/>
-									Cannot view team for week {week} until deadline is over
-								</Segment>
-							}
-						</Segment.Group>
-					</div>
-				</Segment>
+				<Segment.Group>
+					<Segment>
+						<h2>
+							{team ? team.name : ''}
+							{canEdit ? <small style={{fontSize: '.5em'}}><a href='' onClick={() => this.EditTeamModal.open()}> (edit)</a></small> : null}
+						</h2>
+					</Segment>
+					<Segment>
+						<WeekSelector week={week} last={() => app.router.history.navigate(`${url}?week=${week - 1}`, {trigger: true})}
+																			next={() => app.router.history.navigate(`${url}?week=${week + 1}`, {trigger: true})}/>
+					</Segment>
+					{canView ?
+						<Segment loading={!progress}>
+							{progress ?
+								<Progress value={progress.completed} size='small' total={progress.pending + progress.pending}>
+								{progress.completed} / {progress.completed + progress.pending} Week {week} Competitions
+							</Progress> : <Progress size='small'/>}
+						</Segment>
+					: null}
+					{canView ?
+						<Segment loading={!team.weeks[week]}>
+								<WeekView week={team.weeks[week]} editable={canEdit && week >= app.currentWeek()}/>
+						</Segment> :
+						<Segment as={Message}>
+							<Icon name='warning'/>
+							Cannot view team for week {week} until deadline is over
+						</Segment>
+					}
+				</Segment.Group>
 
 				{canEdit ?
 					<div>

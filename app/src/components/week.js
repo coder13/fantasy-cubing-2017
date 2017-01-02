@@ -116,7 +116,7 @@ const SelectPersonModal = React.createClass({
 });
 
 module.exports = React.createClass({
-	displayName: 'Team',
+	displayName: 'Week',
 	mixins: [ampersandReactMixin],
 	modals: {},
 
@@ -132,18 +132,22 @@ module.exports = React.createClass({
 		};
 	},
 
+	componentWillReceiveProps (props) {
+		this.props = props;
+	},
+
 	openChangePersonModal (slot) {
 		this.modals.selectPersonModal.open(slot);
 	},
 
 	handleSelectPerson (slot, cuber, eventId) {
-		this.props.team.setCuber(slot, cuber, eventId);
+		this.props.week.setCuber(slot, cuber, eventId);
 	},
 
 	render () {
-		let {editable, team} = this.props;
-		let exists = team && team.cubers.length > 0;
-		let findCuber = (slot) => team.cubers.find(c => c.slot === slot);
+		let {editable, week} = this.props;
+		let exists = week && week.cubers && week.cubers.length > 0;
+		let findCuber = (slot) => week.cubers.find(c => c.slot === slot);
 
 		let personRow = (slot) =>
 			<Table.Row key={slot} className='cuberRow'>

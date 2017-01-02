@@ -35,7 +35,7 @@ WHERE teamId=:teamId AND tp.week=:week
  *		points: (true/false)
  *	}
 */
-const getTeam = function (key, next) {
+const getWeek = function (key, next) {
 	return Team.findById(key.id).then(function (team) {
 		if (!team) {
 			return next(Boom.notFound('Team not found'));
@@ -59,6 +59,14 @@ const getTeam = function (key, next) {
 	}).catch(error => next(error));
 };
 
+/*
+	GET  /teams
+	GET  /teams/{id}
+	GET  /teams/{id}/week/{week}
+	POST /teams
+	PUT  /teams/{id}
+	PUT  /teams/{id}/week/{week}
+*/
 module.exports = function (server, base) {
 	const teamCache = server.cache({
 		cache: 'redisCache',
@@ -72,12 +80,12 @@ module.exports = function (server, base) {
 		}
 	});
 
-	server.method('teams.get', function (key, next) {
+	server.method('weeks.get', function (key, next) {
 		teamCache.get(key, next);
 	});
 
-	server.method('teams.set', function (key, team, next) {
-		teamCache.set(key, team, 0, next);
+	server.method('weeks.set', function (key, week, next) {
+		teamCache.set(key, week, 0, next);
 	});
 
 	server.route([{
@@ -106,12 +114,31 @@ module.exports = function (server, base) {
 		method: 'GET',
 		path: `${base}/teams/{id}`,
 		config: {
-			auth: 'session',
+			handler: function (request, reply) {
+				return Team.findById(request.params.id, {
+					attributes: ['id', 'league', 'owner', 'name', 'points']
+				}).then(function (team) {
+					if (!team) {
+						return next(Boom.notFound('Team not found'));
+					}
+
+					return reply(team);
+				});
+			}
+		}
+	}, {
+		method: 'GET',
+		path: `${base}/teams/{id}/week/{week}`,
+		config: {
+			auth: {
+				strategy: 'session',
+				mode: 'try'
+			},
 			handler: function (request, reply) {
 				let profile = request.auth.credentials.profile;
-				let week = request.query.week ? +request.query.week : server.methods.getWeek();
+				let week = request.params.week;
 
-				getTeam({
+				getWeek({
 					id: request.params.id,
 					week: week
 				}, function (err, team) {
@@ -119,7 +146,7 @@ module.exports = function (server, base) {
 						return reply(Boom.wrap(err, 500));
 					}
 
-					if (profile.id !== +team.owner && week >= server.methods.getWeek()) {
+					if ((profile && profile.id !== +team.owner) && week >= server.methods.getWeek()) {
 						return reply(Boom.unauthorized('Not allowed to view current team'));
 					}
 
@@ -167,7 +194,6 @@ module.exports = function (server, base) {
 			handler: function (request, reply) {
 				let profile = request.auth.credentials.profile;
 				let {id, owner, name} = request.payload;
-				console.log(request.payload);
 
 				if (profile.id !== +owner) {
 					return reply(Boom.unauthorized('Not allowed to create team'));
@@ -194,20 +220,25 @@ module.exports = function (server, base) {
 		}
 	}, { // Set Cuber
 		method: 'PUT',
-		path: `${base}/teams/{id}/{slot}`,
+		path: `${base}/teams/{id}/week/{week}`,
 		config: {
 			auth: 'session',
 			handler: function (request, reply) {
 				let weekend = server.methods.getWeekend();
-				let week = server.methods.getWeek();
 
 				let profile = request.auth.credentials.profile;
 				let payload = JSON.parse(request.payload);
-				let {id, slot} = request.params;
 
-				if (payload.eventId) {
-					let c = payload.slot < 2 ? 0 : payload.slot < 6 ? 1 : 2;
-					if (classes[c].events.indexOf(payload.eventId) === -1) {
+				let {id, week} = request.params;
+				let {teamId, slot, eventId, personId} = payload;
+
+				if (week < server.methods.getWeek()) {
+					return reply(Boom.create(400, 'Not allowed to edit old team'));
+				}
+
+				if (eventId) {
+					let c = slot < 2 ? 0 : slot < 6 ? 1 : 2;
+					if (classes[c].events.indexOf(eventId) === -1) {
 						return reply(Boom.create(400, 'Invalid event selection for class'));
 					}
 				}
@@ -226,40 +257,43 @@ module.exports = function (server, base) {
 						return reply(Boom.unauthorized('Not allowed to edit team'));
 					}
 
-					payload.personId = payload.personId || '';
-					payload.eventId = payload.eventId || '';
+					personId = personId || '';
+					eventId = eventId || '';
 
 					let TeamPersonWhere = {
 						teamId: id,
 						owner: profile.id,
 						slot: slot,
-						week: server.methods.getWeek()
+						week: week
 					};
 
 					return TeamPerson.find({
 						where: {
 							teamId: id,
 							owner: profile.id,
-							personId: payload.personId,
-							week: server.methods.getWeek()
+							personId: personId,
+							week: week
 						}
 					}).then(function (alreadyUsedPerson) {
 						// Deny person if we already use him. Deduce that we already use him by if he exists in a different slot if it's the same name. If not, then it's ok because we're changing events most likely
-						if (alreadyUsedPerson && (alreadyUsedPerson.personId !== '' && (alreadyUsedPerson.personId === payload.personId ? alreadyUsedPerson.slot !== slot : false))) {
+						if (alreadyUsedPerson && (alreadyUsedPerson.personId !== '' && (alreadyUsedPerson.personId === personId ? alreadyUsedPerson.slot !== slot : false))) {
 							reply(Boom.badRequest('Person already exists in Team.'));
 						} else {
 							return TeamPerson.find({where: TeamPersonWhere}).then(function (teamPerson) {
 								let newTeamPerson = _.extend(TeamPersonWhere, {
-									personId: payload.personId,
-									eventId: payload.eventId
+									personId: personId,
+									eventId: eventId
 								});
 
 								return teamPerson ? TeamPerson.update(newTeamPerson, {where: TeamPersonWhere}) : TeamPerson.create(newTeamPerson);
 							}).then(function () {
-								server.log('info', `Set team member '${payload.personId}' with event ${payload.eventId} for slot ${request.params.slot} on team '${payload.teamId}'`);
-								getTeam({id, week: server.methods.getWeek()}, team => server.methods.teams.set({id, week: server.methods.getWeek()}, team));
-								if (payload.personId) {
-									return Person.findById(payload.personId).then(person => reply(JSON.stringify(person)).code(201));
+								server.log('info', `Set team member '${personId}' with event ${eventId} for slot ${request.params.slot} on team '${teamId}'`);
+								getWeek({id, week}, team => {
+									server.methods.weeks.set({id, week}, team);
+								});
+
+								if (personId) {
+									return Person.findById(personId).then(person => reply(JSON.stringify(person)).code(201));
 								} else {
 									return reply(null);
 								}
