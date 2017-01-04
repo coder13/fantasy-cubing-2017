@@ -53,7 +53,9 @@ module.exports = {
 		let profile = request.auth.credentials.profile;
 		User.findById(profile.id).then(function (user) {
 			if (!user) {
-				user = User.build(profile);
+				user = User.create(profile).then(function (result) {
+					request.server.log('info', `Created User ${result[0].id}`);
+				});
 			}
 
 			return Team.findAll({
