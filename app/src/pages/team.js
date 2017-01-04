@@ -14,12 +14,14 @@ const EditTeamModal = React.createClass({
 	displayName: 'EditTeamModal',
 
 	getDefaultProps () {
-		return {};
+		return {
+			team: {}
+		};
 	},
 
 	getInitialState () {
 		return {
-			value: ''
+			value: this.props.team ? this.props.team.name : ''
 		};
 	},
 
@@ -37,6 +39,10 @@ const EditTeamModal = React.createClass({
 
 		team.save({name: value});
 
+		this.close();
+	},
+
+	cancel () {
 		this.close();
 	},
 
@@ -60,6 +66,7 @@ const EditTeamModal = React.createClass({
 				</Modal.Content>
 
 				<Modal.Actions>
+					<Button warning disabled={!value} onClick={this.cancel}>Cancel</Button>
 					<Button positive disabled={!value} onClick={this.submit}>Edit</Button>
 				</Modal.Actions>
 			</Modal>
