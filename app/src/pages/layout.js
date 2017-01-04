@@ -2,7 +2,7 @@ const app = require('ampersand-app');
 const React = require('react');
 const ampersandMixin = require('ampersand-react-mixin');
 const moment = require('moment');
-const {Segment, Container, Message, Menu, Dropdown, Image} = require('semantic-ui-react');
+const {Segment, Container, Message, Menu, Dropdown, Image, Icon} = require('semantic-ui-react');
 const NavHelper = require('../components/nav-helper');
 
 module.exports = React.createClass({
@@ -90,7 +90,11 @@ module.exports = React.createClass({
 
 				</div>
 				<Segment id='footer'>
-					<p style={{textAlign: 'center', margin: '5px'}}><strong>Fantasy Cubing</strong> By <a href='https://github.com/coder13' className='c-link'>Caleb Hoover</a></p>
+					<p style={{textAlign: 'center'}}><strong>Fantasy Cubing</strong> By <a target='_blank' href='https://github.com/coder13' className='c-link'>Caleb Hoover</a></p>
+					<p style={{textAlign: 'center'}}>
+						<a target='_blank' href='https://www.facebook.com/groups/FantasyCubing2017/' className='iconLink'><Icon link size='big' name='facebook'/></a>
+						<a target='_blank' href='https://github.com/coder13/fantasycubing' className='iconLink'><Icon link size='big' name='github'/></a>
+					</p>
 				</Segment>
 			</NavHelper>
 		);
