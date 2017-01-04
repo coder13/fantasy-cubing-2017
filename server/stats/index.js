@@ -1,4 +1,4 @@
-const moment = require('moment');
+const _ = require('lodash/fp');
 const wca = require('../../lib/wca');
 
 const LIMIT = 25;
@@ -30,10 +30,12 @@ module.exports.register = function(server, options, next) {
 	server.method('getRecords', function (params, next) {
 		if (params.event) {
 			return queries.recordsByEvent(params.event, params.date)
-			.then(results => next(null, results))
+			.then(results => next(null, results[0]))
 			.catch(error => next(error));
 		} else {
-
+			return queries.records(params.date)
+			.then(results => next(null, _.fromPairs(results.map(e => [e.eventId, {average: e.average, single: e.single}]))))
+			.catch(error => next(error));
 		}
 	}, options);
 

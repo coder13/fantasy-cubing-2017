@@ -38,7 +38,13 @@ module.exports = (server, base) => {
 				let {event} = request.params;
 				let {type, date} = request.query;
 
-				reply().code(404);
+				server.methods.getRecords({event, date}, function (err, results) {
+					if (err) {
+						return reply(err);
+					}
+
+					return reply(results);
+				});
 			}
 		}
 	}]);

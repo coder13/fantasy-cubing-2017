@@ -43,6 +43,16 @@ const Queries = {
 			@week:= week(@weekend) week, year
 			FROM Competitions WHERE id NOT IN (SELECT DISTINCT competitionId FROM Points)) comps
 		WHERE year=2017 AND week=:week) pending;
+	`,
+	recordsByEvent: (date) => `
+		SELECT (SELECT min(average) FROM ResultDates WHERE eventId=:event AND average > 0 AND regionalAverageRecord = 'WR'${date ? ' AND date < :date' : ''}) average,
+					 (SELECT min(best) FROM ResultDates WHERE eventId=:event AND best > 0 AND regionalSingleRecord = 'WR' ${date ? ' AND date < :date' : ''}) single
+	`,
+	records: (date) => `
+		SELECT id eventId,
+					 (SELECT min(average) FROM ResultDates WHERE eventId=id AND average > 0 AND regionalAverageRecord = 'WR'${date ? ' AND date < :date' : ''}) average,
+					 (SELECT min(best) FROM ResultDates WHERE eventId=id AND best > 0 AND regionalSingleRecord = 'WR'${date ? ' AND date < :date' : ''}) single				
+		FROM (SELECT id FROM Events WHERE rank < 500) events;
 	`
 };
 
@@ -82,6 +92,16 @@ module.exports = function (sequelize) {
 
 	queries.weeklyCompProgress = (week) => sequelize.query(Queries.weeklyCompProgress(), {
 		replacements: {week},
+		type: sequelize.QueryTypes.SELECT
+	});
+
+	queries.recordsByEvent = (event,date) => sequelize.query(Queries.recordsByEvent(date), {
+		replacements: {date, event},
+		type: sequelize.QueryTypes.SELECT
+	});
+
+	queries.records = (date) => sequelize.query(Queries.records(date), {
+		replacements: {date},
 		type: sequelize.QueryTypes.SELECT
 	});
 
