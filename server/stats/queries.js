@@ -1,6 +1,27 @@
 const LIMIT = 50;
 const YEAR = 2017;
 
+const ContinentIds = {
+	'_Africa': 'AfR',
+	'_Asia': 'AsR',
+	'_Europe': 'ER',
+	'_North America': 'NAR',
+	'_Oceania': 'OcR',
+	'_South America': 'SAR'
+};
+
+// U.G.L.Y
+const getRegionQueryFromRegion = function (region, type) {
+	let recordType = `regional${type}Record`;
+	if (region === 'world') {
+		return `AND ${recordType} = 'WR'`;
+	} else if (region[0] === '_') {
+		return `AND NOT ${recordType} = '' AND personContinentId = '${ContinentIds[region] ? ContinentIds[region] : ''}'`;
+	} else {
+		return `AND NOT ${recordType} = '' AND personCountryId = :region`;
+	}
+};
+
 const Queries = {
 	weeklyPoints: `
 		SELECT personId, personName, personCountryId, TRUNCATE(avg(totalPoints), 2) points
@@ -43,6 +64,16 @@ const Queries = {
 			@week:= week(@weekend) week, year
 			FROM Competitions WHERE id NOT IN (SELECT DISTINCT competitionId FROM Points)) comps
 		WHERE year=2017 AND week=:week) pending;
+	`,
+	recordsByEvent: (region, date) => `
+		SELECT (SELECT min(average) FROM ResultDates WHERE eventId=:event AND average > 0 ${getRegionQueryFromRegion(region, 'Average')} ${date ? ' AND date < :date' : ''}) average,
+					 (SELECT min(best) FROM ResultDates WHERE eventId=:event AND best > 0 ${getRegionQueryFromRegion(region, 'Single')} ${date ? ' AND date < :date' : ''}) single
+	`,
+	records: (region, date) => `
+		SELECT id eventId,
+					 (SELECT min(average) FROM ResultDates WHERE eventId=id AND average > 0 AND ${getRegionQueryFromRegion(region, 'Average')} ${date ? ' AND date < :date' : ''}) average,
+					 (SELECT min(best) FROM ResultDates WHERE eventId=id AND best > 0 ${getRegionQueryFromRegion(region, 'Single')} ${date ? ' AND date < :date' : ''}) single				
+		FROM (SELECT id FROM Events WHERE rank < 500) events;
 	`
 };
 
@@ -82,6 +113,16 @@ module.exports = function (sequelize) {
 
 	queries.weeklyCompProgress = (week) => sequelize.query(Queries.weeklyCompProgress(), {
 		replacements: {week},
+		type: sequelize.QueryTypes.SELECT
+	});
+
+	queries.recordsByEvent = (event,region,date) => sequelize.query(Queries.recordsByEvent(region,date), {
+		replacements: {event,region,date},
+		type: sequelize.QueryTypes.SELECT
+	});
+
+	queries.records = (region,date) => sequelize.query(Queries.records(region,date), {
+		replacements: {date,region},
 		type: sequelize.QueryTypes.SELECT
 	});
 
