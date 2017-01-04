@@ -91,19 +91,19 @@ module.exports = React.createClass({
 				</div>
 				<Segment id='footer'>
 					<p style={{textAlign: 'center', margin: '5px'}}><strong>Fantasy Cubing</strong> By <a href='https://github.com/coder13' className='c-link'>Caleb Hoover</a></p>
-					<p style={{textAlign: 'center', margin: '5px'}}>
-						<span title='English'> English </span>|
-						<span title='Spanish'> Español </span>|
-						<span title='Canadian French'> Français (CA) </span>|
-						<span title='Korean'> 한국어 </span>|
-						<span title='Brazilian portuguese'> Português (BR) </span>|
-						<span title='Finnish'> Suomi </span>|
-						<span title='Swedish'> Svenska </span>
-					</p>
-					<p style={{textAlign: 'center', margin: '5px'}}>Not listed? Help Us Translate!</p>
 				</Segment>
 			</NavHelper>
 		);
 	}
 });
 
+					// <p style={{textAlign: 'center', margin: '5px'}}>
+					// 	<span title='English'> English </span>|
+					// 	<span title='Spanish'> Español </span>|
+					// 	<span title='Canadian French'> Français (CA) </span>|
+					// 	<span title='Korean'> 한국어 </span>|
+					// 	<span title='Brazilian portuguese'> Português (BR) </span>|
+					// 	<span title='Finnish'> Suomi </span>|
+					// 	<span title='Swedish'> Svenska </span>
+					// </p>
+					// <p style={{textAlign: 'center', margin: '5px'}}>Not listed? Help Us Translate!</p>
