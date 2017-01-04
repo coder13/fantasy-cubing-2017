@@ -27,6 +27,16 @@ module.exports.register = function(server, options, next) {
 		}
 	};
 
+	server.method('getRecords', function (params, next) {
+		if (params.event) {
+			return queries.recordsByEvent(params.event, params.date)
+			.then(results => next(null, results))
+			.catch(error => next(error));
+		} else {
+
+		}
+	}, options);
+
 	server.method('points.weeklyPoints', function (params, next) {
 		let week = +params.week || (server.methods.getWeek() - 1);
 		return queries.weeklyPoints(week, params.limit)

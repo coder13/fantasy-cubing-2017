@@ -1,6 +1,7 @@
 const fs = require('fs');
 const Boom = require('boom');
 const wca = require('../../../lib/wca');
+const queries = require('../../stats/queries');
 
 module.exports = (server, base) => {
 	server.route([{
@@ -27,6 +28,17 @@ module.exports = (server, base) => {
 					reply(Boom.badRequest('Invalid Stat'));
 				}
 
+			}
+		}
+	}, {
+		method: 'GET',
+		path: `${base}/records/{event?}`,
+		config: {
+			handler: function (request, reply) {
+				let {event} = request.params;
+				let {type, date} = request.query;
+
+				reply().code(404);
 			}
 		}
 	}]);

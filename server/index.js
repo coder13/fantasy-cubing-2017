@@ -74,15 +74,15 @@ const App = global.App = app.extend({
 		// Database
 		this.db = require('./models/');
 
-		server.method('getWeek', function () {
-			// 09:00 PST / 12:00 EST / 17:00 UTC / 04:00 (Thursday) NZDT
-			return moment().subtract(5, 'days').subtract(9, 'hours').week() % 52;
-		});
-
 		server.method('getWeekend', function () {
 			// 09:00 PST / 12:00 EST / 17:00 UTC / 04:00 (Thursday) NZDT
 			// This is to make sure that we can't pick past the earliest possible comp.
-			return moment().add(3, 'days').day(3).hour(9).startOf('hour');
+			return moment.utc().subtract(17, 'hours').add(4, 'days').day(3).hour(17).startOf('hour');
+		});
+
+		server.method('getWeek', function () {
+			// 09:00 PST / 12:00 EST / 17:00 UTC / 04:00 (Thursday) NZDT
+			return server.methods.getWeekend().week();
 		});
 
 		server.register(plugins, function (err) {
