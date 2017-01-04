@@ -1,6 +1,7 @@
 const LIMIT = 50;
 const YEAR = 2017;
 
+/* For Fantasy Cubing chrome extension: */
 const ContinentIds = {
 	'_Africa': 'AfR',
 	'_Asia': 'AsR',
@@ -10,7 +11,6 @@ const ContinentIds = {
 	'_South America': 'SAR'
 };
 
-// U.G.L.Y
 const getRegionQueryFromRegion = function (region, type) {
 	let recordType = `regional${type}Record`;
 	if (region === 'world') {
@@ -21,6 +21,7 @@ const getRegionQueryFromRegion = function (region, type) {
 		return `AND NOT ${recordType} = '' AND personCountryId = :region`;
 	}
 };
+/* */
 
 const Queries = {
 	weeklyPoints: `

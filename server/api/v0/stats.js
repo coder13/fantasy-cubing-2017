@@ -1,4 +1,4 @@
-const fs = require('fs');``
+const fs = require('fs');
 const Boom = require('boom');
 const wca = require('../../../lib/wca');
 const queries = require('../../stats/queries');
@@ -38,9 +38,7 @@ module.exports = (server, base) => {
 				let {event} = request.params;
 				let {type, region, date} = request.query;
 
-				console.log(41, region)
-
-				// region = region || 'world';
+				region = region || 'world';
 
 				server.methods.getRecords({event, region, date}, function (err, results) {
 					if (err) {
