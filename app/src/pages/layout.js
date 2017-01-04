@@ -36,7 +36,7 @@ module.exports = React.createClass({
 
 			return (
 				<div id='timeline'>
-					<p style={{textAlign: 'center'}}>{days} days {hours} hours {minutes} minutes {seconds} seconds till this weekend's competitions</p>
+					<p style={{textAlign: 'center'}}>{days} days {hours} hours {minutes} minutes {seconds} seconds till week {app.times.week} competitions</p>
 				</div>
 			);
 		} else {
