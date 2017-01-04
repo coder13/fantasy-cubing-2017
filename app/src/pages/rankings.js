@@ -88,6 +88,12 @@ module.exports = React.createClass({
 								<Table.Cell>{team.points}</Table.Cell>
 							</Table.Row>)}
 					</Table.Body>
+					<Table.Footer fullWidth>
+						<Table.Row>
+							<Table.HeaderCell/>
+							<Table.HeaderCell>{teams.length} Teams</Table.HeaderCell>
+						</Table.Row>
+					</Table.Footer>
 				</Table>
 			</div>
 		);
