@@ -40,17 +40,11 @@ CREATE INDEX eventContinentDateRsrBest ON ResultDates(eventId, personContinentId
 DROP TABLE IF EXISTS Points;
 CREATE TABLE Points AS (
 SELECT R.competitionId, R.personId, R.personName, R.personCountryId, R.eventId, R.roundId, R.average, R.best, weekend, year(weekend) year, week(weekend) week,
-@WPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0 AND R.best > 0, 100 * (W.average / R.average + W.best / R.best), if(R.best > 0, 100 * W.best / R.best, 0)), 2) AS worldPoints,
-@CPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0 AND R.best > 0, 100 * (C.average / R.average + C.best / R.best), if(R.best > 0, 100 * C.best / R.best, 0)), 2) AS continentPoints,
-@NPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0 AND R.best > 0, 100 * (N.average / R.average + N.best / R.best), if(R.best > 0, 100 * N.best / R.best, 0)), 2) AS countryPoints,
-@skillPoints := TRUNCATE((@WPoints + @CPoints + @NPoints) / 3, 2) AS skillPoints,
-@compPoints := TRUNCATE(if(formatId in ('a', 'm'),
-if(R.average > 0, 50 * comp.bestAvg / (R.average + comp.avg) + 100 * comp.bestAvg / R.average, 0),
-if(R.best > 0, 50 * comp.bestSingle / (R.best + comp.avgSingle) + 100 * comp.bestSingle / R.best, 0)), 2) AS compPoints,
-TRUNCATE((@compPoints + @skillPoints) / 2, 2) AS totalPoints
+@WPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0 AND R.best > 0, 50 * (W.average / R.average + W.best / R.best), if(R.best > 0, 100 * W.best / R.best, 0)), 2) AS worldPoints,
+@CPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0 AND R.best > 0, 50 * (C.average / R.average + C.best / R.best), if(R.best > 0, 100 * C.best / R.best, 0)), 2) AS continentPoints,
+@NPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0 AND R.best > 0, 50 * (N.average / R.average + N.best / R.best), if(R.best > 0, 100 * N.best / R.best, 0)), 2) AS countryPoints,
+@skillPoints := TRUNCATE((@WPoints + @CPoints + @NPoints) / 3, 2) AS totalPoints
 FROM ResultDates R
-LEFT JOIN (SELECT competitionId, eventId, roundId, AVG(r.average) avg, AVG(r.best) avgSingle, MIN(r.average) bestAvg, MIN(r.best) bestSingle
-	FROM ResultDates r WHERE if(formatId in ('a', 'm'), r.average > 0, r.best > 0) GROUP BY roundId,eventId,competitionId) comp ON R.competitionId=comp.competitionId AND R.eventId=comp.eventId AND R.roundId=comp.roundId
 LEFT JOIN (SELECT date, eventId,
 	(SELECT IFNULL(MIN(average),0) FROM ResultDates r where r.date < rd.date AND r.eventId=rd.eventId AND r.average > 0 AND regionalAverageRecord='WR') average,
 	(SELECT IFNULL(MIN(best),0) FROM ResultDates r where r.date < rd.date AND r.eventId=rd.eventId AND r.best > 0 AND regionalSingleRecord='WR') best
