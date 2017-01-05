@@ -71,18 +71,30 @@ CREATE INDEX idNameEvent ON Points(personId,personName,eventId);
 
 # 1-2 minutes
 
-DROP TABLE IF EXISTS `PersonPoints`;
-CREATE TABLE PersonPoints AS (
-SELECT personId id, personName name, SUM(totalPoints)/18 points
-FROM Points GROUP BY id, name ORDER BY points DESC);
+DROP TABLE IF EXISTS `Kinch`;
+CREATE TABLE Kinch AS (
+	SELECT personId,p.name personName,p.countryId,results.eventId,
+		TRUNCATE(100 * (CASE
+			WHEN results.eventId in ('444bf', '555bf', '333mbf') THEN records.best / results.best
+			WHEN results.eventId in ('333fm', '333bf') THEN GREATEST(if(results.average > 0, records.average / results.average, 0), records.best / results.best)
+			ELSE if(results.average > 0, records.average / results.average, 0)
+		END), 2) kinch
+	FROM (SELECT personId,eventId, min(average) average, min(best) best
+		FROM ResultDates WHERE best > 0 GROUP BY personId,eventId) results
+		JOIN (SELECT id eventId,
+			(SELECT min(average) average FROM ResultDates WHERE eventId=id AND average > 0) average,
+			(SELECT min(best) best FROM ResultDates WHERE eventId=id AND best > 0) best
+			FROM (SELECT id FROM Events WHERE rank < 500) events) records
+			ON records.eventId = results.eventId
+		JOIN Persons p ON p.id = results.personId where subid=1
+		ORDER BY kinch DESC
+);
 
-# ~10s
+DROP TABLE IF EXISTS `TotalKinch`;
+CREATE TABLE TotalKinch AS (
+	SELECT personId, personName, SUM(kinch) / 18 kinch FROM Kinch GROUP BY personId, personName ORDER BY kinch DESC
+);
 
-DROP TABLE IF EXISTS `PersonEventPoints`;
-CREATE Table PersonEventPoints AS (
-SELECT personId id, personName name, eventId, AVG(totalPoints) points
-FROM Points GROUP BY id, name, eventId ORDER BY points DESC);
-
-# ~25s
+# 1 minute
 
 COMMIT;
