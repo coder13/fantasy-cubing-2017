@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
 	let TeamPerson = sequelize.define('TeamPerson', {
-		owner: DataTypes.STRING,
+		owner: DataTypes.INTEGER,
 		teamId: DataTypes.STRING,
 		week: DataTypes.INTEGER,
 		slot: DataTypes.INTEGER,
