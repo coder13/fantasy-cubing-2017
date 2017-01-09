@@ -56,7 +56,7 @@ module.exports = React.createClass({
 	render () {
 		const {view} = this.props;
 
-		let week = parseInt(this.props.week);
+		let week = this.props.week ? parseInt(this.props.week) : (app.currentWeek() - 1);
 
 		let teams = this.state.teams || [];
 
@@ -95,7 +95,7 @@ module.exports = React.createClass({
 								<Table.Row key={index}>
 									<Table.Cell>{rank}</Table.Cell>
 									<Table.Cell>{team.owner}</Table.Cell>
-									<Table.Cell><a href={`/teams/${team.id}${week ? `?week=${week}` : ''}`}>{team.name}</a></Table.Cell>
+									<Table.Cell><a href={`/teams/${team.id}?week=${week}`}>{team.name}</a></Table.Cell>
 									<Table.Cell>{team.points}</Table.Cell>
 								</Table.Row>
 							);
