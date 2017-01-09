@@ -85,6 +85,7 @@ const SelectPersonModal = React.createClass({
 	render() {
 		const {isLoading, eventId, slot, value, showModal, results} = this.state;
 		let c = slot < 2 ? 0 : slot < 6 ? 1 : 2;
+		let canSelect = !!value && !!eventId;
 
 		return (
 			<Modal open={showModal} size='small'>
@@ -107,7 +108,7 @@ const SelectPersonModal = React.createClass({
 				</Modal.Content>
 
 				<Modal.Actions>
-					<Button positive onClick={this.submit}>{value ? 'Select' : 'Clear'}</Button>
+					<Button positive={canSelect} onClick={this.submit} color={canSelect ? 'green' : 'orange'}>{canSelect ? 'Select' : 'Clear'}</Button>
 					<Button onClick={this.closeModal}>Cancel</Button>
 				</Modal.Actions>
 			</Modal>

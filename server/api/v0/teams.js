@@ -285,14 +285,18 @@ module.exports = function (server, base) {
 									eventId: eventId
 								});
 
-								return teamPerson ? TeamPerson.update(newTeamPerson, {where: TeamPersonWhere}) : TeamPerson.create(newTeamPerson);
+								if (!personId || !eventId) {
+									return teamPerson.destroy({where: TeamPersonWhere});
+								} else {
+									return teamPerson ? TeamPerson.update(newTeamPerson, {where: TeamPersonWhere}) : TeamPerson.create(newTeamPerson);
+								}
 							}).then(function () {
 								server.log('info', `Set team member '${personId}' with event ${eventId} for slot ${request.params.slot} on team '${teamId}'`);
 								getWeek({id, week}, team => {
 									server.methods.weeks.set({id, week}, team);
 								});
 
-								if (personId) {
+								if (personId && eventId) {
 									return Person.findById(personId).then(person => reply(JSON.stringify(person)).code(201));
 								} else {
 									return reply(null);
