@@ -3,20 +3,22 @@ const React = require('react');
 const ampersandReactMixin = require('ampersand-react-mixin');
 const {Segment, Header, Grid, Table} = require('semantic-ui-react');
 const xhr = require('xhr');
+const wca = require('../../../lib/wca');
 
 const stats = {
 	weeklyMVPs: {
 		name: 'Weekly MVPs',
-		header: ['Name', 'Country', 'Points'],
+		header: ['Name', 'Country', 'Event', 'Points'],
 		row: (row, index) =>
 			<Table.Row key={index}>
 				<Table.Cell>{row.personName} <small>(<a target='_blank' href={`https://www.worldcubeassociation.org/results/p.php?i=${row.personId}`} className='c-link'>{row.personId}</a>)</small></Table.Cell>
 				<Table.Cell>{row.personCountryId}</Table.Cell>
+				<Table.Cell>{wca.EventNames[row.eventId]}</Table.Cell>
 				<Table.Cell>{row.points}</Table.Cell>
 			</Table.Row>
 	},
 	quickRankings: {
-		name: 'Weekly Top 5',
+		name: 'Weekly Top 10',
 		header: ['Owner', 'Name', 'Points'],
 		row: (row, index) =>
 			<Table.Row key={index}>

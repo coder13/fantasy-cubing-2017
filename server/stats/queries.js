@@ -25,10 +25,10 @@ const getRegionQueryFromRegion = function (region, type) {
 
 const Queries = {
 	weeklyPoints: `
-		SELECT personId, personName, personCountryId, TRUNCATE(avg(totalPoints), 2) points
+		SELECT personId, personName, eventId, personCountryId, TRUNCATE(avg(totalPoints), 2) points
 		FROM Points
 		WHERE week = :week AND year=${YEAR}
-		GROUP BY personId, personName, personCountryId
+		GROUP BY personId, personName, eventId, personCountryId
 		ORDER BY points DESC
 		LIMIT :limit;
 	`,
