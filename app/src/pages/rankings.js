@@ -61,6 +61,7 @@ module.exports = React.createClass({
 		let teams = this.state.teams || [];
 
 		let lastPoints = 0;
+		let lastRank = 0;
 		let rank = 0;
 
 		return (
@@ -86,9 +87,12 @@ module.exports = React.createClass({
 					</Table.Header>
 					<Table.Body>
 						{teams.sort((a,b) => -compare(a.points, b.points)).map((team, index) => {
-							if (team.points !== lastPoints) {
-								rank++;
+							let rank = index + 1;
+							if (team.points === lastPoints) {
+								rank = lastRank;
 							}
+
+							lastRank = rank;
 							lastPoints = team.points;
 
 							return (
