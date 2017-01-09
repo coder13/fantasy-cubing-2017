@@ -95,46 +95,14 @@ CREATE INDEX idNameEvent ON Points(personId,personName,eventId);
 
 # 1-2 minutes
 
-DROP TABLE IF EXISTS `Kinch`;
-CREATE TABLE Kinch AS (
-  SELECT personId,p.name personName,p.countryId,R.eventId,
-    @wKinch = TRUNCATE(100 * (CASE
-      WHEN R.eventId in ('444bf', '555bf', '333mbf') THEN W.best / R.best
-      WHEN R.eventId in ('333fm', '333bf') THEN GREATEST(if(R.average > 0, W.average / R.average, 0), W.best / R.best)
-      ELSE if(R.average > 0, W.average / R.average, 0)
-    END), 2) worldKinch,
-    @cKinch = TRUNCATE(100 * (CASE
-      WHEN R.eventId in ('444bf', '555bf', '333mbf') THEN C.best / R.best
-      WHEN R.eventId in ('333fm', '333bf') THEN GREATEST(if(R.average > 0, C.average / R.average, 0), C.best / R.best)
-      ELSE if(R.average > 0, C.average / R.average, 0)
-    END), 2) continentKinch,
-    @nKinch = TRUNCATE(100 * (CASE
-      WHEN R.eventId in ('444bf', '555bf', '333mbf') THEN N.best / R.best
-      WHEN R.eventId in ('333fm', '333bf') THEN GREATEST(if(R.average > 0, N.average / R.average, 0), N.best / R.best)
-      ELSE if(R.average > 0, N.average / R.average, 0)
-    END), 2) countryKinch,
-    TRUNCATE((@wKinch + @cKinch + @nKinch) / 3, 2) kinch
-  FROM (SELECT personId,personCountryId,personContinentId,eventId, min(average) average, min(best) best
-    FROM ResultDates WHERE best > 0 GROUP BY personId,eventId,personCountryId,personContinentId) R
-  LEFT JOIN (SELECT id eventId,
-      (SELECT min(average) average FROM ResultDates WHERE eventId=id AND average > 0) average,
-      (SELECT min(best) best FROM ResultDates WHERE eventId=id AND best > 0) best
-      FROM (SELECT id FROM Events WHERE rank < 500) events) W ON W.eventId = R.eventId
-  LEFT JOIN (SELECT eventId, personCountryId,
-    (SELECT IFNULL(MIN(average),0) FROM ResultDates r WHERE r.personCountryId = rd.personCountryId AND NOT r.regionalAverageRecord = '' AND r.eventId=rd.eventId AND r.average > 0) average,
-    (SELECT IFNULL(MIN(best),0) FROM ResultDates r WHERE r.personCountryId = rd.personCountryId AND NOT r.regionalSingleRecord = '' AND r.eventId=rd.eventId AND r.best > 0) best
-    FROM (SELECT eventId,personCountryId FROM ResultDates GROUP BY eventId,personCountryId) rd) N ON N.eventId = R.eventId AND N.personCountryId = R.personCountryId
-  LEFT JOIN (SELECT eventId, personContinentId,
-    (SELECT IFNULL(MIN(average),0) FROM ResultDates r WHERE r.personContinentId = rd.personContinentId AND NOT r.regionalAverageRecord = '' AND r.eventId=rd.eventId AND r.average > 0) average,
-    (SELECT IFNULL(MIN(best),0) FROM ResultDates r WHERE r.personContinentId = rd.personContinentId AND NOT r.regionalSingleRecord = '' AND r.eventId=rd.eventId AND r.best > 0) best
-    FROM (SELECT eventId,personContinentId FROM ResultDates GROUP BY eventId,personContinentId) rd) C ON C.eventId = R.eventId AND C.personContinentId = R.personContinentId
-  JOIN Persons p ON p.id = R.personId WHERE subid=1
-  ORDER BY kinch DESC
+DROP TABLE IF EXISTS `TotalPointsByEvent`;
+CREATE TABLE TotalPointsByEvent AS (
+  SELECT personId, personName, eventId, SUM(totalPoints) points FROM Points GROUP BY personId, personName, eventId ORDER BY points DESC
 );
 
-DROP TABLE IF EXISTS `TotalKinch`;
-CREATE TABLE TotalKinch AS (
-  SELECT personId, personName, SUM(kinch) / 18 kinch FROM Kinch GROUP BY personId, personName ORDER BY kinch DESC
+DROP TABLE IF EXISTS `TotalPoints`;
+CREATE TABLE TotalPoints AS (
+  SELECT personId, personName, SUM(totalPoints) points FROM Points GROUP BY personId, personName ORDER BY points DESC
 );
 
 # 1 minute
