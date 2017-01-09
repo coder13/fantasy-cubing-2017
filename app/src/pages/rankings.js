@@ -60,6 +60,9 @@ module.exports = React.createClass({
 
 		let teams = this.state.teams || [];
 
+		let lastPoints = 0;
+		let rank = 0;
+
 		return (
 			<div>
 				<Menu tabular>
@@ -75,18 +78,28 @@ module.exports = React.createClass({
 				<Table compact selectable>
 					<Table.Header>
 						<Table.Row>
+							<Table.HeaderCell>Rank</Table.HeaderCell>
 							<Table.HeaderCell>Owner</Table.HeaderCell>
 							<Table.HeaderCell>Team</Table.HeaderCell>
 							<Table.HeaderCell style={{textAlign: 'center', width: '1em'}}>Total Points</Table.HeaderCell>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{teams.sort((a,b) => -compare(a.points, b.points)).map((team, index) =>
-							<Table.Row key={index}>
-								<Table.Cell>{team.owner}</Table.Cell>
-								<Table.Cell><a href={`/teams/${team.id}${week ? `?week=${week}` : ''}`}>{team.name}</a></Table.Cell>
-								<Table.Cell>{team.points}</Table.Cell>
-							</Table.Row>)}
+						{teams.sort((a,b) => -compare(a.points, b.points)).map((team, index) => {
+							if (team.points !== lastPoints) {
+								rank++;
+							}
+							lastPoints = team.points;
+
+							return (
+								<Table.Row key={index}>
+									<Table.Cell>{rank}</Table.Cell>
+									<Table.Cell>{team.owner}</Table.Cell>
+									<Table.Cell><a href={`/teams/${team.id}${week ? `?week=${week}` : ''}`}>{team.name}</a></Table.Cell>
+									<Table.Cell>{team.points}</Table.Cell>
+								</Table.Row>
+							);
+						})}
 					</Table.Body>
 					<Table.Footer fullWidth>
 						<Table.Row>
