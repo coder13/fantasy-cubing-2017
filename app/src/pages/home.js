@@ -18,7 +18,7 @@ const stats = {
 			</Table.Row>
 	},
 	quickRankings: {
-		name: 'Weekly Top 10',
+		name: 'Weekly Top 5',
 		header: ['Owner', 'Name', 'Points'],
 		row: (row, index) =>
 			<Table.Row key={index}>
