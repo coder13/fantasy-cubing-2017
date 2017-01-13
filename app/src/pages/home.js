@@ -73,11 +73,11 @@ const QuickStat = React.createClass({
 						<Table.Row>
 							{header ? header.map((name, index) =>
 								<Table.HeaderCell key={index}>{name}</Table.HeaderCell>
-							) : '' }
+							) : null}
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{data ? data.map(row) : ''}
+						{data ? data.map(row) : null}
 					</Table.Body>
 				</Table>
 			</div>

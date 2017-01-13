@@ -68,9 +68,9 @@ module.exports = Router.extend({
 
 		let week = +query.week || app.currentWeek();
 
-		let team = app.me.getTeam('Standard');
+		let team = app.me.team;
 
-		if (team) {
+		if (team.id) {
 			team.fetch();
 			team.fetchWeek(week);
 		}

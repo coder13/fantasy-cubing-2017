@@ -1,18 +1,10 @@
-module.exports = function(sequelize, DataTypes) {
-	var Archive = sequelize.define('Archive', {
-		teamId: DataTypes.STRING,
-		week: DataTypes.INTEGER,
-		points: DataTypes.INTEGER
-	}, {
-		freezeTableName: true,
+module.exports = function (bookshelf, db) {
+	db.Archive = bookshelf.Model.extend({
 		tableName: 'Archive',
-		classMethods: {
-			associate: function(models) {
-			}
+		hasTimestamps: false
+	}, {
+		week (week) {
+			return this.forge({week}).fetch();
 		}
 	});
-
-	Archive.removeAttribute('id');
-
-	return Archive;
 };

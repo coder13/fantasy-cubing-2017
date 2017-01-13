@@ -3,7 +3,8 @@ const Boom = require('boom');
 const shortId = require('shortid');
 const moment = require('moment');
 
-const {sequelize, User, Team, Person, TeamPerson} = App.db;
+const {knex, User, Team, Teams, Person, Pick, Picks} = App.db;
+const league = 'Standard';
 
 const time = (hour, min, sec) => ((hour * 60 + min) * 60 + sec) * 1000;
 
@@ -19,14 +20,13 @@ let classes = [{
 }];
 
 /* Just grab the most recent team thus every new week, your team will be blank. No more cascading. */
-const teamQuery = `
-SELECT tp.eventId, tp.slot, tp.personId, Persons.name, Persons.countryId, p.points
-FROM TeamPeople tp
-JOIN Persons ON Persons.id = tp.personId
-LEFT JOIN (SELECT personId, eventId, TRUNCATE(AVG(totalPoints), 2) points FROM Points WHERE week=:week AND year=2017 GROUP BY personId, eventId) p
-	ON tp.personId=p.personId AND tp.eventId=p.eventId
-WHERE teamId=:teamId AND tp.week=:week
-`;
+const teamQuery = (teamId, week) => {
+	let points = knex('Points').select('personId', 'eventId', knex.raw('TRUNCATE(AVG(totalPoints), 2) AS points')).where({week, year: 2017}).groupBy('personId', 'eventId').as('points');
+
+	return knex('Picks').join('Persons', 'Persons.id', 'Picks.personId').leftJoin(points, 'points.personId', '=', 'Picks.personId', 'points.eventId', 'Picks.eventId')
+		.select('Picks.eventId', 'Picks.slot','Picks.personId', 'Persons.name', 'Persons.countryId', 'points')
+		.where({teamId, week});
+};
 
 /*
  *	key: {
@@ -36,24 +36,20 @@ WHERE teamId=:teamId AND tp.week=:week
  *	}
 */
 const getWeek = function (key, next) {
-	return Team.findById(key.id).then(function (team) {
+	return Team.forge({id: key.id}).fetch({
+		withRelated: ['owner']
+	}).then(function (team) {
 		if (!team) {
 			return next(Boom.notFound('Team not found'));
 		}
 
-		return sequelize.query(teamQuery, {
-			replacements: {
-				teamId: key.id,
-				week: key.week
-			},
-			type: sequelize.QueryTypes.SELECT
-		}).then(people =>
+		return team.picks(key.week).then(picks =>
 			next(null, {
 				owner: team.owner,
 				id: team.id,
 				name: team.name,
 				points: team.points,
-				cubers: people
+				picks: picks
 			})
 		).catch(error => next(error));
 	}).catch(error => next(error));
@@ -98,15 +94,10 @@ module.exports = function (server, base) {
 			handler: function (request, reply) {
 				let {week, league} = request.query;
 
-				sequelize.query(`
-					SELECT t.id, t.name, t.points, u.name ownerName
-					FROM Teams t
-					LEFT JOIN Users u ON t.owner = u.id
-					ORDER BY t.points DESC
-				`, {
-					type: sequelize.QueryTypes.SELECT
+				Team.collection().fetch({
+					withRelated: 'owner'
 				}).then(function (teams) {
-					reply(teams);
+					reply(teams.mask('id,name,points,owner(id,name)'));
 				});
 			}
 		}
@@ -115,20 +106,25 @@ module.exports = function (server, base) {
 		path: `${base}/teams/{id}`,
 		config: {
 			handler: function (request, reply) {
-				return Team.findById(request.params.id, {
-					attributes: ['id', 'league', 'owner', 'name', 'points']
-				}).then(function (team) {
+				return Team.forge({id: request.params.id}).fetch({withRelated: ['owner']})
+				.then(team => {
 					if (!team) {
-						return next(Boom.notFound('Team not found'));
+						return reply(Boom.create(404, 'Team Not Found'));
 					}
 
-					return reply(team);
+					return reply(team.mask('id,name,points,owner(id,name)'));
+				}).catch(err => {
+					if (err.message === 'EmptyResponse') {
+						return reply(Boom.create(404, 'Team Not Found'));
+					}
+
+					reply(err);
 				});
 			}
 		}
 	}, {
 		method: 'GET',
-		path: `${base}/teams/{id}/week/{week}`,
+		path: `${base}/teams/{teamId}/week/{week}`,
 		config: {
 			auth: {
 				strategy: 'session',
@@ -136,21 +132,22 @@ module.exports = function (server, base) {
 			},
 			handler: function (request, reply) {
 				let profile = request.auth.credentials.profile;
-				let week = request.params.week;
+				let {teamId, week} = request.params;
 
-				getWeek({
-					id: request.params.id,
-					week: week
-				}, function (err, team) {
-					if (err) {
-						return reply(Boom.wrap(err, 500));
+				Team.forge({id: teamId}).fetch({
+					withRelated: ['owner']
+				}).then(function (team) {
+					if (!team) {
+						return reply(Boom.notFound('Team not found'));
 					}
 
-					if ((profile && profile.id !== +team.owner) && week >= server.methods.getWeek()) {
+					let owner = team.related('owner');
+
+					if ((profile && profile.id !== +owner.id) && week >= server.methods.getWeek()) {
 						return reply(Boom.unauthorized('Not allowed to view current team'));
 					}
 
-					return reply(team);
+					return team.getPicks(week).then(picks => reply(_.extend({picks}, team.toJSON())));
 				});
 			}
 		}
@@ -163,48 +160,43 @@ module.exports = function (server, base) {
 				let profile = request.auth.credentials.profile;
 				let {league, owner, name} = request.payload;
 
-				if (profile.id !== +owner) {
+				if (profile.id !== +owner.id) {
 					return reply(Boom.unauthorized('Not allowed to create team'));
 				}
 
-				Team.find({
-					where: {owner}
-				}).then(function (team) {
+				Team.where({owner: owner.id}).fetch().then(function (team) {
 					if (team) {
 						return reply(Boom.conflict('Already have a team'));
 					}
 
 					return Team.create({
 						id: shortId.generate(),
-						owner: owner,
-						name: name,
-						league: 'Standard' // TODO: update for support for multiple leagues
-					}).then(function (team) {
-						server.log('info', `Created team '${request.payload.name}' for user ${profile.id} ${profile.name} (${profile.wca_id})`);
-						return reply(team).code(200);
+						owner: owner.id,
+						name
+					}, {method: 'insert'}).then(function (team) {
+						return User.update({
+							teamId: team.id
+						}, {
+							id: profile.id
+						}).then(function (user) {
+							server.log('info', `Created team '${team.name}' (${team.id}) for user ${profile.name} (${profile.id})`);
+							return reply(team).code(200);
+						});
 					});
 				}).catch(error => reply(Boom.wrap(error, 500)));
 			}
 		}
 	}, { // update
 		method: 'PUT',
-		path: `${base}/teams/{id}`,
+		path: `${base}/teams/{teamId}`,
 		config: {
 			auth: 'session',
 			handler: function (request, reply) {
 				let profile = request.auth.credentials.profile;
-				let {id, owner, name} = request.payload;
+				let {teamId} = request.params;
+				let {id, name} = request.payload;
 
-				if (profile.id !== +owner) {
-					return reply(Boom.unauthorized('Not allowed to create team'));
-				}
-
-				let where = {
-					owner: owner,
-					id: id
-				};
-
-				Team.findById(request.params.id).then(function (team) {
+				Team.getWithOwner(teamId).then(function (team) {
 					if (!team) {
 						return reply(Boom.notFound('Team not found'));
 					}
@@ -213,14 +205,14 @@ module.exports = function (server, base) {
 						return reply(Boom.unauthorized('Not allowed to edit team'));
 					}
 
-					server.log('info', `Updated team '${request.payload.name}' (${team.id}) for user ${profile.id} ${profile.name} (${profile.wca_id})`);
-					return Team.update(_.extend(where, {name: name}), {where}).then((team) => reply(team).code(201));
+					server.log('info', `Updated team '${name}' (${team.id}) for user ${profile.id} ${profile.name} (${profile.wca_id})`);
+					return team.update({name}).then((team) => reply(team).code(201));
 				});
 			}
 		}
 	}, { // Set Cuber
 		method: 'PUT',
-		path: `${base}/teams/{id}/week/{week}`,
+		path: `${base}/teams/{teamId}/week/{week}`,
 		config: {
 			auth: 'session',
 			handler: function (request, reply) {
@@ -229,11 +221,15 @@ module.exports = function (server, base) {
 				let profile = request.auth.credentials.profile;
 				let payload = JSON.parse(request.payload);
 
-				let {id, week} = request.params;
-				let {teamId, slot, eventId, personId} = payload;
+				let {teamId, week} = request.params;
+				let {owner, slot, eventId, personId} = payload;
+
+				if (owner.id !== profile.id) {
+					return reply(Boom.unauthorized('Not allowed to edit team'));
+				}
 
 				if (week < server.methods.getWeek()) {
-					return reply(Boom.create(400, 'Not allowed to edit old team'));
+					return reply(Boom.create(400, 'Too late to edit old team'));
 				}
 
 				if (eventId) {
@@ -243,63 +239,54 @@ module.exports = function (server, base) {
 					}
 				}
 
-				let where = {
-					owner: profile.id,
-					id: id
-				};
-
-				return Team.findById(id).then(function (team) {
+				return Team.findOne({
+					owner: owner.id,
+					id: teamId
+				}).then(function (team) {
 					if (!team) {
 						return reply(Boom.notFound('Team not found'));
-					}
-
-					if (team.owner !== profile.id) {
-						return reply(Boom.unauthorized('Not allowed to edit team'));
 					}
 
 					personId = personId || '';
 					eventId = eventId || '';
 
-					let TeamPersonWhere = {
-						teamId: id,
+					let pickWhere = {
 						owner: profile.id,
-						slot: slot,
-						week: week
+						league,
+						teamId,
+						slot,
+						week
 					};
 
-					return TeamPerson.find({
-						where: {
-							teamId: id,
-							owner: profile.id,
-							personId: personId,
-							week: week
-						}
+					return Pick.findOne({
+						owner: profile.id,
+						teamId,
+						league,
+						personId,
+						week
+					}, {
+						require: false
 					}).then(function (alreadyUsedPerson) {
 						// Deny person if we already use him. Deduce that we already use him by if he exists in a different slot if it's the same name. If not, then it's ok because we're changing events most likely
 						if (alreadyUsedPerson && (alreadyUsedPerson.personId !== '' && (alreadyUsedPerson.personId === personId ? alreadyUsedPerson.slot !== slot : false))) {
 							reply(Boom.badRequest('Person already exists in Team.'));
 						} else {
-							return TeamPerson.find({where: TeamPersonWhere}).then(function (teamPerson) {
-								let newTeamPerson = _.extend(TeamPersonWhere, {
-									personId: personId,
-									eventId: eventId
-								});
+							let newPick = _.extend(pickWhere, {
+								personId: personId,
+								eventId: eventId
+							});
 
+							return Pick.findOne(pickWhere, {require: false}).then(function (pick) {
 								if (!personId || !eventId) {
-									return teamPerson.destroy({where: TeamPersonWhere});
+									return Pick.where(pickWhere).destroy().then(function () {
+										server.log('info', `Cleared slot ${slot} on team '${teamId}'`);
+										return reply(null);
+									});
 								} else {
-									return teamPerson ? TeamPerson.update(newTeamPerson, {where: TeamPersonWhere}) : TeamPerson.create(newTeamPerson);
-								}
-							}).then(function () {
-								server.log('info', `Set team member '${personId}' with event ${eventId} for slot ${request.params.slot} on team '${teamId}'`);
-								getWeek({id, week}, team => {
-									server.methods.weeks.set({id, week}, team);
-								});
-
-								if (personId && eventId) {
-									return Person.findById(personId).then(person => reply(JSON.stringify(person)).code(201));
-								} else {
-									return reply(null);
+									return Pick.upsert(pickWhere, newPick).then(function () {
+										server.log('info', `Set team member '${personId}' with event ${eventId} for slot ${slot} on team '${teamId}'`);
+										return Person.findById(personId).then(person => reply(JSON.stringify(person)).code(201));
+									});
 								}
 							});
 						}

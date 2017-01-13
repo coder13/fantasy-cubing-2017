@@ -1,24 +1,10 @@
-module.exports = function(sequelize, DataTypes) {
-	let Person = sequelize.define('Person', {
-		id: {
-			type: DataTypes.STRING,
-			primaryKey: true
-		},
-		name: DataTypes.STRING,
-		countryId: DataTypes.STRING
-	}, {
-		timestamps: false,
-		freezeTableName: true,
+module.exports = function (bookshelf, db) {
+	db.Person = bookshelf.Model.extend({
 		tableName: 'Persons',
+		hasTimestamps: false,
 
-		classMethods: {
-			associate: function(models) {
-				Person.hasMany(models.TeamPerson, {foreignKey: 'personId'});
-
-				Person.hasMany(models.Points, {foreignKey: 'personId'});
-			}
+		points: function (week) {
+			return this.hasMany(db.Points, 'personId');
 		}
 	});
-
-	return Person;
 };

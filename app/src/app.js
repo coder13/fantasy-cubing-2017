@@ -32,15 +32,14 @@ const app = window.app = App.extend({
 
 		this.me = new Me();
 		this.me.fetch({
+			// app.initRouter *has* to be called after app.me is loaded as the /profile/me will just send you back to home if app.me is undefined
 			success: function (model, res, options) {
-				app.me.teams.fetch();
 				app.initRouter();
 			},
 			error: function (model, res, options) {
 				app.initRouter();
 			}
 		});
-
 	},
 
 	/* Helps us stay on track with the current week and weekend time */

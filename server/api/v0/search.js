@@ -1,7 +1,7 @@
 const _ = require('lodash/fp');
 const Boom = require('boom');
 
-const {sequelize} = App.db;
+const {knex} = App.db;
 
 module.exports = (server, base) => {
 	server.route([{
@@ -11,24 +11,15 @@ module.exports = (server, base) => {
 			handler: function (request, reply) {
 				let name = request.params.name || '';
 
-				let where = `${isNaN(+name.slice(0,1)) ? 'personName' : 'personId'} LIKE :name`;
+				let where = `${isNaN(+name.slice(0,1)) ? 'personName' : 'personId'} LIKE ?`;
 
 				if (request.query && request.query.eventId) {
-					return sequelize.query(`SELECT personId, personName, points FROM TotalPointsByEvent WHERE eventId=:event AND ${where} LIMIT 25;`, {
-						replacements: {
-							event: request.query.eventId,
-							name: `%${name}%`
-						},
-						type: sequelize.QueryTypes.SELECT
-					}).then(result => reply(result))
+					return knex('TotalPointsByEvent').select('personId', 'personName', 'points').where({eventId: request.query.eventId}).whereRaw(where, `%${name}%`).limit(25)
+						.then(result => reply(result))
 						.catch(error => reply(Boom.wrap(error, 500)));
 				} else {
-					sequelize.query(`SELECT personId, personName, points FROM TotalPoints WHERE ${where} LIMIT 25;`, {
-						replacements: {
-							name: `%${name}%`
-						},
-						type: sequelize.QueryTypes.SELECT
-					}).then(result => reply(result))
+					return knex('TotalPoints').select('personId', 'personName', 'points').whereRaw(where, `%${name}%`).limit(25)
+						.then(result => reply(result))
 						.catch(error => reply(Boom.wrap(error, 500)));
 				}
 			}

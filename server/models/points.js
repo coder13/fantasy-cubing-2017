@@ -1,28 +1,10 @@
-module.exports = function(sequelize, DataTypes) {
-	let Points = sequelize.define('Points', {
-		competitionId: DataTypes.STRING,
-		personId: DataTypes.STRING,
-		personName: DataTypes.STRING,
-		eventId: DataTypes.STRING,
-		roundId: DataTypes.CHAR,
-		year: DataTypes.INTEGER,
-		week: DataTypes.INTEGER,
-		compPoints: DataTypes.INTEGER,
-		skillPoints: DataTypes.INTEGER,
-		totalPoints: DataTypes.INTEGER
-	}, {
-		timestamps: false,
-		freezeTableName: true,
-		tableName: 'Points',
+module.exports = function (bookshelf, db) {
+	db.Points = bookshelf.Model.extend({
+		tableName: 'Users',
+		hasTimestamps: ['createdAt', 'updatedAt'],
 
-		classMethods: {
-			associate: function(models) {
-				Points.belongsTo(models.Person, {foreignKey: 'personId'});
-			}
+		person: function () {
+			return this.belongsTo(db.Person);
 		}
 	});
-
-	Points.removeAttribute('id');
-
-	return Points;
 };

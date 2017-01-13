@@ -1,25 +1,10 @@
-module.exports = function (sequelize, DataTypes) {
-	let User = sequelize.define('User', {
-		id: {
-			type: DataTypes.INTEGER,
-			primaryKey: true
-		},
-		wca_id: DataTypes.STRING,
-		name: DataTypes.STRING,
-		email: {
-			type: DataTypes.STRING,
-			validate: {
-				isEmail: true
-			}
-		},
-		avatar: DataTypes.STRING
-	}, {
-		classMethods: {
-			associate: function(models) {
-				User.hasMany(models.Team, {foreignKey: 'owner'});
-			}
+module.exports = function (bookshelf, db) {
+	db.User = bookshelf.Model.extend({
+		tableName: 'Users',
+		hasTimestamps: ['createdAt', 'updatedAt'],
+
+		team: function () {
+			return this.hasOne(db.Team, 'owner');
 		}
 	});
-
-	return User;
 };

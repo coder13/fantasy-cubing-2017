@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const qs = require('qs');
 const Boom = require('boom');
 
@@ -16,24 +17,27 @@ module.exports = {
 		request.cookieAuth.set(creds);
 		users[creds.profile.id] = creds.profile;
 
-		// Add/update user if they don't exist.
-		User.findOrCreate({
-			where: {
-				id: creds.profile.id
-			},
-			defaults: {
-				id: creds.profile.id,
-				wca_id: creds.profile.wca_id,
-				name: creds.profile.name,
-				email: creds.profile.email,
-				avatar: creds.profile.avatar.url
-			}
-		}).then(function (result) {
-			let user = result[0];
-			let exists = !result[1];
-
-			if (!exists) {
-				request.server.log('info', `Created User ${result[0].id}`);
+		// Create or update user if they don't exist.
+		let user = User.findOne({
+			id: creds.profile.id
+		}, {
+			require: false
+		}).then(function (user) {
+			if (user) {
+				return user.save({
+					wca_id: creds.profile.wca_id,
+					name: creds.profile.name,
+					email: creds.profile.email
+				});
+			} else {
+				return User.create({
+					id: creds.profile.id,
+					wca_id: creds.profile.wca_id,
+					name: creds.profile.name,
+					email: creds.profile.email
+				}, {
+					method: 'insert'
+				});
 			}
 		});
 
@@ -51,29 +55,18 @@ module.exports = {
 		}
 
 		let profile = request.auth.credentials.profile;
-		User.findById(profile.id).then(function (user) {
-			if (!user) {
-				user = User.create(profile).then(function (result) {
-					request.server.log('info', `Created User ${result[0].id}`);
-				});
-			}
 
-			return Team.findAll({
-				attributes: ['id', 'owner', 'name', 'league', 'points'],
-				where: {
-					owner: profile.id
-				}
-			}).then(function (teams) {
-				user.teams = teams;
-				return reply({
-					id: user.id,
-					wca_id: user.wca_id,
-					name: user.name,
-					avatar: profile.avatar,
-					email: user.email,
-					teams: teams
-				});
-			}).catch(error => reply(Boom.wrap(error, 500)));
-		}).catch(error => reply(Boom.wrap(error, 500)));
+		User.where({id: profile.id}).fetch({
+			withRelated: 'team'
+		}).then(function (user) {
+			let profileAttributes = {
+				id: profile.id,
+				email: profile.email,
+				wca_id: profile.wca_id,
+				avatar: profile.avatar
+			};
+
+			reply(user ? _.extend(user.toJSON(), profileAttributes) : profileAttributes);
+		}).catch(err => reply(err));
 	}
 };

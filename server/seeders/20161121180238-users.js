@@ -2,45 +2,56 @@ const faker = require('faker');
 const shortId = require('shortid');
 const moment = require('moment');
 
-let wcaId = (lName) => `${(2000 + Math.floor(Math.random() * 32) - 16)}${lName.slice(0,4).replace(/[^a-zA-Z ]/g, '').toUpperCase()}01`;
+let rnd = n => Math.floor(Math.random() * n);
+let wcaId = (lName) => `${(2000 + rnd(32) - 16)}${lName.slice(0,4).replace(/[^a-zA-Z ]/g, '').toUpperCase()}0${rnd(10)}`;
 
 const {Events} = require('../../lib/wca.js');
 
-module.exports = {
-	up: function (queryInterface, Sequelize) {
-		let users = [];
-		for (let i = 0; i < 100; i++) {
-			let lName = faker.name.lastName();
-			users.push({
-				id: i,
-				wca_id: Math.random() < 0.10 ? null : wcaId(lName),
-				name: `${faker.name.firstName()} ${lName}`,
-				email: faker.internet.email(),
-				avatar: null
+exports.seed = function (knex, Promise) {
+	let users = [];
+	let teams = [];
+
+	for (let i = 0; i < 100; i++) {
+		let lName = faker.name.lastName();
+		let teamId = shortId.generate();
+
+		let user = {
+			id: i,
+			wca_id: Math.random() < 0.10 ? null : wcaId(lName),
+			name: `${faker.name.firstName()} ${lName}`,
+			email: faker.internet.email(),
+			avatar: null,
+			teamId: teamId
+		};
+
+		users.push(user);
+
+		if (i < 90) {
+			teams.push({
+				id: teamId,
+				owner: user.id,
+				name: `${user.name}'s Team`,
+				points: 0,
+				createdAt: new Date(),
+				updatedAt: new Date()
 			});
 		}
+	}
 
-		let teams = users.slice(0,90).map(user => ({
-			id: shortId.generate(),
-			owner: user.id,
-			league: 'Standard',
-			name: `${user.name}'s Team`,
-			points: 0,
-			createdAt: new Date(),
-			updatedAt: new Date()
-		}));
+	console.log('generated', teams.length, 'teams');
 
-		console.log('generated', teams.length, 'teams');
-
-		return queryInterface.bulkInsert('Users', users, {}).then(() =>
-			queryInterface.bulkInsert('Teams', teams, {})
-		).then(() => {
-			return queryInterface.sequelize.query('SELECT * FROM Persons ORDER BY Rand() LIMIT 2000;', {type: queryInterface.sequelize.QueryTypes.SELECT}).then(function (persons) {
-				let teamPeople = [];
+	return knex('Picks').del()
+		.then(() => knex('Teams').del())
+		.then(() => knex('Users').del())
+		.then(() => knex.batchInsert('Users', users))
+		.then(() => knex.batchInsert('Teams', teams))
+		.then(() => {
+			return knex.select('*').from('Persons').limit(20).then(function (persons) {
+				let picks = [];
 				teams.forEach(team => {
 					for (let week = 0; week < 3; week++) {
 						for (let i = 0; i < 10; i++) {
-							teamPeople.push({
+							picks.push({
 								owner: team.owner,
 								teamId: team.id,
 								week: moment().week() - week,
@@ -54,17 +65,7 @@ module.exports = {
 					}
 				});
 
-				console.log(teamPeople);
-				return queryInterface.bulkInsert('TeamPeople', teamPeople);
+				return knex.batchInsert('Picks', picks);
 			});
 		}).catch(err => console.trace(err));
-	},
-
-	down: function (queryInterface, Sequelize) {
-		return queryInterface.bulkDelete('Users', null, {}).then(() =>
-			queryInterface.bulkDelete('Teams', null, {}).then(() =>
-				queryInterface.bulkDelete('TeamPeople', null, {})
-			)
-		);
-	}
 };

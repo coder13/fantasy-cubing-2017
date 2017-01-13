@@ -3,11 +3,20 @@
 		"port": 8000
 	},
 	"db": {
-		"username": "",
-		"password": "",
-		"database": "",
-		"host": "127.0.0.1",
-		"dialect": "mysql"
+		"client": "mysql",
+		"connection": {
+			"host":  "127.0.0.1",
+			"database": "",
+			"user":     "",
+			"password": ""
+		},
+		"migrations": {
+			"tableName": "migrations",
+			"directory": "./server/migrations"
+		},
+		"seeds": {
+			"directory": "./server/seeders"
+		}
 	},
 	"auth": {
 		"CLIENT_ID": "",

@@ -37,7 +37,7 @@ const EditTeamModal = React.createClass({
 		let {team} = this.props;
 		let {value} = this.state;
 
-		team.save({name: value});
+		app.team.save({name: value});
 
 		this.close();
 	},
@@ -76,6 +76,7 @@ const EditTeamModal = React.createClass({
 
 const CreateTeamModal = React.createClass({
 	displayName: 'CreateTeamModal',
+	mixins: [ampersandReactMixin],
 
 	getInitialState () {
 		return {
@@ -84,16 +85,13 @@ const CreateTeamModal = React.createClass({
 	},
 
 	submit () {
-		let team = new Team({
-			owner: app.me.id,
+		app.me.team.save({
+			owner: app.me.toJSON(),
 			league: 'Standard',
 			name: this.state.value
-		});
-
-		team.save(null, {
-			success: function () {
-				app.me.teams.add(team);
-				app.router.myTeam();
+		}, {
+			success: function (model, res, options) {
+				app.me.team.fetchWeek(app.currentWeek());
 			}
 		});
 	},
@@ -211,7 +209,7 @@ module.exports = React.createClass({
 
 				{canEdit ?
 					<div>
-						{!team || !team.id ? <CreateTeamModal/> : null}
+						{!(team && team.id) ? <CreateTeamModal/> : null}
 						<EditTeamModal team={team} ref={ref => {this.EditTeamModal = ref;}}/>
 					</div>
 					: null

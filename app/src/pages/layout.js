@@ -46,7 +46,7 @@ module.exports = React.createClass({
 
 	render () {
 		let {active} = this.props;
-		let team = app.me.getTeam('Standard');
+		let team = app.me.team;
 
 		return (
 			<NavHelper id='layout' style={{height: '100%', width: '100%'}}>
@@ -59,7 +59,7 @@ module.exports = React.createClass({
 
 					{app.me.isLoggedIn ?
 						<Menu.Menu position='right'>
-							{team ? <Menu.Item href='/profile/team'>{team.name}: <b title='TotalPoints'>{team.points}</b> <span title='Rank'></span></Menu.Item> :
+							{team.id ? <Menu.Item href='/profile/team'>{team.name}: <b title='TotalPoints'>{team.points}</b> <span title='Rank'></span></Menu.Item> :
 								<Menu.Item href='/profile/team'>Make your team!</Menu.Item>}
 							<Menu.Item as={Dropdown} trigger={<Image size={'mini'} src={app.me.avatar ? app.me.avatar.thumb_url : ''}/>}>
 								<Dropdown.Menu>

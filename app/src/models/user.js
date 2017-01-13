@@ -7,30 +7,14 @@ module.exports = Model.extend({
 	props: {
 		id: 'number',
 		name: 'string',
-		wca_id: 'string',
-		avatar: 'object',
-		email: 'string',
-		teamId: 'string'
+		wca_id: 'string'
 	},
 
 	children: {
 		team: Team
 	},
 
-	derived: {
-		isLoggedIn: {
-			deps: ['id'],
-			fn () {
-				return !!this.id;
-			}
-		}
-	},
-
-	initialize (options) {
-		this.set(options);
-	},
-
 	url () {
-		return `${app.apiURL}/me`;
+		return `${app.apiURL}/users/${id}`;
 	}
 });

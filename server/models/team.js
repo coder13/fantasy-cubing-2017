@@ -1,25 +1,45 @@
-module.exports = function(sequelize, DataTypes) {
-	let Team = sequelize.define('Team', {
-		id: {
-			type: DataTypes.STRING,
-			primaryKey: true
-		},
-		league: DataTypes.STRING,
-		owner: DataTypes.INTEGER,
-		name: DataTypes.STRING,
-		points: DataTypes.INTEGER
-	}, {
-		classMethods: {
-			associate: function(models) {
-				Team.belongsTo(models.User, {foreignKey: 'owner'});
+const _ = require('lodash');
 
-				Team.hasMany(models.TeamPerson);
-			},
-			getOwner: function() {
-				return Person.findById(this.owner);
-			}
+module.exports = function (bookshelf, db) {
+	const {knex} = db;
+
+	db.Team = bookshelf.Model.extend({
+		tableName: 'Teams',
+		hasTimestamps: ['createdAt', 'updatedAt'],
+
+		owner () {
+			return this.hasOne(db.User, 'teamId', {
+				withRelated: 'owner'
+			});
+		},
+
+		getPicks (week) {
+			let points = knex('Points')
+				.select('personId', 'eventId', knex.raw('TRUNCATE(AVG(totalPoints), 2) AS points'))
+				.where({week, year: 2017})
+				.groupBy('personId', 'eventId');
+
+			return knex('Picks')
+				.join('Persons', 'Persons.id', 'Picks.personId')
+				.leftJoin(points.as('points'), 'points.personId', '=', 'Picks.personId', 'points.eventId', 'Picks.eventId')
+				.select('Picks.eventId', 'Picks.slot','Picks.personId', 'Persons.name', 'Persons.countryId', 'points')
+				.where({teamId: this.id, week});
+		}
+	}, {
+		getWithOwner (id) {
+			return new db.Team({id}).fetch({
+				withRelated: ['owner']
+			}).then(function (team) {
+				return _.extend({team, owner: team.related('owner')});
+			});
+		},
+
+		masks: {
+			json: 'id,league,owner,name,points'
 		}
 	});
 
-	return Team;
+	db.Teams = bookshelf.Collection.extend({
+		model: db.Team
+	});
 };

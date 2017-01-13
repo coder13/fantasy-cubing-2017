@@ -1,31 +1,13 @@
-module.exports = {
-	up: function(queryInterface, Sequelize) {
-		return queryInterface.createTable('Archive', {
-			teamId: {
-				allowNull: false,
-				type: Sequelize.STRING
-			},
-			week: {
-				allowNull: false,
-				type: Sequelize.INTEGER
-			},
-			points: {
-				allowNull: false,
-				type: Sequelize.INTEGER
-			},
-			createdAt: {
-				allowNull: false,
-				type: Sequelize.DATE,
-				defaultValue: Sequelize.fn('NOW')
-			},
-			updatedAt: {
-				allowNull: false,
-				type: Sequelize.DATE,
-				defaultValue: Sequelize.fn('NOW')
-			}
-		});
-	},
-	down: function(queryInterface, Sequelize) {
-		return queryInterface.dropTable('Archive');
-	}
+exports.up = function(knex, Promise) {
+	return knex.schema.createTable('Archive', function (table) {
+		table.string('teamId').notNullable().references('id').inTable('Teams');
+		table.integer('week').notNullable();
+		table.decimal('points', 2).notNullable();
+		table.timestamp('createdAt').defaultTo(knex.fn.now());
+		table.timestamp('updatedAt').defaultTo(knex.fn.now());
+	});
+};
+
+exports.down = function(knex, Promise) {
+	return knex.schema.dropTable('Archive');
 };

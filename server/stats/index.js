@@ -1,4 +1,5 @@
 const _ = require('lodash/fp');
+const moment = require('moment');
 const wca = require('../../lib/wca');
 
 const LIMIT = 25;
@@ -8,9 +9,9 @@ const time = (hour, min, sec) => ((hour * 60 + min) * 60 + sec) * 1000;
 module.exports.register = function(server, options, next) {
 	server.log('info', 'Setting up stats...');
 
-	let sequelize = App.db.sequelize;
+	let {knex} = App.db;
 
-	let queries = require('./queries')(sequelize);
+	let queries = require('./queries')(knex);
 
 	const sqlCache = {
 		cache: 'redisCache',
@@ -42,12 +43,12 @@ module.exports.register = function(server, options, next) {
 	server.method('points.weeklyPoints', function (params, next) {
 		let week = +params.week || (server.methods.getWeek() - 1);
 		return queries.weeklyPoints(week, params.limit)
-		.then(results => next(null, results))
 		.catch(error => next(error));
 	}, options);
 
 	server.method('points.weeklyMVPs', function (params, next) {
-		return queries.weeklyPoints(server.methods.getWeek() - 1, 5)
+		let week = +params.week || (moment().week() - 1);
+		return queries.weeklyPoints(week, 5)
 		.then(results => next(null, results))
 		.catch(error => next(error));
 	}, options);

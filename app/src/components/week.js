@@ -42,7 +42,7 @@ const SelectPersonModal = React.createClass({
 		this.closeModal();
 	},
 
-	getCubers (value, cb) {
+	getPicks (value, cb) {
 		xhr.get(`${app.apiURL}/search/people/${value}${this.state.eventId ? `?eventId=${this.state.eventId}` : ''}`, (error, res, body) => {
 			cb(null, _.uniqBy(JSON.parse(body), 'personId').map(cuber => ({
 				title: cuber.personId,
@@ -66,7 +66,7 @@ const SelectPersonModal = React.createClass({
 	change (e, value) {
 		this.setState({isLoading: true, value});
 
-		this.getCubers(value, (err, results) => {
+		this.getPicks(value, (err, results) => {
 			this.setState({isLoading: false, results: results});
 		});
 	},
@@ -77,7 +77,7 @@ const SelectPersonModal = React.createClass({
 			eventId: e.value
 		});
 
-		this.getCubers(this.state.value, (err, results) => {
+		this.getPicks(this.state.value, (err, results) => {
 			this.setState({isLoading: false, results: results});
 		});
 	},
@@ -142,13 +142,13 @@ module.exports = React.createClass({
 	},
 
 	handleSelectPerson (slot, cuber, eventId) {
-		this.props.week.setCuber(slot, cuber, eventId);
+		this.props.week.setPick(slot, cuber, eventId);
 	},
 
 	render () {
 		let {editable, week} = this.props;
-		let exists = week && week.cubers && week.cubers.length > 0;
-		let findCuber = (slot) => week.cubers.find(c => c.slot === slot);
+		let exists = week && week.picks && week.picks.length > 0;
+		let findCuber = (slot) => week.picks.find(c => c.slot === slot);
 
 		let personRow = (slot) =>
 			<Table.Row key={slot} className='cuberRow'>

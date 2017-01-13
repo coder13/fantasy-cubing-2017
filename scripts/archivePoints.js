@@ -1,7 +1,7 @@
 const weekArg = process.argv[2];
 const _ = require('lodash/fp');
 const moment = require('moment');
-const {Team, TeamPerson, Points, Archive, sequelize} = require('../server/models');
+const {knex} = require('../server/db');
 const week = weekArg ? +weekArg : moment().subtract(5, 'days').subtract(9, 'hours').week() - 1;
 
 console.log(`Week: ${week}`);
@@ -29,6 +29,6 @@ SET
 	teams.updatedAt = NOW();
 `;
 
-sequelize.query(getTeamPeoplePoints, {logging: console.log})
-.then(() => sequelize.query(updateTeams, {logging: console.log}))
-.then(() => sequelize.close());
+knex.transaction(function (trx) {
+	return trx.raw(getTeamPeoplePoints).then(() => knex.raw(updateTeams));
+}).catch(err => console.trace(err));
