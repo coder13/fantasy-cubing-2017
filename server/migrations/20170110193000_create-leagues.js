@@ -30,7 +30,6 @@ exports.up = function(knex, Promise) {
 		table.boolean('competitive').notNullable();
 		table.enu('period', ['week', 'month', 'season', 'year']).notNullable();
 		table.enu('resets', ['never', 'week', 'month', 'season', 'year']).notNullable();
-		table.enu('resets', ['never', 'week', 'month', 'season', 'year']).notNullable();
 		table.string('region');
 		table.dateTime('start');
 		table.json('spec');
