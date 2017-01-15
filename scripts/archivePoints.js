@@ -9,11 +9,11 @@ console.log(`Week: ${week}`);
 let getTeamPeoplePoints = `
 INSERT INTO Archive (week, teamId, points)
 	SELECT ${week} week, teams.teamId, SUM(teams.points) points
-	FROM (SELECT tp.week, tp.teamId, tp.slot, tp.personId, tp.eventId, AVG(p.totalPoints) points
-		FROM TeamPeople tp
-		JOIN Points p ON tp.week=p.week AND tp.personId=p.personId AND tp.eventId=p.eventId AND p.year=2017
-		WHERE tp.week=${week}
-		GROUP BY tp.week, tp.teamId, tp.slot, tp.personId, tp.eventId) teams
+	FROM (SELECT picks.week, picks.teamId, picks.slot, picks.personId, picks.eventId, AVG(p.totalPoints) points
+		FROM Picks picks
+		JOIN Points p ON picks.week=p.week AND picks.personId=p.personId AND picks.eventId=p.eventId AND p.year=2017
+		WHERE picks.week=${week}
+		GROUP BY picks.week, picks.teamId, picks.slot, picks.personId, picks.eventId) teams
 	GROUP BY teams.teamId
 ON DUPLICATE KEY UPDATE
 	points = values(points),
@@ -29,6 +29,8 @@ SET
 	teams.updatedAt = NOW();
 `;
 
-knex.transaction(function (trx) {
-	return trx.raw(getTeamPeoplePoints).then(() => knex.raw(updateTeams));
+knex.raw(getTeamPeoplePoints)
+.then(() => knex.raw(updateTeams))
+.then(function () {
+	return console.log('done')
 }).catch(err => console.trace(err));

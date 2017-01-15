@@ -28,53 +28,59 @@ module.exports.register = function(server, options, next) {
 		}
 	};
 
+	let limit = (query, limit) => limit ? query.limit(limit) : query;
+
 	server.method('getRecords', function (params, next) {
 		if (params.event) {
 			return queries.recordsByEvent(params.event, params.region, params.date)
-			.then(results => next(null, results[0]))
-			.catch(error => next(error));
+				.then(results => next(null, results[0]))
+				.catch(error => next(error));
 		} else {
 			return queries.records(params.region, params.date)
-			.then(results => next(null, _.fromPairs(results.map(e => [e.eventId, {average: e.average, single: e.single}]))))
-			.catch(error => next(error));
+				.then(results => next(null, _.fromPairs(results.map(e => [e.eventId, {average: e.average, single: e.single}]))))
+				.catch(error => next(error));
 		}
 	}, options);
 
 	server.method('points.weeklyPoints', function (params, next) {
 		let week = +params.week || (server.methods.getWeek() - 1);
-		return queries.weeklyPoints(week, params.limit)
-		.catch(error => next(error));
+		return limit(queries.weeklyPoints(week), params.limit)
+			.then(results => next(null, results))
+			.catch(error => next(error));
 	}, options);
 
 	server.method('points.weeklyMVPs', function (params, next) {
 		let week = +params.week || (moment().week() - 1);
-		return queries.weeklyPoints(week, 5)
-		.then(results => next(null, results))
-		.catch(error => next(error));
+		return queries.weeklyPoints(week).limit(5)
+			.then(results => next(null, results))
+			.catch(error => next(error));
 	}, options);
 
 	server.method('points.quickRankings', function (params, next) {
-		return queries.weeklyRankings(server.methods.getWeek() - 1, 5)
-		.then(results => next(null, results))
-		.catch(error => next(error));
+		let week = +params.week || (moment().week() - 1);
+		return queries.weeklyRankings(week).limit(5)
+			.then(results => next(null, results))
+			.catch(error => next(error));
 	}, options);
 
 	server.method('points.rankings', function (params, next) {
-		return queries.rankings()
-		.then(results => next(null, results))
-		.catch(error => next(error));
+		return limit(queries.rankings(), params.limit)
+			.then(results => next(null, results))
+			.catch(error => next(error));
 	}, options);
 
 	server.method('points.weeklyRankings', function (params, next) {
-		return queries.weeklyRankings(params.week, params.limit)
-		.then(results => next(null, results))
-		.catch(error => next(error));
+		let week = +params.week || (moment().week() - 1);
+
+		return limit(queries.weeklyRankings(week), params.limit)
+			.then(results => next(null, results))
+			.catch(error => next(error));
 	}, options);
 
 	server.method('points.weeklyCompProgress', function (params, next) {
-		return queries.weeklyCompProgress(params.week)
-		.then(results => next(null, results[0]))
-		.catch(error => next(error));
+		return queries.weeklyCompProgress(+params.week)
+			.then(results => next(null, results[0]))
+			.catch(error => next(error));
 	}, options);
 
 	next();

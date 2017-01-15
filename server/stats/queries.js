@@ -1,4 +1,3 @@
-const LIMIT = 50;
 const YEAR = 2017;
 
 const {knex, Archive, Teams} = App.db;
@@ -27,23 +26,21 @@ const getRegionQueryFromRegion = function (region, type) {
 module.exports = function () {
 	let queries = {};
 
-	queries.weeklyPoints = (week, limit) =>
+	queries.weeklyPoints = (week) =>
 		knex('Points').select('personId', 'personName', 'eventId', 'personCountryId', knex.raw('TRUNCATE(AVG(totalPoints), 2) AS points'))
 			.where({week: week, year: YEAR})
 			.groupBy('personId', 'personName', 'eventId', 'personCountryId')
-			.orderBy('points', 'desc')
-			.limit(limit || LIMIT);
+			.orderBy('points', 'desc');
 
-	queries.rankings = (limit) =>
+	queries.rankings = () =>
 		knex('Teams').join('Users', 'Teams.owner', 'Users.id')
-		.select('Users.name', 'Teams.name', 'Teams.id', 'Teams.points')
-		.orderBy('Teams.points', 'desc').orderBy('Teams.name').orderBy('Users.name')
-		.limit(limit);
+		.select('Users.name AS owner', 'Teams.name', 'Teams.id', 'Teams.points')
+		.orderBy('Teams.points', 'desc').orderBy('Teams.name').orderBy('Users.name');
 
-	queries.weeklyRankings = (week, limit) =>
+	queries.weeklyRankings = (week) =>
 		knex('Archive AS a').join('Teams AS t', 'a.teamId', 't.id').join('Users AS u', 't.owner', 'u.id')
-		.where({'a.week': 1}).orderBy('a.points', 'desc')
-		.limit(limit);
+		.select('u.name AS owner', 't.id', 't.name', 'a.points')
+		.where({week}).orderBy('a.points', 'desc');
 
 	queries.weeklyCompProgress = (week) => {
 		let where = {year: 2017, week};

@@ -20,7 +20,6 @@ exports.seed = function (knex, Promise) {
 			wca_id: Math.random() < 0.10 ? null : wcaId(lName),
 			name: `${faker.name.firstName()} ${lName}`,
 			email: faker.internet.email(),
-			avatar: null,
 			teamId: teamId
 		};
 
@@ -40,24 +39,35 @@ exports.seed = function (knex, Promise) {
 
 	console.log('generated', teams.length, 'teams');
 
+	let event = (slot) => {
+		if (slot < 2) {
+			return '333';
+		} else if (slot < 6 ) {
+			return ['444', '555', '222', 'pyra', 'skewb', '333oh', '333bf'][~~(Math.random() * 7)];
+		} else {
+			return ['minx', 'sq1', '666', '777', '333ft', '333fm', '444bf', '555bf', '333mbf'][~~(Math.random() * 9)];
+		}
+	};
+
 	return knex('Picks').del()
-		.then(() => knex('Teams').del())
 		.then(() => knex('Users').del())
-		.then(() => knex.batchInsert('Users', users))
+		.then(() => knex('Teams').del())
 		.then(() => knex.batchInsert('Teams', teams))
+		.then(() => knex.batchInsert('Users', users))
 		.then(() => {
-			return knex.select('*').from('Persons').limit(20).then(function (persons) {
+			return knex.select('*').from('Persons').limit(200).then(function (persons) {
 				let picks = [];
 				teams.forEach(team => {
 					for (let week = 0; week < 3; week++) {
-						for (let i = 0; i < 10; i++) {
+						for (let slot = 0; slot < 10; slot++) {
 							picks.push({
+								league: 'Standard',
 								owner: team.owner,
 								teamId: team.id,
 								week: moment().week() - week,
-								slot: i,
+								slot,
 								personId: persons[Math.floor(Math.random() * persons.length)].id,
-								eventId: i < 2 ? 333 : (i < 6 ? ['444', '555', '222', 'pyra', 'skewb', '333oh', '333bf'][~~(Math.random() * 7)] : ['minx', 'sq1', '666', '777', '333ft', '333fm', '444bf', '555bf', '333mbf'][~~(Math.random() * 9)]),
+								eventId: event(slot),
 								createdAt: new Date(),
 								updatedAt: new Date()
 							});

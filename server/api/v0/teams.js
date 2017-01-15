@@ -164,7 +164,9 @@ module.exports = function (server, base) {
 					return reply(Boom.unauthorized('Not allowed to create team'));
 				}
 
-				Team.where({owner: owner.id}).fetch().then(function (team) {
+				Team.where({owner: owner.id}, {
+					require: false
+				}).fetch().then(function (team) {
 					if (team) {
 						return reply(Boom.conflict('Already have a team'));
 					}

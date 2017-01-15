@@ -11,13 +11,13 @@ exports.up = function(knex, Promise) {
 		users.string('wca_id').nullable().unique();
 		users.string('name').notNullable().collate('utf8_unicode_ci');
 		users.string('email').notNullable().unique();
-		users.string('teamId').references('id').inTable('Teams').onDelete('cascade');
+		users.string('teamId');
 		users.timestamp('createdAt').defaultTo(knex.fn.now());
 		users.timestamp('updatedAt').defaultTo(knex.fn.now());
 	}).createTable('Picks', function (picks) {
 		picks.string('league').notNullable();
-		picks.integer('owner').notNullable().references('id').inTable('Users');
-		picks.string('teamId').notNullable().references('id').inTable('Teams');
+		picks.integer('owner').notNullable();
+		picks.string('teamId').notNullable();
 		picks.integer('week').notNullable();
 		picks.integer('slot').notNullable();
 		picks.string('personId').notNullable();
@@ -25,9 +25,9 @@ exports.up = function(knex, Promise) {
 		picks.timestamp('createdAt').defaultTo(knex.fn.now());
 		picks.timestamp('updatedAt').defaultTo(knex.fn.now());
 	}).createTable('Archive', function (archive) {
-		archive.string('teamId').notNullable().references('id').inTable('Teams');
+		archive.string('teamId').notNullable();
 		archive.integer('week').notNullable();
-		archive.decimal('points', 2).notNullable();
+		archive.decimal('points').notNullable();
 		archive.timestamp('createdAt').defaultTo(knex.fn.now());
 		archive.timestamp('updatedAt').defaultTo(knex.fn.now());
 	});
