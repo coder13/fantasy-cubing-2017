@@ -21,7 +21,10 @@ module.exports = function (bookshelf, db) {
 
 			return knex('Picks')
 				.join('Persons', 'Persons.id', 'Picks.personId')
-				.leftJoin(points.as('points'), 'points.personId', '=', 'Picks.personId', 'points.eventId', 'Picks.eventId')
+				.leftJoin(points.as('points'), function () {
+					this.on('points.personId', '=', 'Picks.personId')
+							.on('points.eventId', '=', 'Picks.eventId');
+				})
 				.select('Picks.eventId', 'Picks.slot','Picks.personId', 'Persons.name', 'Persons.countryId', 'points')
 				.where({teamId: this.id, week});
 		}
