@@ -13,14 +13,18 @@ module.exports = window.Team = Model.extend({
 		},
 		name: 'string',
 		league: 'string',
-		points: 'number'
+		points: 'number',
+		weeks: 'object'
 	},
 
 	children: {
 		owner: Owner
 	},
 
-	weeks: {},
+
+	initialize () {
+		this.weeks = {};
+	},
 
 	fetchWeek(weekNo, options) {
 		let week = new Week({
@@ -28,8 +32,7 @@ module.exports = window.Team = Model.extend({
 			week: weekNo
 		});
 
-		week.on('change', () => {
-			this.trigger('change');
+		week.on('change', (event) => {
 		});
 
 		week.fetch(options);

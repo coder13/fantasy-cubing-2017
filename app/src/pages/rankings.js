@@ -76,7 +76,8 @@ module.exports = React.createClass({
 						<Menu.Item disabled name={`Week: ${week}`}/>
 						<Menu.Item icon='right chevron' onClick={() => app.router.history.navigate(`/rankings?week=${week + 1}`)}/>
 					</Menu> : null}
-				<Table compact selectable>
+
+			<Table compact selectable>
 					<Table.Header>
 						<Table.Row>
 							<Table.HeaderCell>Rank</Table.HeaderCell>

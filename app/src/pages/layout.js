@@ -55,6 +55,11 @@ module.exports = React.createClass({
 				<Menu>
 					<Menu.Item name='Fantasy Cubing' active={active === 'home'} href='/'/>
 					<Menu.Item name='Rankings' active={active === 'rankings'} href='/rankings'/>
+					<Menu.Item as={Dropdown} trigger='Stats' active={active === 'stats'}>
+						<Dropdown.Menu>
+							<Dropdown.Item text='Most Picked' href='/stats/mostPicked'/>
+						</Dropdown.Menu>
+					</Menu.Item>
 					<Menu.Item name='How To Play' target='_blank' href='https://docs.google.com/document/d/19RREAJCZZPHIBhVGkEn47fB8Xy2vu7NuYFg7Kq6qHKk'/>
 
 					{app.me.isLoggedIn ?

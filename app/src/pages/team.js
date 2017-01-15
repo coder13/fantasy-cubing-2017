@@ -191,13 +191,13 @@ module.exports = React.createClass({
 					{canView ?
 						<Segment loading={!progress}>
 							{progress ?
-								<Progress value={progress.completed} size='small' total={progress.pending + progress.pending}>
+								<Progress precision={0} percent={100 * progress.completed / (progress.completed + progress.pending)} size='small'>
 								{progress.completed} / {progress.completed + progress.pending} Week {week} Competitions
 							</Progress> : <Progress size='small'/>}
 						</Segment>
 					: null}
 					{canView ?
-						<Segment loading={team && !team.weeks[week]}>
+						<Segment compact loading={team && !team.weeks[week]}>
 								<WeekView week={team ? team.weeks[week] : null} editable={canEdit && week >= app.currentWeek()}/>
 						</Segment> :
 						<Segment as={Message}>

@@ -149,6 +149,7 @@ module.exports = React.createClass({
 		let {editable, week} = this.props;
 		let exists = week && week.picks && week.picks.length > 0;
 		let findCuber = (slot) => week.picks.find(c => c.slot === slot);
+		let totalPoints = exists ? _(week.picks).map(p => p.points).sum() : 0;
 
 		let personRow = (slot) =>
 			<Table.Row key={slot} className='cuberRow'>
@@ -214,6 +215,10 @@ module.exports = React.createClass({
 
 					</Table.Body>
 				</Table>
+
+				<Segment attached textAlign='center'>
+					<p>{totalPoints} Total Points</p>
+				</Segment>
 
 				{editable ? <SelectPersonModal ref={modal => {this.modals.selectPersonModal = modal;}} submit={this.handleSelectPerson}/> : null}
 			</div>

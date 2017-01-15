@@ -8,9 +8,9 @@ const Team = require('./models/team');
 const Layout = require('./pages/layout');
 const HomePage = require('./pages/home');
 const ProfilePage = require('./pages/profile');
-const StatsPage = require('./pages/stats');
 const TeamPage = require('./pages/team');
 const RankingsPage = require('./pages/rankings');
+const MostPickedPage = require('./pages/stats/mostPicked');
 
 const auth = function (name) {
 	return function () {
@@ -36,7 +36,8 @@ const renderPage = function (page, active, title) {
 module.exports = Router.extend({
 	routes: {
 		'': 'index',
-		// 'stats': 'stats',
+		// 'stats/:stat': 'stats',
+		'stats/mostPicked': 'mostPicked',
 		'profile/team': 'myTeam',
 		'rankings': 'rankings',
 		'teams/:id': 'team',
@@ -50,9 +51,36 @@ module.exports = Router.extend({
 		renderPage(<HomePage/>, 'home');
 	},
 
-	stats (query) {
+	// stats (stat) {
+	// 	if (!stat) {
+	// 		return this.redirect(`/stats/${StatsPage.stats[0].route}`);
+	// 	}
+
+	// 	renderPage(<StatsPage/>, 'stats');
+	// },
+
+	mostPicked (query) {
 		query = qs.parse(query);
-		renderPage(<StatsPage past={query.past}/>, 'stats');
+
+		let redirect = (week, limit) => this.redirectTo(`/stats/mostPicked?week=${week}`);
+
+		if (!query.week) {
+			return redirect(app.currentWeek() - 1);
+		}
+
+		if (query.week && isNaN(+query.week)) {
+			return redirect(app.currentWeek() - 1);
+		}
+
+		if (query.week < 0) {
+			return redirect(1);
+		} else if (query.week >= app.currentWeek()) {
+			return redirect(app.currentWeek() - 1);
+		}
+
+		let week = +query.week || (app.currentWeek() - 1);
+
+		renderPage(<MostPickedPage week={week}/>, 'home');
 	},
 
 	myTeam (query) {
@@ -99,6 +127,7 @@ module.exports = Router.extend({
 		if (!team.isValid()) {
 			return this.redirectTo('/rankings');
 		}
+
 
 		team.fetch();
 		team.fetchWeek(week, {

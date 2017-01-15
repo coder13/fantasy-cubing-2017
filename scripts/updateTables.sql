@@ -1,5 +1,6 @@
 START TRANSACTION;
 
+CREATE INDEX id ON Persons(id);
 CREATE INDEX id ON Countries(id);
 CREATE INDEX id ON Continents(id);
 CREATE INDEX compId on Results(competitionId);

@@ -42,6 +42,12 @@ module.exports = function () {
 		.select('u.name AS owner', 't.id', 't.name', 'a.points')
 		.where({week}).orderBy('a.points', 'desc');
 
+	queries.mostPicked = (week) =>
+		knex('Picks AS p').join('Persons', 'Persons.id', 'p.personId')
+			.select('personId', 'name', 'countryId', 'p.eventId', knex.raw('COUNT(*) AS picks'))
+			.where({week}).groupBy('personId', 'name', 'countryId', 'p.eventId')
+			.orderBy('picks', 'desc');
+
 	queries.weeklyCompProgress = (week) => {
 		let where = {year: 2017, week};
 
