@@ -15,11 +15,11 @@ const ContinentIds = {
 const getRegionQueryFromRegion = function (region, type) {
 	let recordType = `regional${type}Record`;
 	if (region === 'world') {
-		return `AND ${recordType} = 'WR'`;
+		return `${recordType} = 'WR'`;
 	} else if (region[0] === '_') {
-		return `AND NOT ${recordType} = '' AND personContinentId = '${ContinentIds[region] ? ContinentIds[region] : ''}'`;
+		return `NOT ${recordType} = '' AND personContinentId = '${ContinentIds[region] ? ContinentIds[region] : ''}'`;
 	} else {
-		return knex.raw(`AND NOT ${recordType} = '' AND personCountryId = ?`, region);
+		return knex.raw(`NOT ${recordType} = '' AND personCountryId = ?`, [region]).toString();
 	}
 };
 
@@ -57,9 +57,9 @@ module.exports = function () {
 	};
 
 	queries.recordsByEvent = (event,region,date) =>{
-		let average = knex('ResultDates').min('average').whereRaw('eventId = ?', event).whereRaw('average > 0')
+		let average = knex('ResultDates').min('average').where({eventId: event}).whereRaw('average > 0')
 			.whereRaw(getRegionQueryFromRegion(region, 'Average')).whereRaw(date ? knex.raw('date < ?', [date]) : '').as('average');
-		let single = knex('ResultDates').min('best').whereRaw('eventId = ?', event).whereRaw('average > 0')
+		let single = knex('ResultDates').min('best').where({eventId: event}).whereRaw('average > 0')
 			.whereRaw(getRegionQueryFromRegion(region, 'Single')).whereRaw(date ? knex.raw('date < ?', [date]) : '').as('single');
 
 		return knex.select(average, single);
