@@ -234,6 +234,11 @@ module.exports = function (server, base) {
 					return reply(Boom.create(400, 'Too late to edit old team'));
 				}
 
+				personId = personId.toUpperCase();
+				if (personId !== '' && !personId.match(/^\d{4}[A-Za-z]{4}\d{2}$/)) {
+					return reply(Boom.create(400, 'personId is an invalid WCA ID'));
+				}
+
 				if (eventId) {
 					let c = slot < 2 ? 0 : slot < 6 ? 1 : 2;
 					if (classes[c].events.indexOf(eventId) === -1) {
