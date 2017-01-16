@@ -2,7 +2,7 @@ const weekArg = process.argv[2];
 const _ = require('lodash/fp');
 const moment = require('moment');
 const {knex} = require('../server/db');
-const week = weekArg ? +weekArg : moment().subtract(5, 'days').subtract(9, 'hours').week() - 1;
+const week = weekArg ? +weekArg : moment().subtract(5, 'days').subtract(9, 'hours').week();
 
 console.log(`Week: ${week}`);
 
