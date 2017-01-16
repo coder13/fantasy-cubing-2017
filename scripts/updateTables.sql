@@ -1,5 +1,6 @@
 START TRANSACTION;
 
+CREATE INDEX id ON Persons(id);
 CREATE INDEX id ON Countries(id);
 CREATE INDEX id ON Continents(id);
 CREATE INDEX compId on Results(competitionId);
@@ -73,9 +74,15 @@ CREATE INDEX dateCountry ON N(date, personCountryId);
 DROP TABLE IF EXISTS Points;
 CREATE TABLE Points AS (
 SELECT R.competitionId, R.personId, R.personName, R.personCountryId, R.eventId, R.roundId, R.average, R.best, weekend, year(weekend) year, week(weekend) week,
-@WPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0 AND R.best > 0, 50 * (W.average / R.average + W.best / R.best), if(R.best > 0, 100 * W.best / R.best, 0)), 2) AS worldPoints,
-@CPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0 AND R.best > 0, 50 * (C.average / R.average + C.best / R.best), if(R.best > 0, 100 * C.best / R.best, 0)), 2) AS continentPoints,
-@NPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0 AND R.best > 0, 50 * (N.average / R.average + N.best / R.best), if(R.best > 0, 100 * N.best / R.best, 0)), 2) AS countryPoints,
+@WPoints := TRUNCATE(if(R.formatId in ('a', 'm'),
+  50 * (if(R.average > 0, W.average / R.average, 0) + if(R.best > 0, W.best / R.best, 0)),
+  100 * if(R.best > 0, W.best / R.best, 0)), 2) AS worldPoints,
+@CPoints := TRUNCATE(if(R.formatId in ('a', 'm'),
+  50 * (if(R.average > 0, C.average / R.average, 0) + if(R.best > 0, C.best / R.best, 0)),
+  100 * if(R.best > 0, C.best / R.best, 0)), 2) AS continentPoints,
+@NPoints := TRUNCATE(if(R.formatId in ('a', 'm'),
+  50 * (if(R.average > 0, N.average / R.average, 0) + if(R.best > 0, N.best / R.best, 0)),
+  100 * if(R.best > 0, N.best / R.best, 0)), 2) AS countryPoints,
 @skillPoints := TRUNCATE((@WPoints + @CPoints + @NPoints) / 3, 2) AS totalPoints
 FROM ResultDates R
   LEFT JOIN W ON W.eventId = R.eventId AND W.date = R.date

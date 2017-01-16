@@ -1,4 +1,5 @@
 const _ = require('lodash/fp');
+const Boom = require('boom');
 const moment = require('moment');
 const wca = require('../../lib/wca');
 
@@ -80,6 +81,18 @@ module.exports.register = function(server, options, next) {
 	server.method('points.weeklyCompProgress', function (params, next) {
 		return queries.weeklyCompProgress(+params.week)
 			.then(results => next(null, results[0]))
+			.catch(error => next(error));
+	}, options);
+
+	server.method('points.mostPicked', function (params, next) {
+		let week = +params.week || (server.methods.getWeek() - 1);
+
+		if (week >= server.methods.getWeek()) {
+			return next(Boom.unauthorized(`Not authorized to view picks for week ${week}`));
+		}
+
+		return limit(queries.mostPicked(week), 100)
+			.then(results => next(null, results))
 			.catch(error => next(error));
 	}, options);
 

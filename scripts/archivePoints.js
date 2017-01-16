@@ -32,5 +32,5 @@ SET
 knex.raw(getTeamPeoplePoints)
 .then(() => knex.raw(updateTeams))
 .then(function () {
-	return console.log('done')
+	return console.log('done');
 }).catch(err => console.trace(err));
