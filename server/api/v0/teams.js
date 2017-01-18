@@ -275,27 +275,39 @@ module.exports = function (server, base) {
 						require: false
 					}).then(function (alreadyUsedPerson) {
 						// Deny person if we already use him. Deduce that we already use him by if he exists in a different slot if it's the same name. If not, then it's ok because we're changing events most likely
-						if (alreadyUsedPerson && (alreadyUsedPerson.personId !== '' && (alreadyUsedPerson.personId === personId ? alreadyUsedPerson.slot !== slot : false))) {
+						if (alreadyUsedPerson && alreadyUsedPerson.personId !== '' && (alreadyUsedPerson.slot !== slot)) {
 							reply(Boom.badRequest('Person already exists in Team.'));
 						} else {
+							let pickWhere = {
+								owner: profile.id,
+								league,
+								teamId,
+								slot,
+								week
+							};
+
 							let newPick = _.extend(pickWhere, {
 								personId: personId,
 								eventId: eventId
 							});
 
-							return Pick.findOne(pickWhere, {require: false}).then(function (pick) {
-								if (!personId || !eventId) {
-									return Pick.where(pickWhere).destroy().then(function () {
-										server.log('info', `Cleared slot ${slot} on team '${teamId}'`);
-										return reply(null);
-									});
-								} else {
-									return Pick.upsert(pickWhere, newPick).then(function () {
+							if (!personId || !eventId) {
+								return Pick.where(pickWhere).destroy().then(function () {
+									server.log('info', `Cleared slot ${slot} on team '${teamId}'`);
+									return reply(null);
+								});
+							} else {
+								return Pick.findOne(pickWhere, {require: false}).then(function (pick) {
+									let upsert = pick ?
+										pick.set(newPick, {patch: true, method: 'update'}).save() :
+										Pick.create(_.extend(pickWhere, newPick), {options: 'insert'});
+
+									upsert.then(function () {
 										server.log('info', `Set team member '${personId}' with event ${eventId} for slot ${slot} on team '${teamId}'`);
 										return Person.findById(personId).then(person => reply(JSON.stringify(person)).code(201));
 									});
-								}
-							});
+								});
+							}
 						}
 					});
 				});
