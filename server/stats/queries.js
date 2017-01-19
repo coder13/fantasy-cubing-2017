@@ -45,7 +45,7 @@ module.exports = function () {
 	queries.mostPicked = (week) =>
 		knex('Picks AS p').join('Persons', 'Persons.id', 'p.personId')
 			.select('personId', 'name', 'countryId', 'p.eventId', knex.raw('COUNT(*) AS picks'))
-			.where({week}).groupBy('personId', 'name', 'countryId', 'p.eventId')
+			.where({week, subId: 1}).groupBy('personId', 'name', 'countryId', 'p.eventId')
 			.orderBy('picks', 'desc');
 
 	queries.weeklyCompProgress = (week) => {
