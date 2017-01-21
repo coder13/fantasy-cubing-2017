@@ -14,11 +14,13 @@ module.exports = (server, base) => {
 				let where = `${isNaN(+name.slice(0,1)) ? 'personName' : 'personId'} LIKE ?`;
 
 				if (request.query && request.query.eventId) {
-					return knex('TotalPointsByEvent').select('personId', 'personName', 'points').where({eventId: request.query.eventId}).whereRaw(where, `%${name}%`).limit(25)
+					return knex('TotalPointsByEvent').select('personId', 'personName', 'points').where({eventId: request.query.eventId}).whereRaw(where, `%${name}%`)
+						.orderBy('personName', 'desc').orderBy('points', 'desc').limit(25)
 						.then(result => reply(result))
 						.catch(error => reply(Boom.wrap(error, 500)));
 				} else {
-					return knex('TotalPoints').select('personId', 'personName', 'points').whereRaw(where, `%${name}%`).limit(25)
+					return knex('TotalPoints').select('personId', 'personName', 'points').whereRaw(where, `%${name}%`)
+						.orderBy('personName', 'desc').orderBy('points', 'desc').limit(25)
 						.then(result => reply(result))
 						.catch(error => reply(Boom.wrap(error, 500)));
 				}

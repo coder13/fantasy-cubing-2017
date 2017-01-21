@@ -3,13 +3,21 @@ START TRANSACTION;
 CREATE INDEX id ON Persons(id);
 CREATE INDEX id ON Countries(id);
 CREATE INDEX id ON Continents(id);
+CREATE INDEX id on Competitions(id);
 CREATE INDEX compId on Results(competitionId);
+CREATE INDEX compPersonEventRound on Results(competitionId, personId, eventId, roundId);
+
+# No Drop function if exists :(
+CREATE FUNCTION resultId(competitionId varchar(32), personId varchar(10), eventId varchar(6), roundId char(1))
+RETURNS varchar(255) DETERMINISTIC
+RETURN CONCAT(competitionId, '-', personId, '-', eventId, '-', roundId);
 
 ## Attaches Dates and continent ids to results
 
 DROP TABLE IF EXISTS ResultDates;
 CREATE TABLE ResultDates AS (
-  SELECT R.personId, R.personName, R.personCountryId, c.continentId personContinentId, R.competitionId, R.eventId, R.roundId, R.formatId, R.pos, R.average, R.best, R.regionalAverageRecord, R.regionalSingleRecord,
+  SELECT resultId(R.competitionId, R.personId, R.eventId, R.roundId),
+  R.personId, R.personName, R.personCountryId, c.continentId personContinentId, R.competitionId, R.eventId, R.roundId, R.formatId, R.pos, R.average, R.best, R.regionalAverageRecord, R.regionalSingleRecord,
   @date := DATE(CONCAT(year, '-', month, '-', day)) date,
   @weekend := DATE_SUB(@date, INTERVAL (DAYOFWEEK(@date) + 2) % 7 DAY) weekend
   FROM Results R
@@ -71,18 +79,13 @@ CREATE INDEX dateCountry ON N(date, personCountryId);
 
 # < 10s
 
-DROP TABLE IF EXISTS Points;
-CREATE TABLE Points AS (
-SELECT R.competitionId, R.personId, R.personName, R.personCountryId, R.eventId, R.roundId, R.average, R.best, weekend, year(weekend) year, week(weekend) week,
-@WPoints := TRUNCATE(if(R.formatId in ('a', 'm'),
-  50 * (if(R.average > 0, W.average / R.average, 0) + if(R.best > 0, W.best / R.best, 0)),
-  100 * if(R.best > 0, W.best / R.best, 0)), 2) AS worldPoints,
-@CPoints := TRUNCATE(if(R.formatId in ('a', 'm'),
-  50 * (if(R.average > 0, C.average / R.average, 0) + if(R.best > 0, C.best / R.best, 0)),
-  100 * if(R.best > 0, C.best / R.best, 0)), 2) AS continentPoints,
-@NPoints := TRUNCATE(if(R.formatId in ('a', 'm'),
-  50 * (if(R.average > 0, N.average / R.average, 0) + if(R.best > 0, N.best / R.best, 0)),
-  100 * if(R.best > 0, N.best / R.best, 0)), 2) AS countryPoints,
+DROP TABLE IF EXISTS PointsAverage;
+CREATE TABLE PointsAverage AS (
+SELECT resultId(R.competitionId, R.personId, R.eventId, R.roundId) resultId,
+  R.competitionId, R.personId, R.personName, R.personCountryId, R.eventId, R.roundId, R.formatId, R.average, weekend, year(weekend) year, week(weekend) week,
+@WPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0, 100 * W.average / R.average, 0), 2) AS worldPoints,
+@CPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0, 100 * C.average / R.average, 0), 2) AS continentPoints,
+@NPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0, 100 * N.average / R.average, 0), 2) AS countryPoints,
 @skillPoints := TRUNCATE((@WPoints + @CPoints + @NPoints) / 3, 2) AS totalPoints
 FROM ResultDates R
   LEFT JOIN W ON W.eventId = R.eventId AND W.date = R.date
@@ -90,7 +93,40 @@ FROM ResultDates R
   LEFT JOIN N ON N.eventId = R.eventId AND N.personCountryId = R.personCountryId AND N.date = R.date
 );
 
-# ~24 minutes, awful. Need improving though.
+# ~2 minutes
+
+DROP TABLE IF EXISTS PointsSingle;
+CREATE TABLE PointsSingle AS (
+SELECT resultId(R.competitionId, R.personId, R.eventId, R.roundId) resultId,
+  R.competitionId, R.personId, R.personName, R.personCountryId, R.eventId, R.roundId, R.formatId, R.best, weekend, year(weekend) year, week(weekend) week,
+@WPoints := TRUNCATE(if(R.best > 0, 100 * W.best / R.best, 0), 2) AS worldPoints,
+@CPoints := TRUNCATE(if(R.best > 0, 100 * C.best / R.best, 0), 2) AS continentPoints,
+@NPoints := TRUNCATE(if(R.best > 0, 100 * N.best / R.best, 0), 2) AS countryPoints,
+@skillPoints := TRUNCATE((@WPoints + @CPoints + @NPoints) / 3, 2) AS totalPoints
+FROM ResultDates R
+  LEFT JOIN W ON W.eventId = R.eventId AND W.date = R.date
+  LEFT JOIN C ON C.eventId = R.eventId AND C.personContinentId = R.personContinentId AND C.date = R.date
+  LEFT JOIN N ON N.eventId = R.eventId AND N.personCountryId = R.personCountryId AND N.date = R.date
+);
+
+# ~2 minutes
+
+CREATE INDEX resultId ON PointsAverage(resultId);
+CREATE INDEX resultId ON PointsSingle(resultId);
+
+# ~30s each = 1 minute
+
+DROP TABLE IF EXISTS Points;
+CREATE TABLE Points AS (
+SELECT A.competitionId, A.personId, A.personName, A.personCountryId, A.eventId, A.roundId, A.average, S.best, A.weekend, A.year, A.week,
+@WPoints := TRUNCATE(if(A.formatId in ('a', 'm'), (A.worldPoints + S.worldPoints) / 2, S.worldPoints), 2) AS worldPoints,
+@CPoints := TRUNCATE(if(A.formatId in ('a', 'm'), (A.continentPoints + S.continentPoints) / 2, S.continentPoints), 2) AS continentPoints,
+@NPoints := TRUNCATE(if(A.formatId in ('a', 'm'), (A.countryPoints + S.countryPoints) / 2, S.countryPoints), 2) AS countryPoints,
+@skillPoints := TRUNCATE((@WPoints + @CPoints + @NPoints) / 3, 2) AS totalPoints
+FROM PointsAverage A JOIN PointsSingle S ON A.resultId = S.ResultId
+);
+
+# ~1 minute
 
 CREATE INDEX week ON Points(week);
 CREATE INDEX year ON Points(year);

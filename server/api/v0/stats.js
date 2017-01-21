@@ -30,7 +30,7 @@ module.exports = (server, base) => {
 
 			}
 		}
-	}, {
+	},	 {
 		method: 'GET',
 		path: `${base}/records/{event?}`,
 		config: {
@@ -41,6 +41,22 @@ module.exports = (server, base) => {
 				region = region || 'world';
 
 				server.methods.getRecords({event, region, date}, function (err, results) {
+					if (err) {
+						return reply(err);
+					}
+
+					return reply(results);
+				});
+			}
+		}
+	}, {
+		method: 'GET',
+		path: `${base}/cubers/{personId}`,
+		config: {
+			handler: function (request, reply) {
+				let {personId} = request.params;
+
+				server.methods.getCuber({personId}, function (err, results) {
 					if (err) {
 						return reply(err);
 					}

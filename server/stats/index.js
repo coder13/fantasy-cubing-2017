@@ -2,6 +2,7 @@ const _ = require('lodash/fp');
 const Boom = require('boom');
 const moment = require('moment');
 const wca = require('../../lib/wca');
+const {unflatten} = require('../../lib/util');
 
 const LIMIT = 25;
 
@@ -42,6 +43,21 @@ module.exports.register = function(server, options, next) {
 				.catch(error => next(error));
 		}
 	}, options);
+
+	server.method('getCuber', function (params, next) {
+		return queries.person(params.personId).then(person => {
+			if (person.length) {
+				return queries.personPoints(params.personId).then(results =>
+					next(null, {
+						person: person[0],
+						results: results.map(unflatten)
+					})
+				).catch(error => next(error));
+			} else {
+				return next(Boom.notFound('Could not find person'));
+			}
+		}).catch(error => next(error));
+	});
 
 	server.method('points.weeklyPoints', function (params, next) {
 		let week = +params.week || (server.methods.getWeek() - 1);

@@ -11,6 +11,8 @@ const ProfilePage = require('./pages/profile');
 const TeamPage = require('./pages/team');
 const RankingsPage = require('./pages/rankings');
 const MostPickedPage = require('./pages/stats/mostPicked');
+const CuberSearchPage = require('./pages/cuberSearch');
+const CuberPage = require('./pages/stats/cuberPage');
 
 const auth = function (name) {
 	return function () {
@@ -37,6 +39,8 @@ module.exports = Router.extend({
 	routes: {
 		'': 'index',
 		// 'stats/:stat': 'stats',
+		'cubers': 'cubers',
+		'points/cubers/:personId': 'cuberPoints',
 		'stats/mostPicked': 'mostPicked',
 		'profile/team': 'myTeam',
 		'rankings': 'rankings',
@@ -81,6 +85,14 @@ module.exports = Router.extend({
 		let week = +query.week || (app.currentWeek() - 1);
 
 		renderPage(<MostPickedPage week={week}/>, 'home');
+	},
+
+	cubers () {
+		renderPage(<CuberSearchPage/>, 'cubers');
+	},
+
+	cuberPoints (personId) {
+		renderPage(<CuberPage personId={personId}/>, 'stats');
 	},
 
 	myTeam (query) {

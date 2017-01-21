@@ -31,7 +31,7 @@
     "bell": "^8.3.0",
     "bookshelf": "^0.10.2",
     "bookshelf-mask": "^2.0.1",
-    "bookshelf-modelbase": "^2.10.2",
+    "bookshelf-modelbase": "^2.10.3",
     "boom": "^4.2.0",
     "catbox-memory": "^2.0.4",
     "catbox-redis": "^2.0.2",

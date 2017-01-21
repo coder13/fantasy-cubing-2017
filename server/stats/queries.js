@@ -81,5 +81,34 @@ module.exports = function () {
 		return knex(events).select('id', 'eventId', knex.raw(average), knex.raw(single));
 	};
 
+	queries.person = (personId) =>
+		knex('Persons').select('id', 'name', 'countryId').where({id: personId});
+
+	const points = (table, type) => [
+		`${table}.worldPoints AS ${type}.worldPoints`,
+		`${table}.continentPoints AS ${type}.continentPoints`,
+		`${table}.countryPoints AS ${type}.countryPoints`,
+		`${table}.totalPoints AS ${type}.totalPoints`
+	];
+
+	const select = [
+		'A.eventId', 'A.roundId', 'R.pos', 'R.formatId AS formatId',
+		'C.id AS competition.id', 'C.name AS competition.name', knex.raw('CONCAT(C.year, \'-\', C.month, \'-\', C.day) AS `competition.date`'),
+		'A.average AS average.time', 'R.regionalAverageRecord AS average.regionalRecord',
+		...points('A', 'average'),
+		'R.value1 AS average.times[0]', 'R.value2 AS average.times[1]', 'R.value3 AS average.times[2]', 'R.value4 AS average.times[3]', 'R.value5 AS average.times[4]',
+		'S.best AS single.time', 'R.regionalSingleRecord AS single.regionalRecord',
+		...points('S', 'single')
+	];
+
+	queries.personPoints = (personId) =>
+		knex('PointsAverage AS A').join('PointsSingle AS S', 'A.resultId', 'S.resultId').join('Events AS E', 'A.eventId', 'E.id').join('Results AS R', function () {
+			this.on('A.competitionid', '=', 'R.competitionId').on('A.personId', '=', 'R.personId').on('A.eventId', '=', 'R.eventId').on('A.roundId', '=', 'R.roundId');
+		})
+		.join('Competitions AS C', 'A.competitionId', 'C.id')
+		.join('Rounds AS rounds', 'A.roundId', 'rounds.id')
+
+		.select(select).where({'A.personId': personId}).orderBy('A.weekend', 'desc').orderBy('E.rank').orderBy('rounds.rank', 'desc');
+
 	return queries;
 };
