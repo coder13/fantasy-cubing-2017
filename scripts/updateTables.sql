@@ -8,9 +8,9 @@ CREATE INDEX compId on Results(competitionId);
 CREATE INDEX compPersonEventRound on Results(competitionId, personId, eventId, roundId);
 
 # No Drop function if exists :(
-CREATE FUNCTION resultId(competitionId varchar(32), personId varchar(10), eventId varchar(6), roundId char(1))
-RETURNS varchar(255) DETERMINISTIC
-RETURN CONCAT(competitionId, '-', personId, '-', eventId, '-', roundId);
+# CREATE FUNCTION resultId(competitionId varchar(32), personId varchar(10), eventId varchar(6), roundId char(1))
+# RETURNS varchar(255) DETERMINISTIC
+# RETURN CONCAT(competitionId, '-', personId, '-', eventId, '-', roundId);
 
 ## Attaches Dates and continent ids to results
 
