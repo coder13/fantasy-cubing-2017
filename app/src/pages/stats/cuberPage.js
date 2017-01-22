@@ -182,7 +182,7 @@ module.exports = React.createClass({
 		let {results, person} = this.state;
 		let {id, name, countryId} = person;
 		let comps = _(results).map(r => r.competition.id).uniq().value().length;
-		let medals = _(results).filter(r => wca.Rounds[r.roundId].final).countBy('pos').value();
+		let medals = _(results).filter(r => r.single.time > 0 && (r.formatId === 'a' || r.formatId === 'm' ? r.average.time > 0 : true)).filter(r => wca.Rounds[r.roundId].final).countBy('pos').value();
 
 		return (
 			<Table basic='very' size='small'>
@@ -202,9 +202,9 @@ module.exports = React.createClass({
 						<Table.Cell>{id}</Table.Cell>
 						<Table.Cell>{countryId}</Table.Cell>
 						<Table.Cell>{comps}</Table.Cell>
-						<Table.Cell>{(medals[3] || 0).toString()}</Table.Cell>
-						<Table.Cell>{(medals[2] || 0).toString()}</Table.Cell>
 						<Table.Cell>{(medals[1] || 0).toString()}</Table.Cell>
+						<Table.Cell>{(medals[2] || 0).toString()}</Table.Cell>
+						<Table.Cell>{(medals[3] || 0).toString()}</Table.Cell>
 					</Table.Row>
 				</Table.Body>
 			</Table>
