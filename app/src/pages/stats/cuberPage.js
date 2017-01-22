@@ -239,11 +239,12 @@ module.exports = React.createClass({
 						return null;
 					}
 
-					let pbSingleRow = event.filter(r => r.single.time > 0).sort(r => r.single.time)[0];
+					let pbSingleRow = _(event).filter(r => r.single.time > 0).sortBy(r => r.single.time).value()[0];
 					pbSingleRow = pbSingleRow ? pbSingleRow.single : null;
 
-					let pbAverageRow = event.filter(r => r.average.time > 0).sort(r => r.average.time)[0];
+					let pbAverageRow = _(event).filter(r => r.average.time > 0).sortBy(r => r.average.time).value()[0];
 					pbAverageRow = pbAverageRow ? pbAverageRow.average : null;
+
 
 					if (!pbSingleRow && !pbAverageRow) {
 						return null;
