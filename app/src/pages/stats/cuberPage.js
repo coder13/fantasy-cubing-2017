@@ -114,6 +114,13 @@ const Event = function (props) {
 
 						let averageTimes = formatAvg(props.id, formatId, average.times);
 
+						let totalPoints = 0;
+						if (formatId === 'a' || formatId === 'm') {
+							totalPoints = (single.totalPoints + average.totalPoints) / 2;
+						} else {
+							totalPoints = single.totalPoints;
+						}
+
 						return (
 							<Table.Row style={{color: newComp ? '#000' : '#AAA'}} key={index}>
 								<Table.Cell>{compName}</Table.Cell>
@@ -123,7 +130,7 @@ const Event = function (props) {
 								<Table.Cell title={singlePointsSplit}><b>{renderPoints(single.totalPoints)}</b></Table.Cell>
 								<Table.Cell style={{color: pbs[index].average ? 'green' : '#000'}} title={averageTimes}>{formatResult(props.id, average.time, true)}</Table.Cell>
 								<Table.Cell title={averagePointsSplit}><b>{renderPoints(average.totalPoints)}</b></Table.Cell>
-								<Table.Cell title={totalPointsSplit}><b>{renderPoints(fixed((single.totalPoints + result.average.totalPoints) / 2))}</b></Table.Cell>
+								<Table.Cell title={totalPointsSplit}><b>{renderPoints(fixed(totalPoints))}</b></Table.Cell>
 							</Table.Row>
 						);
 					})}
@@ -244,7 +251,6 @@ module.exports = React.createClass({
 
 					let pbAverageRow = _(event).filter(r => r.average.time > 0).sortBy(r => r.average.time).value()[0];
 					pbAverageRow = pbAverageRow ? pbAverageRow.average : null;
-
 
 					if (!pbSingleRow && !pbAverageRow) {
 						return null;
