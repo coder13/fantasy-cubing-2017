@@ -6,6 +6,8 @@ const {Segment, Table, Dimmer, Loader, Message} = require('semantic-ui-react');
 const CubeIcon = require('../../components/cubeIcon');
 const wca = require('../../../../lib/wca');
 
+const isAvg = (roundId) => roundId === 'a' || roundId === 'm';
+
 const prettyfy = (x) => !x ? 0 : x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const fixed = n => Number(n).toFixed(2);
 
@@ -230,8 +232,10 @@ module.exports = React.createClass({
 						<Table.HeaderCell title='Country Points'>NP</Table.HeaderCell>
 						<Table.HeaderCell title='Continent Points'>CP</Table.HeaderCell>
 						<Table.HeaderCell title='World Points'>WP</Table.HeaderCell>
+						<Table.HeaderCell title='Total Points'>Total Points</Table.HeaderCell>
 						<Table.HeaderCell>Single</Table.HeaderCell>
 						<Table.HeaderCell>Average</Table.HeaderCell>
+						<Table.HeaderCell title='total Points'>Total Points</Table.HeaderCell>
 						<Table.HeaderCell title='World Points'>WP</Table.HeaderCell>
 						<Table.HeaderCell title='Continent Points'>CP</Table.HeaderCell>
 						<Table.HeaderCell title='Country Points'>NP</Table.HeaderCell>
@@ -247,10 +251,10 @@ module.exports = React.createClass({
 					}
 
 					let pbSingleRow = _(event).filter(r => r.single.time > 0).sortBy(r => r.single.time).value()[0];
-					pbSingleRow = pbSingleRow ? pbSingleRow.single : null;
+					let single = pbSingleRow ? pbSingleRow.single : null;
 
 					let pbAverageRow = _(event).filter(r => r.average.time > 0).sortBy(r => r.average.time).value()[0];
-					pbAverageRow = pbAverageRow ? pbAverageRow.average : null;
+					let average = pbAverageRow ? pbAverageRow.average : null;
 
 					if (!pbSingleRow && !pbAverageRow) {
 						return null;
@@ -259,15 +263,16 @@ module.exports = React.createClass({
 					return (
 						<Table.Row key={index}>
 							<Table.Cell><CubeIcon name={eventId}/> {wca.EventNames[eventId]}</Table.Cell>
-							<Table.Cell>{renderPoints(pbSingleRow.countryPoints)}</Table.Cell>
-							<Table.Cell>{renderPoints(pbSingleRow.continentPoints)}</Table.Cell>
-							<Table.Cell>{renderPoints(pbSingleRow.worldPoints)}</Table.Cell>
-							<Table.Cell>{formatResult(eventId, pbSingleRow.time)}</Table.Cell>
-							<Table.Cell>{pbAverageRow ? formatResult(eventId, pbAverageRow.time, true) : null}</Table.Cell>
-							<Table.Cell>{pbAverageRow ? renderPoints(pbAverageRow.worldPoints) : null}</Table.Cell>
-							<Table.Cell>{pbAverageRow ? renderPoints(pbAverageRow.continentPoints) : null}</Table.Cell>
-							<Table.Cell>{pbAverageRow ? renderPoints(pbAverageRow.countryPoints) : null}</Table.Cell>
-
+							<Table.Cell>{renderPoints(single.countryPoints)}</Table.Cell>
+							<Table.Cell>{renderPoints(single.continentPoints)}</Table.Cell>
+							<Table.Cell>{renderPoints(single.worldPoints)}</Table.Cell>
+							<Table.Cell><b>{renderPoints(single.totalPoints)}</b></Table.Cell>
+							<Table.Cell>{formatResult(eventId, single.time)}</Table.Cell>
+							<Table.Cell>{pbAverageRow ? formatResult(eventId, average.time, true) : null}</Table.Cell>
+							<Table.Cell><b>{pbAverageRow && isAvg(pbAverageRow.formatId) ? renderPoints(average.totalPoints) : null}</b></Table.Cell>
+							<Table.Cell>{pbAverageRow && isAvg(pbAverageRow.formatId) ? renderPoints(average.worldPoints) : null}</Table.Cell>
+							<Table.Cell>{pbAverageRow && isAvg(pbAverageRow.formatId) ? renderPoints(average.continentPoints) : null}</Table.Cell>
+							<Table.Cell>{pbAverageRow && isAvg(pbAverageRow.formatId) ? renderPoints(average.countryPoints) : null}</Table.Cell>
 						</Table.Row>
 					);
 				})}
