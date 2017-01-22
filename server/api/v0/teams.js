@@ -275,7 +275,7 @@ module.exports = function (server, base) {
 						require: false
 					}).then(function (alreadyUsedPerson) {
 						// Deny person if we already use him. Deduce that we already use him by if he exists in a different slot if it's the same name. If not, then it's ok because we're changing events most likely
-						if (alreadyUsedPerson && alreadyUsedPerson.personId !== '' && (alreadyUsedPerson.slot !== slot)) {
+						if (alreadyUsedPerson && alreadyUsedPerson.get('personId') !== '' && alreadyUsedPerson.get('slot') !== slot) {
 							reply(Boom.badRequest('Person already exists in Team.'));
 						} else {
 							let pickWhere = {
