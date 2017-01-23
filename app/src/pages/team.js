@@ -173,7 +173,8 @@ module.exports = React.createClass({
 		let {week, team, canView, canEdit} = this.props;
 		let {progress, loadingTeam} = this.state;
 
-		let url = canEdit ? '/profile/team' : ('/teams/' + team.id);
+		// let url = canEdit ? '/profile/team' : ('/teams/' + team.id);
+		let url = window.location.pathname;
 
 		return (
 			<div>
@@ -198,7 +199,7 @@ module.exports = React.createClass({
 					: null}
 					{canView ?
 						<Segment compact loading={team && !team.weeks[week]}>
-								<WeekView week={team ? team.weeks[week] : null} editable={canEdit && week >= app.currentWeek()}/>
+								<WeekView week={team ? team.weeks[week] : null} editable={canEdit && week >= app.currentWeek() || app.me.isAdmin}/>
 						</Segment> :
 						<Segment as={Message}>
 							<Icon name='warning'/>

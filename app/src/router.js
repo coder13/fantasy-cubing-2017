@@ -151,7 +151,7 @@ module.exports = Router.extend({
 				}
 			},
 			success: function (model, res, body) {
-				renderPage(<TeamPage week={week} team={team}/>);
+				renderPage(<TeamPage week={week} team={team} canEdit={app.me.isAdmin}/>);
 			}
 		});
 	},

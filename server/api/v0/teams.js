@@ -6,6 +6,8 @@ const moment = require('moment');
 const {knex, User, Team, Teams, Person, Pick, Picks} = App.db;
 const league = 'Standard';
 
+const isAdmin = (profile) => profile.id === 8184;
+
 const time = (hour, min, sec) => ((hour * 60 + min) * 60 + sec) * 1000;
 
 let classes = [{
@@ -181,7 +183,7 @@ module.exports = function (server, base) {
 						}, {
 							id: profile.id
 						}).then(function (user) {
-							server.log('info', `Created team '${team.name}' (${team.id}) for user ${profile.name} (${profile.id})`);
+							server.log('info', `Created team '${team.name}' (${team.id}) by user ${profile.name} (${profile.id})`);
 							return reply(team).code(200);
 						});
 					});
@@ -207,7 +209,7 @@ module.exports = function (server, base) {
 						return reply(Boom.unauthorized('Not allowed to edit team'));
 					}
 
-					server.log('info', `Updated team '${name}' (${team.id}) for user ${profile.id} ${profile.name} (${profile.wca_id})`);
+					server.log('info', `Updated team '${name}' (${team.id}) by user ${profile.id} ${profile.name} (${profile.wca_id})`);
 					return team.update({name}).then((team) => reply(team).code(201));
 				});
 			}
@@ -226,11 +228,11 @@ module.exports = function (server, base) {
 				let {teamId, week} = request.params;
 				let {owner, slot, eventId, personId} = payload;
 
-				if (owner.id !== profile.id) {
+				if (owner.id !== profile.id && !isAdmin(profile)) {
 					return reply(Boom.unauthorized('Not allowed to edit team'));
 				}
 
-				if (week < server.methods.getWeek()) {
+				if (week < server.methods.getWeek() && !isAdmin(profile)) {
 					return reply(Boom.create(400, 'Too late to edit old team'));
 				}
 
@@ -258,7 +260,7 @@ module.exports = function (server, base) {
 					eventId = eventId || '';
 
 					let pickWhere = {
-						owner: profile.id,
+						owner: owner.id,
 						league,
 						teamId,
 						slot,
@@ -266,7 +268,7 @@ module.exports = function (server, base) {
 					};
 
 					return Pick.findOne({
-						owner: profile.id,
+						owner: owner.id,
 						teamId,
 						league,
 						personId,
@@ -279,7 +281,7 @@ module.exports = function (server, base) {
 							reply(Boom.badRequest('Person already exists in Team.'));
 						} else {
 							let pickWhere = {
-								owner: profile.id,
+								owner: owner.id,
 								league,
 								teamId,
 								slot,

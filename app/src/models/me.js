@@ -23,6 +23,12 @@ module.exports = Model.extend({
 			fn () {
 				return !!this.id;
 			}
+		},
+		isAdmin: {
+			deps: ['id'],
+			fn() {
+				return this.id === 8184;
+			}
 		}
 	},
 
