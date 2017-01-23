@@ -5,3 +5,4 @@ dump.rdb
 config/prod.json
 config/dev.json
 .wca_export/
+logs/*

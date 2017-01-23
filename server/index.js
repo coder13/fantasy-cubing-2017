@@ -22,7 +22,18 @@ const plugins = [{
 				args: [{ log: '*', response: '*', 'sql': '*'}]
 			}, {
 				module: 'good-console'
-			}, 'stdout']
+			}, 'stdout'],
+			fileReporter: [{
+				module: 'good-squeeze',
+				name: 'Squeeze',
+				args: [{ log: '*', response: '*', 'sql': '*'}]
+			}, {
+				module: 'good-squeeze',
+				name: 'SafeJson'
+			}, {
+				module: 'good-file',
+				args: ['./logs/server.log']
+			}]
 		}
 	}
 }, {
