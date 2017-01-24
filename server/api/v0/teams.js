@@ -145,7 +145,7 @@ module.exports = function (server, base) {
 
 					let owner = team.related('owner');
 
-					if ((profile && profile.id !== +owner.id) && week >= server.methods.getWeek()) {
+					if ((profile && profile.id !== +owner.id) && week >= server.methods.getWeek() && !isAdmin(profile)) {
 						return reply(Boom.unauthorized('Not allowed to view current team'));
 					}
 

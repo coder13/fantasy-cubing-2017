@@ -145,7 +145,7 @@ module.exports = Router.extend({
 		team.fetchWeek(week, {
 			error: function (model, res, body) {
 				if (res.statusCode === 401) {
-					renderPage(<TeamPage week={week} team={team} canView={false}/>);
+					renderPage(<TeamPage week={week} team={team} canView={app.me.isAdmin}/>);
 				} else {
 					this.redirectTo('/rankings');
 				}
