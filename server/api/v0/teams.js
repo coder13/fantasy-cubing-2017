@@ -288,10 +288,10 @@ module.exports = function (server, base) {
 								week
 							};
 
-							let newPick = _.extend(pickWhere, {
+							let newPick = {
 								personId: personId,
 								eventId: eventId
-							});
+							};
 
 							if (!personId || !eventId) {
 								return Pick.where(pickWhere).destroy().then(function () {
@@ -301,11 +301,11 @@ module.exports = function (server, base) {
 							} else {
 								return Pick.findOne(pickWhere, {require: false}).then(function (pick) {
 									let upsert = pick ?
-										pick.set(newPick, {patch: true, method: 'update'}).save() :
+										Pick.where(pickWhere).save(newPick, {path: true, method: 'update'}) :
 										Pick.create(_.extend(pickWhere, newPick), {options: 'insert'});
 
 									upsert.then(function () {
-										server.log('info', `Set team member '${personId}' with event ${eventId} for slot ${slot} on team '${teamId}'`);
+										server.log('info', `${pick ? 'Updated' : 'Created'} pick for slot ${slot} on team '${teamId}' with '${personId}' for event ${eventId}`);
 										return Person.findById(personId).then(person => reply(JSON.stringify(person)).code(201));
 									});
 								});
