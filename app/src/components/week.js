@@ -149,7 +149,7 @@ module.exports = React.createClass({
 		let {editable, week} = this.props;
 		let exists = week && week.picks && week.picks.length > 0;
 		let findCuber = (slot) => week.picks.find(c => c.slot === slot);
-		let totalPoints = exists ? +_(week.picks).map(p => p.points).sum().toFixed(2) : 0;
+		let totalPoints = exists ? +Number(_(week.picks).map(p => p.points).sum()).toFixed(2) : 0;
 
 		let personRow = (slot) =>
 			<Table.Row key={slot} className='cuberRow'>
