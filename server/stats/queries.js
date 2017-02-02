@@ -65,7 +65,7 @@ module.exports = function () {
 	queries.recordsByEvent = (event,region,date) =>{
 		let average = knex('ResultDates').min('average').where({eventId: event}).whereRaw('average > 0')
 			.whereRaw(getRegionQueryFromRegion(region, 'Average')).whereRaw(date ? knex.raw('date < ?', [date]) : '').as('average');
-		let single = knex('ResultDates').min('best').where({eventId: event}).whereRaw('average > 0')
+		let single = knex('ResultDates').min('best').where({eventId: event}).whereRaw('best > 0')
 			.whereRaw(getRegionQueryFromRegion(region, 'Single')).whereRaw(date ? knex.raw('date < ?', [date]) : '').as('single');
 
 		return knex.select(average, single);
@@ -74,7 +74,7 @@ module.exports = function () {
 	queries.records = (region,date) => {
 		let average = knex('ResultDates').min('average').whereRaw('eventId = id').whereRaw('average > 0')
 			.whereRaw(getRegionQueryFromRegion(region, 'Average')).whereRaw(date ? knex.raw('date < ?', [date]) : '').as('average');
-		let single = knex('ResultDates').min('best').whereRaw('eventId = id').whereRaw('average > 0')
+		let single = knex('ResultDates').min('best').whereRaw('eventId = id').whereRaw('best > 0')
 			.whereRaw(getRegionQueryFromRegion(region, 'Single')).whereRaw(date ? knex.raw('date < ?', [date]) : '').as('single');
 		let events = knex('Events').select('id').whereRaw('rank < 500').as('events');
 
