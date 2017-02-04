@@ -306,7 +306,15 @@ module.exports = function (server, base) {
 
 									upsert.then(function () {
 										server.log('info', `${pick ? 'Updated' : 'Created'} pick for slot ${slot} on team '${teamId}' with '${personId}' for event ${eventId}`);
-										return Person.findById(personId).then(person => reply(JSON.stringify(person)).code(201));
+										return Person.findById(personId)
+											.then(person => reply(JSON.stringify(person)).code(201))
+											.catch(err => {
+												if (err.message === 'EmptyResponse') {
+													reply({id: personId});
+												} else {
+													reply(Boom.wrap(err, 500));
+												}
+											});
 									});
 								});
 							}

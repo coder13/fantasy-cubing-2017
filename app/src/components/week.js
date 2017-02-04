@@ -151,14 +151,19 @@ module.exports = React.createClass({
 		let findCuber = (slot) => week.picks.find(c => c.slot === slot);
 		let totalPoints = exists ? +Number(_(week.picks).map(p => p.points).sum()).toFixed(2) : 0;
 
-		let personRow = (slot) =>
-			<Table.Row key={slot} className='cuberRow'>
-				<Table.Cell>{exists && findCuber(slot) ? EventNames[findCuber(slot).eventId] : ''}</Table.Cell>
-				<Table.Cell>{exists && findCuber(slot) ? `${findCuber(slot).name} (${findCuber(slot).personId})` : ''}</Table.Cell>
-				<Table.Cell>{exists && findCuber(slot) ? findCuber(slot).countryId : ''}</Table.Cell>
-				<Table.Cell>{exists && findCuber(slot) ? findCuber(slot).points : ''}</Table.Cell>
-				{editable ? <Table.Cell><div style={{cursor: 'pointer'}} onClick={() => this.openChangePersonModal(slot)}>{exists ? 'Change' : 'Choose'}</div></Table.Cell> : null}
-			</Table.Row>;
+		let personRow = (slot) => {
+			let cuber = exists ? findCuber(slot) : false;
+
+			return (
+				<Table.Row key={slot} className='cuberRow'>
+					<Table.Cell>{cuber ? EventNames[cuber.eventId] : ''}</Table.Cell>
+					<Table.Cell>{cuber ? `${cuber.name || 'Unknown'} (${cuber.personId})` : ''}</Table.Cell>
+					<Table.Cell>{cuber ? cuber.countryId || 'Unknown' : ''}</Table.Cell>
+					<Table.Cell>{cuber ? cuber.points : ''}</Table.Cell>
+					{editable ? <Table.Cell><div style={{cursor: 'pointer'}} onClick={() => this.openChangePersonModal(slot)}>{exists ? 'Change' : 'Choose'}</div></Table.Cell> : null}
+				</Table.Row>
+			);
+		};
 
 		return (
 			<div>
