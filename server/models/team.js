@@ -26,7 +26,7 @@ module.exports = function (bookshelf, db) {
 							.on('points.eventId', '=', 'Picks.eventId');
 				})
 				.select('Picks.eventId', 'Picks.slot','Picks.personId', 'Persons.name', 'Persons.countryId', 'points')
-				.where({teamId: this.id, week});
+				.where({teamId: this.id, week, subid: 1});
 		}
 	}, {
 		getWithOwner (id) {
