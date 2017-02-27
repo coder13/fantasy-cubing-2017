@@ -37,7 +37,7 @@ module.exports = React.createClass({
 	getData () {
 		let self = this;
 
-		fetch(`${app.apiURL}/stats/mostPicked?week=${this.props.week}&limit=${this.props.limit || 100}`)
+		fetch(`${app.apiURL}/stats/mostPicked?week=${this.props.week}&limit=${this.props.limit || 1000}`)
 		.then(data => data.json()).then(function (data) {
 			if (data.statusCode >= 400) {
 
