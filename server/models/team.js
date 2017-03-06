@@ -20,7 +20,9 @@ module.exports = function (bookshelf, db) {
 				.groupBy('personId', 'eventId');
 
 			return knex('Picks')
-				.leftJoin('Persons', 'Persons.id', 'Picks.personId')
+				.leftJoin('Persons', function () {
+					this.on('Persons.id', 'Picks.personId').on('Persons.subid', knex.raw('1'));
+				})
 				.leftJoin(points.as('points'), function () {
 					this.on('points.personId', '=', 'Picks.personId')
 							.on('points.eventId', '=', 'Picks.eventId');
