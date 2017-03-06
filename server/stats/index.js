@@ -107,7 +107,7 @@ module.exports.register = function(server, options, next) {
 			return next(Boom.unauthorized(`Not authorized to view picks for week ${week}`));
 		}
 
-		return limit(queries.mostPicked(week), 100)
+		return limit(queries.mostPicked(week), params.limit)
 			.then(results => next(null, results))
 			.catch(error => next(error));
 	}, options);
