@@ -133,7 +133,7 @@ module.exports = function (server, base) {
 				mode: 'try'
 			},
 			handler: function (request, reply) {
-				let profile = request.auth.credentials.profile;
+				let profile = request.auth.credentials ? request.auth.credentials.profile : null;
 				let {teamId, week} = request.params;
 
 				Team.forge({id: teamId}).fetch({
@@ -145,7 +145,7 @@ module.exports = function (server, base) {
 
 					let owner = team.related('owner');
 
-					if ((profile && profile.id !== +owner.id) && week >= server.methods.getWeek() && !isAdmin(profile)) {
+					if (week >= server.methods.getWeek() && (profile ? profile.id !== +owner.id && !isAdmin(profile) : true)) {
 						return reply(Boom.unauthorized('Not allowed to view current team'));
 					}
 

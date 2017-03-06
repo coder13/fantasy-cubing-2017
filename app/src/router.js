@@ -146,8 +146,8 @@ module.exports = Router.extend({
 			error: function (model, res, body) {
 				if (res.statusCode === 401) {
 					renderPage(<TeamPage week={week} team={team} canView={app.me.isAdmin}/>);
-				} else {
-					this.redirectTo('/rankings');
+				}	else {
+					app.router.redirectTo('/rankings');
 				}
 			},
 			success: function (model, res, body) {

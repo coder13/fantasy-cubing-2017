@@ -35,7 +35,7 @@ module.exports.register = function(server, options, next) {
 	server.auth.strategy('session', 'cookie', {
 		password: 'secret_cookie_encryption_password', //Use something more secure in production
 		cookie: 'sid-fantasycubing',
-		redirectTo: '/', //If there is no session, redirect here
+		// redirectTo: '/', //If there is no session, redirect here
 		isSecure: process.argv.NODE_ENV === 'prod' //Should be set to true (which is the default) in production,
 	});
 
