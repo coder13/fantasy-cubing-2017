@@ -2,6 +2,7 @@ const _ = require('lodash/fp');
 const Boom = require('boom');
 const shortId = require('shortid');
 const moment = require('moment');
+const {season, getClasses, canPickCuberForSlot} = require('../../../lib/rules');
 
 const {knex, User, Team, Teams, Person, Pick, Picks} = App.db;
 const league = 'Standard';
@@ -9,17 +10,6 @@ const league = 'Standard';
 const isAdmin = (profile) => profile.id === 8184;
 
 const time = (hour, min, sec) => ((hour * 60 + min) * 60 + sec) * 1000;
-
-let classes = [{
-	slots: 2,
-	events: ['333']
-}, {
-	slots: 4,
-	events: ['444', '555', '222', 'skewb', 'pyram', '333oh', '333bf']
-}, {
-	slots: 4,
-	events: ['333fm', '333ft', 'minx', 'sq1', 'clock', '666', '777', '444bf', '555bf', '333mbf']
-}];
 
 /* Just grab the most recent team thus every new week, your team will be blank. No more cascading. */
 const teamQuery = (teamId, week) => {
@@ -241,11 +231,8 @@ module.exports = function (server, base) {
 					return reply(Boom.create(400, 'personId is an invalid WCA ID'));
 				}
 
-				if (eventId) {
-					let c = slot < 2 ? 0 : slot < 6 ? 1 : 2;
-					if (classes[c].events.indexOf(eventId) === -1) {
-						return reply(Boom.create(400, 'Invalid event selection for class'));
-					}
+				if (eventId && !canPickCuberForSlot(getClasses(week), slot, eventId)) {
+					return reply(Boom.create(400, 'Invalid event selection for class'));
 				}
 
 				return Team.findOne({

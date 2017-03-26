@@ -2,23 +2,13 @@ const _ = require('lodash');
 const app = require('ampersand-app');
 const React = require('react');
 const ampersandReactMixin = require('ampersand-react-mixin');
-const {Form, Grid, Button, Label, Modal, Table, Select, Search, Segment, Header} = require('semantic-ui-react');
+const {Form, Grid, Button, Label, Message, Modal, Table, Select, Search, Segment, Header} = require('semantic-ui-react');
 const xhr = require('xhr');
 const {Events, EventNames, League, Input} = require('../../../lib/wca');
+const {season, getClasses} = require('../../../lib/rules');
 const Team = require('../models/team');
 
 const prettyfy = (x) => !x ? 0 : x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
-let classes = [{
-	slots: 2,
-	events: ['333']
-}, {
-	slots: 4,
-	events: ['444', '555', '222', 'skewb', 'pyram', '333oh', '333bf']
-}, {
-	slots: 4,
-	events: ['333fm', '333ft', 'minx', 'sq1', 'clock', '666', '777', '444bf', '555bf', '333mbf']
-}];
 
 const SelectPersonModal = React.createClass({
 	displayName: 'SelectPersonModal',
@@ -28,6 +18,7 @@ const SelectPersonModal = React.createClass({
 			isLoading: false,
 			showModal: false,
 			eventId: '',
+			group: 0,
 			slot: 0,
 			value: '',
 			results: []
@@ -51,8 +42,8 @@ const SelectPersonModal = React.createClass({
 		});
 	},
 
-	open (slot) {
-		this.setState({showModal: true, slot});
+	open (group, slot) {
+		this.setState({showModal: true, group, slot});
 	},
 
 	closeModal () {
@@ -83,8 +74,8 @@ const SelectPersonModal = React.createClass({
 	},
 
 	render() {
-		const {isLoading, eventId, slot, value, showModal, results} = this.state;
-		let c = slot < 2 ? 0 : slot < 6 ? 1 : 2;
+		const {isLoading, group, eventId, slot, value, showModal, results} = this.state;
+		// let c = slot < 2 ? 0 : slot < 6 ? 1 : 2;
 		let canSelect = !!value && !!eventId;
 
 		return (
@@ -98,7 +89,7 @@ const SelectPersonModal = React.createClass({
 					<Form>
 						<Form.Field inline>
 							<label>Event: </label>
-							<Select className='eventSelect' value={eventId} onChange={this.changeEvent} options={classes[c].events.map((e,i) => ({value: e, text: EventNames[e]}))}/>
+							<Select className='eventSelect' value={eventId} onChange={this.changeEvent} options={this.props.classes[group].events.map((e,i) => ({value: e, text: EventNames[e]}))}/>
 						</Form.Field>
 						<Form.Field inline>
 							<label>Name: </label>
@@ -137,21 +128,21 @@ module.exports = React.createClass({
 		this.props = props;
 	},
 
-	openChangePersonModal (slot) {
-		this.modals.selectPersonModal.open(slot);
+	openChangePersonModal (group, slot) {
+		this.modals.selectPersonModal.open(group, slot);
 	},
 
 	handleSelectPerson (slot, cuber, eventId) {
-		this.props.week.setPick(slot, cuber, eventId);
+		this.props.team.setPick(slot, cuber, eventId);
 	},
 
 	render () {
-		let {editable, week} = this.props;
-		let exists = week && week.picks && week.picks.length > 0;
-		let findCuber = (slot) => week.picks.find(c => c.slot === slot);
-		let totalPoints = exists ? +Number(_(week.picks).map(p => p.points).sum()).toFixed(2) : 0;
+		let {editable, week, team} = this.props;
+		let exists = team && team.picks && team.picks.length > 0;
+		let findCuber = (slot) => team.picks.find(c => c.slot === slot);
+		let totalPoints = exists ? +Number(_(team.picks).map(p => p.points || 0).sum()).toFixed(2) : 0;
 
-		let personRow = (slot) => {
+		let personRow = (group, slot) => {
 			let cuber = exists ? findCuber(slot) : false;
 
 			return (
@@ -160,13 +151,23 @@ module.exports = React.createClass({
 					<Table.Cell>{cuber ? `${cuber.name || 'Unknown'} (${cuber.personId})` : ''}</Table.Cell>
 					<Table.Cell>{cuber ? cuber.countryId || 'Unknown' : ''}</Table.Cell>
 					<Table.Cell>{cuber ? cuber.points : ''}</Table.Cell>
-					{editable ? <Table.Cell><div style={{cursor: 'pointer'}} onClick={() => this.openChangePersonModal(slot)}>{exists ? 'Change' : 'Choose'}</div></Table.Cell> : null}
+					{editable ? <Table.Cell><div style={{cursor: 'pointer'}} onClick={() => this.openChangePersonModal(group, slot)}>{exists ? 'Change' : 'Choose'}</div></Table.Cell> : null}
 				</Table.Row>
 			);
 		};
 
+		let classes = getClasses(week);
+		let s = 0;
+
 		return (
 			<div>
+				{season(week) === 2 ?
+					<Message>
+						Season 2 Rules:
+						Best n-1 for each class will be chosen
+					</Message>
+					: null}
+
 				<Table celled structured attached='top'>
 					<Table.Header>
 						<Table.Row>
@@ -179,45 +180,17 @@ module.exports = React.createClass({
 					</Table.Header>
 
 					<Table.Body>
-						<Table.Row className='classHeader'>
-							<Table.Cell>
-								<h4>Class 1: 3x3</h4>
-							</Table.Cell>
-							<Table.Cell colSpan='4'>
-								<p>Events: {classes[0].events.map(i => EventNames[i]).join(', ')}</p>
-							</Table.Cell>
-						</Table.Row>
-
-						{_.times(classes[0].slots, (i) =>
-							personRow(i)
-						)}
-
-						<Table.Row className='classHeader'>
-							<Table.Cell>
-								<h4>Class 2: Main Events</h4>
-							</Table.Cell>
-							<Table.Cell colSpan='4'>
-								<p>Events: {classes[1].events.map(i => EventNames[i]).join(', ')}</p>
-							</Table.Cell>
-						</Table.Row>
-
-						{_.times(classes[1].slots, (i) =>
-							personRow(2 + i)
-						)}
-
-						<Table.Row className='classHeader'>
-							<Table.Cell>
-								<h4>Class 3: Side Events</h4>
-							</Table.Cell>
-							<Table.Cell colSpan='4'>
-								<p>Events: {classes[2].events.map(i => EventNames[i]).join(', ')}</p>
-							</Table.Cell>
-						</Table.Row>
-
-						{_.times(classes[2].slots, (i) =>
-							personRow(6 + i)
-						)}
-
+						{classes.map((group, classIndex) => [
+							<Table.Row className='classHeader'>
+								<Table.Cell>
+									<h4>Class {classIndex + 1}: {group.name}</h4>
+								</Table.Cell>
+								<Table.Cell colSpan='4'>
+									<p>Events: {group.events.map(e => EventNames[e]).join(', ')}</p>
+								</Table.Cell>
+							</Table.Row>,
+							_.times(group.slots, i => personRow(classIndex, s++))
+						])}
 					</Table.Body>
 				</Table>
 
@@ -225,7 +198,7 @@ module.exports = React.createClass({
 					<p>{totalPoints} Total Points</p>
 				</Segment>
 
-				{editable ? <SelectPersonModal ref={modal => {this.modals.selectPersonModal = modal;}} submit={this.handleSelectPerson}/> : null}
+				{editable ? <SelectPersonModal ref={modal => {this.modals.selectPersonModal = modal;}} classes={classes} submit={this.handleSelectPerson}/> : null}
 			</div>
 		);
 	}
