@@ -199,7 +199,7 @@ module.exports = React.createClass({
 					: null}
 					{canView ?
 						<Segment compact loading={team && !team.weeks[week]}>
-								<WeekView week={team ? team.weeks[week] : null} editable={canEdit && week >= app.currentWeek() || app.me.isAdmin}/>
+								<WeekView week={week} team={team ? team.weeks[week] : null} editable={canEdit && week >= app.currentWeek() || app.me.isAdmin}/>
 						</Segment> :
 						<Segment as={Message}>
 							<Icon name='warning'/>
