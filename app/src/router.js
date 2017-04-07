@@ -123,7 +123,7 @@ module.exports = Router.extend({
 	rankings (query) {
 		query = qs.parse(query);
 
-		return renderPage(<RankingsPage view={query.week ? 'weekly' : 'allTime'} week={query.week}/>, 'rankings');
+		return renderPage(<RankingsPage view={query.week ? 'weekly' : (query.season ? 'season' : 'allTime')} season={query.season} week={query.week}/>, 'rankings');
 	},
 
 	team (id, query) {

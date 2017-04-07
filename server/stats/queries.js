@@ -42,6 +42,11 @@ module.exports = function () {
 		.select('u.name AS owner', 't.id', 't.name', 'a.points')
 		.where({week}).orderBy('a.points', 'desc');
 
+	queries.seasonRankings = (season) =>
+		knex('Archive AS a').join('Teams AS t', 'a.teamId', 't.id').join('Users AS u', 't.owner', 'u.id')
+		.select('u.name AS owner', 't.id', 't.name', 'a.points')
+		.where({season}).orderBy('a.points', 'desc');
+
 	queries.mostPicked = (week) =>
 		knex('Picks AS p').leftJoin('Persons', function () {
 			this.on('Persons.id', 'p.personId').on('Persons.subid', knex.raw('1'));
