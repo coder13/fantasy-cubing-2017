@@ -58,7 +58,7 @@ exports.seed = function (knex, Promise) {
 			return knex.select('*').from('Persons').limit(200).then(function (persons) {
 				let picks = [];
 				teams.forEach(team => {
-					for (let week = 0; week < 3; week++) {
+					for (let week = 0; week < 5; week++) {
 						for (let slot = 0; slot < 10; slot++) {
 							picks.push({
 								league: 'Standard',

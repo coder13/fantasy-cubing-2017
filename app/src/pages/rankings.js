@@ -12,12 +12,14 @@ module.exports = React.createClass({
 
 	getDefaultProps () {
 		return {
-			view: 'allTime'
+			view: 'allTime',
 		};
 	},
 
 	getInitialState () {
-		return {};
+		return {
+			season: this.props.season || 2
+		};
 	},
 
 	componentWillMount() {
@@ -32,10 +34,19 @@ module.exports = React.createClass({
 	request () {
 		const {view} = this.props;
 		let week = this.props.week || app.currentWeek();
+		let season = this.state.season || 2;
 		let self = this;
 
 		if (view === 'weekly') {
 			xhr.get(`${app.apiURL}/stats/weeklyRankings?week=${week}`, function (err, res, body) {
+				if (res.statusCode === 200) {
+					self.setState({
+						teams: JSON.parse(body)
+					});
+				}
+			});
+		} else if (view === 'season') {
+			xhr.get(`${app.apiURL}/stats/seasonRankings?season=${season}`, function (err, res, body) {
 				if (res.statusCode === 200) {
 					self.setState({
 						teams: JSON.parse(body)
@@ -54,7 +65,7 @@ module.exports = React.createClass({
 	},
 
 	render () {
-		const {view} = this.props;
+		const {season, view} = this.props;
 
 		let week = this.props.week ? parseInt(this.props.week) : (app.currentWeek() - 1);
 
@@ -69,12 +80,18 @@ module.exports = React.createClass({
 				<Menu tabular>
 					<Menu.Item name='All Time' active={view === 'allTime'} onClick={() => app.router.history.navigate('/rankings', {trigger: true})}/>
 					<Menu.Item name='Week' active={view === 'weekly'} onClick={() => app.router.history.navigate(`/rankings?week=${app.currentWeek() - 1}`, {trigger: true})}/>
+					<Menu.Item name='Season' active={view === 'season'} onClick={() => app.router.history.navigate(`/rankings?season=2`, {trigger: true})}/>
 				</Menu>
 				{view === 'weekly' ?
 					<Menu pagination>
 						<Menu.Item icon='left chevron' onClick={() => app.router.history.navigate(`/rankings?week=${week - 1}`)}/>
 						<Menu.Item disabled name={`Week: ${week}`}/>
 						<Menu.Item icon='right chevron' onClick={() => app.router.history.navigate(`/rankings?week=${week + 1}`)}/>
+					</Menu> : null}
+				{view === 'season' ?
+					<Menu tabular>
+						<Menu.Item name='1' active={+season===1} onClick={() => app.router.history.navigate(`/rankings?season=1`)}/>
+						<Menu.Item name='2' active={+season===2} onClick={() => app.router.history.navigate(`/rankings?season=2`)}/>
 					</Menu> : null}
 
 			<Table compact selectable>
