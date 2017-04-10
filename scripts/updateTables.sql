@@ -12,6 +12,17 @@ CREATE INDEX compPersonEventRound on Results(competitionId, personId, eventId, r
 # RETURNS varchar(255) DETERMINISTIC
 # RETURN CONCAT(competitionId, '-', personId, '-', eventId, '-', roundTypeId);
 
+#CREATE FUNCTION getSeason (week int, year int)
+#RETURNS int DETERMINISTIC
+#RETURN if(week < 14 OR year < 2017, 1, 2);
+
+#CREATE FUNCTION calcPoints (season int, formatId char(1), eventId varchar(6), singlePoints decimal(25,2), averagePoints decimal(25, 2))
+#RETURNS decimal(25, 2) DETERMINISTIC
+#RETURN if(season = 2,
+#  if(formatId in ('a', 'm'), if(eventId in ('222', 'pyram', 'skewb'), if(averagePoints > 0, averagePoints, singlePoints), (averagePoints + singlePoints) / 2), singlePoints),
+#  if(formatId in ('a', 'm'), (averagePoints + singlePoints) / 2, singlePoints)
+#);
+
 ## Attaches Dates and continent ids to results
 
 DROP TABLE IF EXISTS ResultDates;
@@ -118,10 +129,10 @@ CREATE INDEX resultId ON PointsSingle(resultId);
 
 DROP TABLE IF EXISTS Points;
 CREATE TABLE Points AS (
-SELECT A.competitionId, A.personId, A.personName, A.personCountryId, A.eventId, A.roundTypeId, A.average, S.best, A.weekend, A.year, A.week,
-@WPoints := TRUNCATE(if(A.formatId in ('a', 'm'), (A.worldPoints + S.worldPoints) / 2, S.worldPoints), 2) AS worldPoints,
-@CPoints := TRUNCATE(if(A.formatId in ('a', 'm'), (A.continentPoints + S.continentPoints) / 2, S.continentPoints), 2) AS continentPoints,
-@NPoints := TRUNCATE(if(A.formatId in ('a', 'm'), (A.countryPoints + S.countryPoints) / 2, S.countryPoints), 2) AS countryPoints,
+SELECT A.competitionId, A.personId, A.personName, A.personCountryId, A.eventId, A.roundId, A.average, S.best, A.weekend, A.year, A.week,
+@WPoints := TRUNCATE(calcPoints(getSeason(A.week, A.year), A.formatId, A.eventId, S.worldPoints, A.worldPoints), 2) AS worldPoints,
+@CPoints := TRUNCATE(calcPoints(getSeason(A.week, A.year), A.formatId, A.eventId, S.continentPoints, A.continentPoints), 2) AS continentPoints,
+@NPoints := TRUNCATE(calcPoints(getSeason(A.week, A.year), A.formatId, A.eventId, S.countryPoints, A.countryPoints), 2) AS countryPoints,
 @skillPoints := TRUNCATE((@WPoints + @CPoints + @NPoints) / 3, 2) AS totalPoints
 FROM PointsAverage A JOIN PointsSingle S ON A.resultId = S.ResultId
 );
