@@ -5,19 +5,19 @@ CREATE INDEX id ON Countries(id);
 CREATE INDEX id ON Continents(id);
 CREATE INDEX id on Competitions(id);
 CREATE INDEX compId on Results(competitionId);
-CREATE INDEX compPersonEventRound on Results(competitionId, personId, eventId, roundId);
+CREATE INDEX compPersonEventRound on Results(competitionId, personId, eventId, roundTypeId);
 
 # No Drop function if exists :(
-# CREATE FUNCTION resultId(competitionId varchar(32), personId varchar(10), eventId varchar(6), roundId char(1))
+# CREATE FUNCTION resultId(competitionId varchar(32), personId varchar(10), eventId varchar(6), roundTypeId char(1))
 # RETURNS varchar(255) DETERMINISTIC
-# RETURN CONCAT(competitionId, '-', personId, '-', eventId, '-', roundId);
+# RETURN CONCAT(competitionId, '-', personId, '-', eventId, '-', roundTypeId);
 
 ## Attaches Dates and continent ids to results
 
 DROP TABLE IF EXISTS ResultDates;
 CREATE TABLE ResultDates AS (
-  SELECT resultId(R.competitionId, R.personId, R.eventId, R.roundId),
-  R.personId, R.personName, R.personCountryId, c.continentId personContinentId, R.competitionId, R.eventId, R.roundId, R.formatId, R.pos, R.average, R.best, R.regionalAverageRecord, R.regionalSingleRecord,
+  SELECT resultId(R.competitionId, R.personId, R.eventId, R.roundTypeId),
+  R.personId, R.personName, R.personCountryId, c.continentId personContinentId, R.competitionId, R.eventId, R.roundTypeId, R.formatId, R.pos, R.average, R.best, R.regionalAverageRecord, R.regionalSingleRecord,
   @date := DATE(CONCAT(year, '-', month, '-', day)) date,
   @weekend := DATE_SUB(@date, INTERVAL (DAYOFWEEK(@date) + 2) % 7 DAY) weekend
   FROM Results R
@@ -27,8 +27,8 @@ CREATE TABLE ResultDates AS (
 
 # ~30
 
-CREATE INDEX eventRound ON ResultDates(eventId, roundId);
-CREATE INDEX roundEventComp ON ResultDates(roundId, eventId, competitionId);
+CREATE INDEX eventRound ON ResultDates(eventId, roundTypeId);
+CREATE INDEX roundEventComp ON ResultDates(roundTypeId, eventId, competitionId);
 CREATE INDEX eventCountryDate ON ResultDates(eventId, personCountryId, date);
 CREATE INDEX eventContinentDate ON ResultDates(eventId, personContinentId, date);
 CREATE INDEX eventDateAvg ON ResultDates(eventId, date, average);
@@ -81,8 +81,8 @@ CREATE INDEX dateCountry ON N(date, personCountryId);
 
 DROP TABLE IF EXISTS PointsAverage;
 CREATE TABLE PointsAverage AS (
-SELECT resultId(R.competitionId, R.personId, R.eventId, R.roundId) resultId,
-  R.competitionId, R.personId, R.personName, R.personCountryId, R.eventId, R.roundId, R.formatId, R.average, weekend, year(weekend) year, week(weekend) week,
+SELECT resultId(R.competitionId, R.personId, R.eventId, R.roundTypeId) resultId,
+  R.competitionId, R.personId, R.personName, R.personCountryId, R.eventId, R.roundTypeId, R.formatId, R.average, weekend, year(weekend) year, week(weekend) week,
 @WPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0, 100 * W.average / R.average, 0), 2) AS worldPoints,
 @CPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0, 100 * C.average / R.average, 0), 2) AS continentPoints,
 @NPoints := TRUNCATE(if(R.formatId in ('a', 'm') AND R.average > 0, 100 * N.average / R.average, 0), 2) AS countryPoints,
@@ -97,8 +97,8 @@ FROM ResultDates R
 
 DROP TABLE IF EXISTS PointsSingle;
 CREATE TABLE PointsSingle AS (
-SELECT resultId(R.competitionId, R.personId, R.eventId, R.roundId) resultId,
-  R.competitionId, R.personId, R.personName, R.personCountryId, R.eventId, R.roundId, R.formatId, R.best, weekend, year(weekend) year, week(weekend) week,
+SELECT resultId(R.competitionId, R.personId, R.eventId, R.roundTypeId) resultId,
+  R.competitionId, R.personId, R.personName, R.personCountryId, R.eventId, R.roundTypeId, R.formatId, R.best, weekend, year(weekend) year, week(weekend) week,
 @WPoints := TRUNCATE(if(R.best > 0, 100 * W.best / R.best, 0), 2) AS worldPoints,
 @CPoints := TRUNCATE(if(R.best > 0, 100 * C.best / R.best, 0), 2) AS continentPoints,
 @NPoints := TRUNCATE(if(R.best > 0, 100 * N.best / R.best, 0), 2) AS countryPoints,
@@ -118,7 +118,7 @@ CREATE INDEX resultId ON PointsSingle(resultId);
 
 DROP TABLE IF EXISTS Points;
 CREATE TABLE Points AS (
-SELECT A.competitionId, A.personId, A.personName, A.personCountryId, A.eventId, A.roundId, A.average, S.best, A.weekend, A.year, A.week,
+SELECT A.competitionId, A.personId, A.personName, A.personCountryId, A.eventId, A.roundTypeId, A.average, S.best, A.weekend, A.year, A.week,
 @WPoints := TRUNCATE(if(A.formatId in ('a', 'm'), (A.worldPoints + S.worldPoints) / 2, S.worldPoints), 2) AS worldPoints,
 @CPoints := TRUNCATE(if(A.formatId in ('a', 'm'), (A.continentPoints + S.continentPoints) / 2, S.continentPoints), 2) AS continentPoints,
 @NPoints := TRUNCATE(if(A.formatId in ('a', 'm'), (A.countryPoints + S.countryPoints) / 2, S.countryPoints), 2) AS countryPoints,

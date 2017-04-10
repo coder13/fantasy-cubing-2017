@@ -99,7 +99,7 @@ module.exports = function () {
 	];
 
 	const select = [
-		'A.eventId', 'A.roundId', 'R.pos', 'R.formatId AS formatId',
+		'A.eventId', knex.raw('A.roundTypeId AS roundId'), 'R.pos', 'R.formatId AS formatId',
 		'C.id AS competition.id', 'C.name AS competition.name', knex.raw('CONCAT(C.year, \'-\', C.month, \'-\', C.day) AS `competition.date`'),
 		'A.average AS average.time', 'R.regionalAverageRecord AS average.regionalRecord',
 		...points('A', 'average'),
@@ -110,10 +110,10 @@ module.exports = function () {
 
 	queries.personPoints = (personId) =>
 		knex('PointsAverage AS A').join('PointsSingle AS S', 'A.resultId', 'S.resultId').join('Events AS E', 'A.eventId', 'E.id').join('Results AS R', function () {
-			this.on('A.competitionid', '=', 'R.competitionId').on('A.personId', '=', 'R.personId').on('A.eventId', '=', 'R.eventId').on('A.roundId', '=', 'R.roundId');
+			this.on('A.competitionid', '=', 'R.competitionId').on('A.personId', '=', 'R.personId').on('A.eventId', '=', 'R.eventId').on('A.roundTypeId', '=', 'R.roundTypeId');
 		})
 		.join('Competitions AS C', 'A.competitionId', 'C.id')
-		.join('Rounds AS rounds', 'A.roundId', 'rounds.id')
+		.join('RoundTypes AS rounds', 'A.roundTypeId', 'rounds.id')
 
 		.select(select).where({'A.personId': personId}).orderBy('A.weekend', 'desc').orderBy('E.rank').orderBy('rounds.rank', 'desc');
 
