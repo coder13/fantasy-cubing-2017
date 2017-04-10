@@ -43,7 +43,7 @@ getPeople(week).then(people => {
 			let totalPoints = computeTotalPoints(season(week), team);
 
 			if (totalPoints) {
-				return knex.raw(`INSERT INTO Archive (week, teamId, points) VALUES (${week}, ${teamId}, ${totalPoints}) ON DUPLICATE KEY UPDATE teamId=VALUES(teamId), week=VALUES(week);`);
+				return knex.raw(`INSERT INTO Archive (week, teamId, points, season) VALUES ('${week}', '${teamId}', ${totalPoints}, ${week < 14 ? 1 : 2}) ON DUPLICATE KEY UPDATE teamId=VALUES(teamId), week=VALUES(week);`);
 			} else {
 				return Promise.resolve();
 			}

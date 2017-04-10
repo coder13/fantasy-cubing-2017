@@ -37,7 +37,7 @@ const EditTeamModal = React.createClass({
 		let {team} = this.props;
 		let {value} = this.state;
 
-		app.team.save({name: value});
+		app.me.team.save({name: value});
 
 		this.close();
 	},
@@ -66,7 +66,7 @@ const EditTeamModal = React.createClass({
 				</Modal.Content>
 
 				<Modal.Actions>
-					<Button warning disabled={!value} onClick={this.cancel}>Cancel</Button>
+					<Button negative disabled={!value} onClick={this.cancel}>Cancel</Button>
 					<Button positive disabled={!value} onClick={this.submit}>Edit</Button>
 				</Modal.Actions>
 			</Modal>

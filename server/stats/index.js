@@ -86,6 +86,12 @@ module.exports.register = function(server, options, next) {
 			.catch(error => next(error));
 	}, options);
 
+	server.method('points.seasonRankings', function (params, next) {
+		return limit(queries.seasonRankings(params.season), params.limit)
+			.then(results => next(null, results))
+			.catch(error => next(error));
+	}, options);
+
 	server.method('points.weeklyRankings', function (params, next) {
 		let week = +params.week || (moment().week() - 1);
 

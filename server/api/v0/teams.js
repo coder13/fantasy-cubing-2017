@@ -195,12 +195,12 @@ module.exports = function (server, base) {
 						return reply(Boom.notFound('Team not found'));
 					}
 
-					if (team.owner !== profile.id) {
+					if (team.owner.id !== profile.id) {
 						return reply(Boom.unauthorized('Not allowed to edit team'));
 					}
 
 					server.log('info', `Updated team '${name}' (${team.id}) by user ${profile.id} ${profile.name} (${profile.wca_id})`);
-					return team.update({name}).then((team) => reply(team).code(201));
+					return Team.update({name}, {id}).then((team) => reply(team).code(201));
 				});
 			}
 		}
