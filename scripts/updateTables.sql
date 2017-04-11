@@ -129,7 +129,7 @@ CREATE INDEX resultId ON PointsSingle(resultId);
 
 DROP TABLE IF EXISTS Points;
 CREATE TABLE Points AS (
-SELECT A.competitionId, A.personId, A.personName, A.personCountryId, A.eventId, A.roundId, A.average, S.best, A.weekend, A.year, A.week,
+SELECT A.competitionId, A.personId, A.personName, A.personCountryId, A.eventId, A.roundTypeId, A.average, S.best, A.weekend, A.year, A.week,
 @WPoints := TRUNCATE(calcPoints(getSeason(A.week, A.year), A.formatId, A.eventId, S.worldPoints, A.worldPoints), 2) AS worldPoints,
 @CPoints := TRUNCATE(calcPoints(getSeason(A.week, A.year), A.formatId, A.eventId, S.continentPoints, A.continentPoints), 2) AS continentPoints,
 @NPoints := TRUNCATE(calcPoints(getSeason(A.week, A.year), A.formatId, A.eventId, S.countryPoints, A.countryPoints), 2) AS countryPoints,
