@@ -29,7 +29,7 @@ module.exports.register = function(server, options, next) {
 		clientId: app.config.auth.CLIENT_ID,
 		clientSecret: app.config.auth.CLIENT_SECRET,
 		isSecure: process.argv.NODE_ENV === 'prod', //Should be set to true (which is the default) in production
-		forceHttps: true
+		forceHttps: process.argv.NODE_ENV === 'prod'
 	});
 
 	//Setup the session strategy
