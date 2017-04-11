@@ -19,14 +19,6 @@ const getTeamPicks = (week) => knex('Picks').select('personId', 'eventId', 'team
 const compare = (a,b) => a < b ? 1 : a > b ? -1 : 0;
 const sum = (a,b) => a + b;
 
-const computeTotalPoints = function (season, team) {
-	if (season === 1) {
-		return _(team).map(pick => people.find(person => person.personId === pick.personId).points).sum();
-	} else {
-		let classes = getClasses(week);
-		return classes.map(clas => team.filter(pick => pick.eventId in clas.events).sort(compare).slice(0, -1).reduce(sum, 0)).reduce(sum, 0);
-	}
-};
 
 let updateTeams = () => knex.raw(`
 UPDATE Teams teams
@@ -38,12 +30,23 @@ SET
 `);
 
 getPeople(week).then(people => {
+	const findPerson = pick => people.find(person => person.personId === pick.personId && person.eventId === pick.eventId);
+
+	const computeTotalPoints = function (season, team) {
+		if (season === 1) {
+			return _(team).map(pick => findPerson(pick).points).sum();
+		} else {
+			let classes = getClasses(week);
+			return classes.map(clas => team.filter(pick => clas.events.indexOf(pick.eventId) > -1).map(pick => findPerson(pick).points).sort(compare).slice(0, -1).reduce(sum, 0)).reduce(sum, 0);
+		}
+	};
+
 	getTeamPicks(week).then(teams => {
 		return Promise.all(_.map(teams, (team, teamId) => {
 			let totalPoints = computeTotalPoints(season(week), team);
 
-			if (totalPoints) {
-				return knex.raw(`INSERT INTO Archive (week, teamId, points, season) VALUES ('${week}', '${teamId}', ${totalPoints}, ${week < 14 ? 1 : 2}) ON DUPLICATE KEY UPDATE teamId=VALUES(teamId), week=VALUES(week);`);
+			if (totalPoints !== undefined) {
+				return knex.raw(`INSERT INTO Archive (week, teamId, points, season) VALUES (${week}, '${teamId}', ${totalPoints}, ${week < 14 ? 1 : 2}) ON DUPLICATE KEY UPDATE points=${totalPoints};`);
 			} else {
 				return Promise.resolve();
 			}
