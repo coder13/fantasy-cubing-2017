@@ -139,14 +139,20 @@ module.exports = React.createClass({
 	render () {
 		let {editable, week, team} = this.props;
 		let exists = team && team.picks && team.picks.length > 0;
+		let classes = getClasses(week);
 		let findCuber = (slot) => team.picks.find(c => c.slot === slot);
 		let totalPoints = exists ? +Number(_(team.picks).map(p => p.points || 0).sum()).toFixed(2) : 0;
+		let counting = pick => {
+			let pickClass = classes.find(clas => clas.events.indexOf(pick.eventId) > -1);
+			let picks =  team.picks.filter(member => pickClass.events.indexOf(member.eventId) > -1).sort((a,b) => a.points < b.points).slice(0, -1).filter(p => !!p.points);
+			return !!picks.find(p => p.personId === pick.personId);
+		};
 
 		let personRow = (group, slot) => {
 			let cuber = exists ? findCuber(slot) : false;
 
 			return (
-				<Table.Row key={slot} className='cuberRow'>
+				<Table.Row key={slot} className={`cuberRow ${counting(cuber) ? 'countingPick' : ''}`}>
 					<Table.Cell>{cuber ? EventNames[cuber.eventId] : ''}</Table.Cell>
 					<Table.Cell>{cuber ? `${cuber.name || 'Unknown'} (${cuber.personId})` : ''}</Table.Cell>
 					<Table.Cell>{cuber ? cuber.countryId || 'Unknown' : ''}</Table.Cell>
@@ -156,7 +162,6 @@ module.exports = React.createClass({
 			);
 		};
 
-		let classes = getClasses(week);
 		let s = 0;
 
 		return (
