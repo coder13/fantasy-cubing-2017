@@ -17,17 +17,15 @@ module.exports.register = function(server, options, next) {
 
 	const sqlCache = {
 		cache: 'redisCache',
-		expiresIn: time(48,0,0),
-		generateTimeout: 100000,
-		staleIn: time(16,0,0),
+		expiresIn: time(12,0,0),
+		generateTimeout: 100,
+		staleIn: time(2,0,0),
 		staleTimeout: 100
 	};
 
 	let methodOptions = {
 		cache: sqlCache,
-		generateKey: function (array) {
-			return array.join(',');
-		}
+		generateKey: key => JSON.stringify(key)
 	};
 
 	let limit = (query, limit) => limit ? query.limit(limit) : query;
@@ -42,7 +40,7 @@ module.exports.register = function(server, options, next) {
 				.then(results => next(null, _.fromPairs(results.map(e => [e.eventId, {average: e.average, single: e.single}]))))
 				.catch(error => next(error));
 		}
-	}, options);
+	}, methodOptions);
 
 	server.method('getCuber', function (params, next) {
 		return queries.person(params.personId).then(person => {
@@ -64,33 +62,33 @@ module.exports.register = function(server, options, next) {
 		return limit(queries.weeklyPoints(week), params.limit)
 			.then(results => next(null, results))
 			.catch(error => next(error));
-	}, options);
+	}, methodOptions);
 
 	server.method('points.weeklyMVPs', function (params, next) {
 		let week = +params.week || (moment().week() - 1);
 		return queries.weeklyPoints(week).limit(5)
 			.then(results => next(null, results))
 			.catch(error => next(error));
-	}, options);
+	}, methodOptions);
 
 	server.method('points.quickRankings', function (params, next) {
 		let week = +params.week || (moment().week() - 1);
 		return queries.weeklyRankings(week).limit(5)
 			.then(results => next(null, results))
 			.catch(error => next(error));
-	}, options);
+	}, methodOptions);
 
 	server.method('points.rankings', function (params, next) {
 		return limit(queries.rankings(), params.limit)
 			.then(results => next(null, results))
 			.catch(error => next(error));
-	}, options);
+	}, methodOptions);
 
 	server.method('points.seasonRankings', function (params, next) {
 		return limit(queries.seasonRankings(params.season), params.limit)
 			.then(results => next(null, results))
 			.catch(error => next(error));
-	}, options);
+	}, methodOptions);
 
 	server.method('points.weeklyRankings', function (params, next) {
 		let week = +params.week || (moment().week() - 1);
@@ -98,13 +96,13 @@ module.exports.register = function(server, options, next) {
 		return limit(queries.weeklyRankings(week), params.limit)
 			.then(results => next(null, results))
 			.catch(error => next(error));
-	}, options);
+	}, methodOptions);
 
 	server.method('points.weeklyCompProgress', function (params, next) {
 		return queries.weeklyCompProgress(+params.week)
 			.then(results => next(null, results[0]))
 			.catch(error => next(error));
-	}, options);
+	}, methodOptions);
 
 	server.method('points.mostPicked', function (params, next) {
 		let week = +params.week || (server.methods.getWeek() - 1);
@@ -116,7 +114,7 @@ module.exports.register = function(server, options, next) {
 		return limit(queries.mostPicked(week), params.limit)
 			.then(results => next(null, results))
 			.catch(error => next(error));
-	}, options);
+	}, methodOptions);
 
 	next();
 };
